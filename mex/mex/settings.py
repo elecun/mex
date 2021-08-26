@@ -155,5 +155,5 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-LOGIN_REDIRECT_URL = '/' #url redirection after logged in
-LOGOUT_REDIRECT_URL = '/' #url redirection after logged in
+# LOGIN_REDIRECT_URL = '/' #url redirection after logged in
+# LOGOUT_REDIRECT_URL = '/' #url redirection after logged in
