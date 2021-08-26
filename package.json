@@ -13,6 +13,7 @@
     "build:linux": "npm run build:linux32 && npm run build:linux64",
     "build:linux32": "electron-builder --linux --ia32",
     "build:linux64": "electron-builder --linux --x64",
+    "build:arm64": "electron-builder --linux --armv7l",
     "build:debx64": "electron-installer-debian --arch amd64",
     "postinstall": "install-app-deps",
     "pack": "build --dir",

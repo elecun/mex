@@ -11,3 +11,9 @@ $ npm install --save-dev electron electron-builder electron-packager electron-in
 $ npm install --save python-shell
 $ npm install electron-prebuilt
 ```
+
+# Install viewer on Ubuntu(amd64)
+```
+$ cd release
+$ dpkg -i mex_0.0.01_amd64.deb
+```
