@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ system.title }}</title>
+
+  {%load static %}
+
+  <link rel="stylesheet" href="{% static 'dist/css/font.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/ionicons/css/ionicons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+  {% block css %}
+  {% endblock %}
+
+</head>
+
+{% block contents %}
+{% endblock %}
+
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'dist/js/adminlte.js' %}"></script>
+<script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
+<script src="{% static 'dist/js/demo.js' %}"></script>
+<script src="{% static 'dist/js/pages/dashboard3.js' %}"></script>
+{% block javascript %}
+{% endblock %}
+
+</body>
+
+</html>
