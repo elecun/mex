@@ -44,13 +44,13 @@
     "trim-newlines": "^4.0.2"
   },
   "build": {
-    "productName": "jtecmex",
+    "productName": "mex",
     "appId": "com.jstec.mex",
     "asar": false,
     "protocols": {
-      "name": "jtecmex",
+      "name": "mex",
       "schemes": [
-        "jtecmex"
+        "mex"
       ]
     },
     "mac": {
@@ -60,7 +60,7 @@
       "icon": "./resource/ico.ico"
     },
     "dmg": {
-      "title": "jtecmex",
+      "title": "mex",
       "icon": "./resource/ico.ico"
     },
     "linux": {

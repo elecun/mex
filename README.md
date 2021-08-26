@@ -12,8 +12,21 @@ $ npm install --save python-shell
 $ npm install electron-prebuilt
 ```
 
+# Build
+```
+$ npm run build:linux64 (for amd64)
+$ npm run build:arm64 fpr(armv7l)
+```
+
 # Install viewer on Ubuntu(amd64)
 ```
 $ cd release
+$ dpkg -i mex_0.0.01_amd64.deb
+```
+
+# Install viewer on Raspberry pi(armv7l)
+```
+$ sudo apt-get upgrade
+$ sudo apt-get install libappindicator3-1
 $ dpkg -i mex_0.0.01_amd64.deb
 ```
