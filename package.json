@@ -1,0 +1,94 @@
+{
+  "name": "mex",
+  "version": "0.0.1",
+  "description": "Machine Expert for JinsungTEC",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder build",
+    "build:osx": "electron-builder --mac",
+    "build:win": "npm run build:win32 && npm run build:win64",
+    "build:win32": "electron-builder --win --ia32",
+    "build:win64": "electron-builder --win --x64",
+    "build:linux": "npm run build:linux32 && npm run build:linux64",
+    "build:linux32": "electron-builder --linux --ia32",
+    "build:linux64": "electron-builder --linux --x64",
+    "build:debx64": "electron-installer-debian --arch amd64",
+    "postinstall": "install-app-deps",
+    "pack": "build --dir",
+    "dist": "build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elecun/mex.git"
+  },
+  "keywords": [
+    "mex"
+  ],
+  "author": "Byunghun Hwang <bh.hwang@iae.re.kr>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/elecun/mex/issues"
+  },
+  "homepage": "https://github.com/elecun/mex#readme",
+  "devDependencies": {
+    "electron": "^13.2.2",
+    "electron-builder": "^22.11.7",
+    "electron-installer-debian": "^3.1.0",
+    "electron-installer-squirrel-windows": "^1.3.0",
+    "electron-is-dev": "latest",
+    "electron-packager": "^15.3.0",
+    "electron-prebuilt": "^1.4.13",
+    "python-shell": "^3.0.0",
+    "trim-newlines": "^4.0.2"
+  },
+  "build": {
+    "productName": "jtecmex",
+    "appId": "com.jstec.mex",
+    "asar": false,
+    "protocols": {
+      "name": "jtecmex",
+      "schemes": [
+        "jtecmex"
+      ]
+    },
+    "mac": {
+      "target": [
+        "default"
+      ],
+      "icon": "./resource/ico.ico"
+    },
+    "dmg": {
+      "title": "jtecmex",
+      "icon": "./resource/ico.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "./resource/ico.png"
+    },
+    "win": {
+      "target": [
+        "zip",
+        "nsis"
+      ],
+      "icon": "./resource/ico.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "./resource/ico.ico",
+      "createDesktopShortcut": true
+    },
+    "directories": {
+      "buildResources": "resource/",
+      "output": "dist/",
+      "app": "."
+    }
+  },
+  "dependencies": {
+    "electron-is-dev": "latest"
+  }
+}
