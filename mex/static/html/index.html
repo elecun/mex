@@ -2,6 +2,17 @@
 
 {% load static %}
 
+{% block css %}
+  <!-- <link rel="stylesheet" href="{% static 'plugins/jsgrid/jsgrid.min.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/jsgrid/jsgrid-theme.min.css' %}"> -->
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'plugins/jsgrid/jsgrid.min.js' %}"></script>
+<script src="{% static 'plugins/jsgrid/demos/db.js' %}"></script>
+<script src="{% static 'plugins/mex/api.js' %}"></script>
+{% endblock %}
+
 {% block contents %}
 <body class="hold-transition sidebar-mini">
   <div class="wrapper">
@@ -41,15 +52,22 @@
       <div class="content">
           <div class="container-fluid">
             <div class="row">
-              <div class="col-lg-6">
+              <div class="col-lg-8">
                 {% include 'card_program.html' %}
-                  
-
-              <!-- data chart -->
-              {% include 'card_chart.html' %}
-              
+              </div>
+              <div class="col-lg-4">
+                {% include 'card_values.html' %}
+              </div>
             </div>
-          </div>
+            <div class="row">
+              <div class="col-lg-10">
+                {% include 'card_chart.html' %}
+              </div>
+              <div class="col-lg-2">
+                {% include 'card_chartopt.html' %}
+              </div>
+            </div>
+
         </div>
       </div>
     </div>
@@ -64,7 +82,3 @@
     </div>
 {% endblock %}
 
-
-{% block javascript %}
-<script src="{% static 'plugins/mex/api.js' %}"></script>
-{% endblock %}
