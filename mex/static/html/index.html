@@ -3,14 +3,14 @@
 {% load static %}
 
 {% block css %}
-  <!-- <link rel="stylesheet" href="{% static 'plugins/jsgrid/jsgrid.min.css' %}">
-  <link rel="stylesheet" href="{% static 'plugins/jsgrid/jsgrid-theme.min.css' %}"> -->
+  <link rel="stylesheet" href="{% static 'plugins/jsgrid/jsgrid.min.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/jsgrid/jsgrid-theme.min.css' %}">
 {% endblock %}
 
 {% block javascript %}
 <script src="{% static 'plugins/jsgrid/jsgrid.min.js' %}"></script>
-<script src="{% static 'plugins/jsgrid/demos/db.js' %}"></script>
-<script src="{% static 'plugins/mex/api.js' %}"></script>
+<script src="{% static 'js/db.js' %}"></script>
+<script src="{% static 'js/api.js' %}"></script>
 {% endblock %}
 
 {% block contents %}
@@ -21,20 +21,10 @@
           <li class="nav-item">
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
           </li>
-          <!-- <li class="nav-item d-none d-sm-inline-block">
-            <a href="index.html" class="nav-link">Home</a>
-          </li>
-          <li class="nav-item d-none d-sm-inline-block">
-            <a href="#" class="nav-link">Contact</a>
-          </li> -->
       </ul>
     </nav>
     
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
-      <!-- <a href="{% url 'index' %}" class="brand-link">
-        <img src="{% static '/images/logo.jpg' %}" alt="Jinsung TEC CI" class="brand-image elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">{{system.title}}</span>
-      </a> -->
   
       <div class="sidebar">
         {% include 'sidebar.html' %}
@@ -60,11 +50,8 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-lg-10">
+              <div class="col-lg-12">
                 {% include 'card_chart.html' %}
-              </div>
-              <div class="col-lg-2">
-                {% include 'card_chartopt.html' %}
               </div>
             </div>
 
