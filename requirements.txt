@@ -1,0 +1,7 @@
+wheel
+Django
+djangorestframework
+paho-mqtt
+psutil
+mysqlclient
+gunicorn
