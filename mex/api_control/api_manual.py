@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 
 import paho.mqtt.client as mqtt
+import json
 
 # for MQTT callback
 def on_connect(client, obj, flags, rc):
@@ -47,7 +48,6 @@ class API(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            print("ok")
             print(request.data)
             mqtt_client.publish("test", json.dump({"data":"test"}), 2)
             return Response({"message":"ok"}, status=status.HTTP_200_OK)
