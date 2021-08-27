@@ -46,10 +46,17 @@ class API(APIView):
     def get(self, request, *args, **kwargs):
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
+    def mc_forward(self):
+        print("mc forward")
+        mqtt_client.publish("mex/test", json.dumps(self.request.data), 2)
+
     def post(self, request, *args, **kwargs):
         try:
-            print(request.data)
-            mqtt_client.publish("test", json.dump({"data":"test"}), 2)
+            function = { 'mc_forward': self.mc_forward }
+            print("call ", request.data["command"])
+            call_func = function[request.data["command"]]
+            call_func()
+
             return Response({"message":"ok"}, status=status.HTTP_200_OK)
 
         except Exception as e:

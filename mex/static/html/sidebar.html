@@ -51,13 +51,13 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="#" class="nav-link" id="mc_reverse">
           <i class="nav-icon fas fa-undo text-primary"></i>
           <p class="font-weight-lighter">Reverse</p>
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="#" class="nav-link" id="mc_stop">
           <i class="fas fa-stop nav-icon text-danger"></i>
           <p class="font-weight-lighter">Stop</p>
         </a>
@@ -105,18 +105,29 @@
   
 
 <script type="text/javascript">
-    /* manual control move forward */
-    async function request_run_forward_impl(){
-        var param = {}
-        param.command = "forward";
-        console.log(param);
-
+    /* manual control forware */
+    async function request_mc_forward(){
+        let param = {"command":"mc_forward"}
         let response = await REST_POST("{% url 'manual_control' %}", param);
         console.log(response);
     }
 
+    /* manual control reverse */
+    async function request_mc_reverse(){
+      let param = {"command":"mc_reverse"}
+      let response = await REST_POST("{% url 'manual_control' %}", param);
+      console.log(response);
+    }
+
+    /* manual control stop */
+    async function request_mc_stop(){
+      let param = {"command":"mc_stop"}
+      let response = await REST_POST("{% url 'manual_control' %}", param);
+      console.log(response);
+    }
+
     /* event listener */
-    document.getElementById("mc_forward").addEventListener("click", function(event){
-        request_run_forward_impl();
-    });
+    document.getElementById("mc_forward").addEventListener("click", function(event){ request_mc_forward(); });
+    document.getElementById("mc_reverse").addEventListener("click", function(event){ request_mc_reverse(); });
+    document.getElementById("mc_stop").addEventListener("click", function(event){ request_mc_stop(); });
 </script>
