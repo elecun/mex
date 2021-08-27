@@ -10,7 +10,7 @@
 {% block javascript %}
 <script src="{% static 'plugins/jsgrid/jsgrid.min.js' %}"></script>
 <script src="{% static 'js/db.js' %}"></script>
-<script src="{% static 'js/api.js' %}"></script>
+<script src="{% static 'js/restapi.js' %}"></script>
 {% endblock %}
 
 {% block contents %}
@@ -46,7 +46,7 @@
                 {% include 'card_program.html' %}
               </div>
               <div class="col-lg-4">
-                {% include 'card_values.html' %}
+                {% include 'card_status.html' %}
               </div>
             </div>
             <div class="row">

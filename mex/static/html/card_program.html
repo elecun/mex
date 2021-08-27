@@ -4,12 +4,25 @@
     <div class="card-header border-0">
         <h3 class="card-title font-weight-bolder">Program Step</h3>
         <div class="card-tools">
-          <button type="button" class="btn btn-success btn-sm"><i class="fas fa-plus mr-1"></i> Add</button>
+          <button type="button" class="btn btn-dark btn-sm"><i class="fas fa-plus mr-1"></i> Add</button>
         </div>
     </div>
-    <div class="card-body table-responsive p-0">
+    <div class="card-body table-responsive p-0 font-weight-lighter">
         <div id="programtable"></div>
-      </table>
+    </div>
+    <div class="card-footer bg-transparent">
+        <div class="d-flex flex-row justify-content-end">
+            <div>
+                <span class="badge badge-fill badge-success">시작 4</span>|
+            </div>
+            <div>
+                <span class="badge badge-fill badge-danger">종료 4</span>
+            </div>
+
+            
+              
+            </button>
+        </div>
     </div>
 </div>
 
@@ -17,7 +30,7 @@
 
 $(function () {
     $("#programtable").jsGrid({
-        height: "100%",
+        height: "200",
         width: "100%",
 
         filtering: false,

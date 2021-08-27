@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'app_mex',
+    'api_control',
     'rest_framework',
 ]
 
@@ -149,7 +150,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES' : [
         'rest_framework.permissions.AllowAny',
-        'rest_framework.permissions.IsAuthenticated',
+        #'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10
@@ -157,3 +158,6 @@ REST_FRAMEWORK = {
 
 # LOGIN_REDIRECT_URL = '/' #url redirection after logged in
 # LOGOUT_REDIRECT_URL = '/' #url redirection after logged in
+
+MQTT_BROKER_ADDRESS = "192.168.11.24"
+MQTT_BROKER_PORT = 1883
