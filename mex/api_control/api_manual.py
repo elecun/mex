@@ -47,12 +47,36 @@ class API(APIView):
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
     def mc_forward(self):
-        print("mc forward")
-        mqtt_client.publish("mex/test", json.dumps(self.request.data), 2)
+        mqtt_client.publish("mex/mc/forward", json.dumps(self.request.data), 2)
+    def mc_reverse(self):
+        mqtt_client.publish("mex/mc/reverse", json.dumps(self.request.data), 2)
+    def mc_stop(self):
+        mqtt_client.publish("mex/mc/stop", json.dumps(self.request.data), 2)
+    def mc_motor_on(self):
+        mqtt_client.publish("mex/mc/motor_on", json.dumps(self.request.data), 2)
+    def mc_motor_off(self):
+        mqtt_client.publish("mex/mc/motor_off", json.dumps(self.request.data), 2)
+    def mc_load_on(self):
+        mqtt_client.publish("mex/mc/load_on", json.dumps(self.request.data), 2)
+    def mc_load_off(self):
+        mqtt_client.publish("mex/mc/load_off", json.dumps(self.request.data), 2)
+    def mc_zero_set(self):
+        mqtt_client.publish("mex/mc/zero_set", json.dumps(self.request.data), 2)
+    def mc_emg_stop(self):
+        mqtt_client.publish("mex/emg", json.dumps(self.request.data), 2)
 
     def post(self, request, *args, **kwargs):
         try:
-            function = { 'mc_forward': self.mc_forward }
+            function = { 
+                'mc_forward': self.mc_forward,
+                "mc_reverse" : self.mc_reverse,
+                "mc_stop": self.mc_stop,
+                "mc_motor_on": self.mc_motor_on,
+                "mc_motor_off": self.mc_motor_off,
+                "mc_load_on": self.mc_load_on,
+                "mc_load_off": self.mc_load_off, 
+                "mc_zero_set": self.mc_zero_set,
+                "mc_emg_stop": self.mc_emg_stop }
             print("call ", request.data["command"])
             call_func = function[request.data["command"]]
             call_func()

@@ -63,38 +63,38 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="#" class="nav-link" id="mc_motor_on">
           <i class="fas fa-toggle-on nav-icon text-white"></i>
           <p class="font-weight-lighter">Motor ON</p>
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="#" class="nav-link" id="mc_motor_off">
           <i class="fas fa-toggle-off nav-icon text-gray"></i>
           <p class="font-weight-lighter">Motor OFF</p>
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="#" class="nav-link" id="mc_load_on">
           <i class="fas fa-toggle-on nav-icon text-white"></i>
           <p class="font-weight-lighter">Load ON</p>
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="#" class="nav-link" id="mc_load_off">
           <i class="fas fa-toggle-off nav-icon text-gray"></i>
           <p class="font-weight-lighter">Load OFF</p>
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="#" class="nav-link" id="mc_zero_set">
           <i class="fas fa-dot-circle nav-icon text-green"></i>
           <p class="font-weight-lighter">Zero Set</p>
         </a>
       </li>
       <li class="nav-header text-bold text-danger"></li>
       <li class="nav-item">
-        <a href="#" class="nav-link bg-red">
+        <a href="#" class="nav-link bg-red" id="mc_emg_stop">
           <i class="fa fa-exclamation-triangle nav-icon text-white"></i>
           <p class="font-weight-lighter">Emergency Stop</p>
         </a>
@@ -126,8 +126,57 @@
       console.log(response);
     }
 
+    /* manual control motor on */
+    async function request_mc_motor_on(){
+      let param = {"command":"mc_motor_on"}
+      let response = await REST_POST("{% url 'manual_control' %}", param);
+      console.log(response);
+    }
+
+    /* manual control motor off */
+    async function request_mc_stop(){
+      let param = {"command":"mc_motor_off"}
+      let response = await REST_POST("{% url 'manual_control' %}", param);
+      console.log(response);
+    }
+
+    /* manual control load on */
+    async function request_mc_load_on(){
+      let param = {"command":"mc_load_on"}
+      let response = await REST_POST("{% url 'manual_control' %}", param);
+      console.log(response);
+    }
+
+    /* manual control load off */
+    async function request_mc_load_off(){
+      let param = {"command":"mc_load_off"}
+      let response = await REST_POST("{% url 'manual_control' %}", param);
+      console.log(response);
+    }
+
+    /* manual control zero set */
+    async function request_mc_zero_set(){
+      let param = {"command":"mc_zero_set"}
+      let response = await REST_POST("{% url 'manual_control' %}", param);
+      console.log(response);
+    }
+
+    /* manual control emg stop */
+    async function request_mc_emg_stop(){
+      let param = {"command":"mc_emg_stop"}
+      let response = await REST_POST("{% url 'manual_control' %}", param);
+      console.log(response);
+    }
+    
+
     /* event listener */
     document.getElementById("mc_forward").addEventListener("click", function(event){ request_mc_forward(); });
     document.getElementById("mc_reverse").addEventListener("click", function(event){ request_mc_reverse(); });
     document.getElementById("mc_stop").addEventListener("click", function(event){ request_mc_stop(); });
+    document.getElementById("mc_motor_on").addEventListener("click", function(event){ request_mc_motor_on(); });
+    document.getElementById("mc_motor_off").addEventListener("click", function(event){ request_mc_motor_off(); });
+    document.getElementById("mc_load_on").addEventListener("click", function(event){ request_mc_load_on(); });
+    document.getElementById("mc_load_off").addEventListener("click", function(event){ request_mc_load_off(); });
+    document.getElementById("mc_zero_set").addEventListener("click", function(event){ request_mc_zero_set(); });
+    document.getElementById("mc_emg_stop").addEventListener("click", function(event){ request_mc_emg_stop(); });
 </script>
