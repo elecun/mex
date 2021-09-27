@@ -4,7 +4,7 @@
     <div class="card-header border-0">
         <h3 class="card-title font-weight-bolder">Program Step</h3>
         <div class="card-tools">
-          <button type="button" class="btn btn-dark btn-sm"><i class="fas fa-plus mr-1"></i> Add</button>
+          <button type="button" class="btn btn-success btn-sm"><i class="fas fa-plus mr-1"></i> Add</button>
         </div>
     </div>
     <div class="card-body table-responsive p-0 font-weight-lighter">
@@ -12,6 +12,10 @@
     </div>
     <div class="card-footer bg-transparent">
         <div class="d-flex flex-row justify-content-end">
+            <div>
+                <button type="button" class="btn btn-success"> Run</button>
+                <button type="button" class="btn btn-danger"> Stop</button>
+            </div>
             <div>
                 <span class="badge badge-fill badge-success">시작 4</span>|
             </div>
@@ -30,7 +34,7 @@
 
 $(function () {
     $("#programtable").jsGrid({
-        height: "200",
+        height: "100%",
         width: "100%",
 
         filtering: false,
@@ -38,17 +42,63 @@ $(function () {
         sorting: true,
         paging: false,
         autoload: true,
+        deleteConfirm: function(item) {
+            return "The client \"" + item.Name + "\" will be removed. Are you sure?";
+        },
+        rowClick: function(args) {
+            showDetailsDialog("Edit", args.item);
+        },
 
-        data: db.clients,
+        // controller: {
+        //     loadData: function() {
+        //         var d = $.Deferred();
+ 
+        //         $.ajax({
+        //             url: "http://services.odata.org/V3/(S(3mnweai3qldmghnzfshavfok))/OData/OData.svc/Products",
+        //             dataType: "json"
+        //         }).done(function(response) {
+        //             d.resolve(response.value);
+        //         });
+ 
+        //         return d.promise();
+        //     }
+        // },
+        controller : {
+            loadData : function(){
+                var d = $.Deferred();
+                let data = {
+                    "Step": 1,
+                    //"Command": 1,
+                    "Time(s)": 6,
+                    "Speed": 1,
+                    "Load": 1,
+                    "Acc/Dev": 1
+                };
+                var jdata = JSON.stringify(data);
+                console.log(jdata);
+                d.resolve(jdata);
+                return jdata;
+            }
+        },
 
         fields: [
             { name: "Step", type: "number", width: 50 },
-            { name: "Command", type: "select", items: db.command, valueField: "id", textField: "name" },
+            //{ name: "Command", type: "select", items: db.command, valueField: "id", textField: "name" },
             { name: "Time(s)", type: "number" },
             { name: "Speed", type: "number" },
             { name: "Load", type: "number" },
             { name: "Acc/Dec", type: "number" },
-            { type: "control" }
+            {
+                type: "control",
+                modeSwitchButton: false,
+                editButton: false
+                // headerTemplate: function() {
+                //     return $("<button>").attr("type", "button").text("Add")
+                //             .on("click", function () {
+                //                 showDetailsDialog("Add", {});
+                //             });
+                // }
+            }
         ]
     });
   });

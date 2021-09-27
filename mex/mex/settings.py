@@ -41,6 +41,8 @@ INSTALLED_APPS = [
 
     'app_mex',
     'api_control',
+    'api_data',
+    'api_program',
     'rest_framework',
 ]
 

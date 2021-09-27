@@ -4,8 +4,8 @@ run:
 migrate:
 	@python3 manage.py migrate --run-syncdb
 
-#loaddata:
-#	@python3 manage.py loaddata devicetype.json
+loaddata:
+	@python3 manage.py loaddata command.json
 #	@python3 manage.py loaddata apptype.json
 
 superuser:
