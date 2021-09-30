@@ -5,3 +5,4 @@ paho-mqtt
 psutil
 mysqlclient
 gunicorn
+influxdb-client

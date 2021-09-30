@@ -27,7 +27,7 @@ class ProgramStep(models.Model):
 
 # program
 class Program(models.Model):
-    id = models.CharField(max_length=64, blank=False, null=False, default=uuid.uuid4().hex, unique=True)
+    id = models.CharField(max_length=64, blank=False, null=False, default=uuid.uuid4().hex, unique=True, primary_key=True)
     name = models.CharField(max_length=255, blank=True, default="")
     step = models.ForeignKey(ProgramStep, null=True, on_delete=models.SET_NULL)
 
