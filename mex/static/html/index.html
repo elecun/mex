@@ -5,20 +5,87 @@
 {% block css %}
   <link rel="stylesheet" href="{% static 'plugins/jsgrid/jsgrid.min.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/jsgrid/jsgrid-theme.min.css' %}">
+  <style>
+    .content {
+      padding: 15px 7px !important;
+    }
+    body {
+      background-color: transparent;
+    }
+    </style>
 {% endblock %}
 
 {% block javascript %}
-<script src="{% static 'plugins/jsgrid/jsgrid.min.js' %}"></script>
-<script src="{% static 'js/db.js' %}"></script>
-<script src="{% static 'js/restapi.js' %}"></script>
-<style>
-  .content {
-    padding: 15px 7px !important;
+<script type="text/javascript" src="{% static 'plugins/jsgrid/jsgrid.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/db.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/restapi.js' %}"></script>
+<script type="text/javascript">
+  let mqtt_client_id = "mex-client-"+parseInt(Math.random()*10000, 10);
+  var mqtt_client = new Paho.Client("{{system.mqtt_broker_ip}}", Number({{system.mqtt_broker_port}}), mqtt_client_id);
+  mqtt_client.onConnectionLost = mqtt_onConnectionLost;
+  mqtt_client.onMessageArrived = mqtt_onMessageArrived;
+  mqtt_client.connect({onSuccess:mqtt_onConnect, onFailure:mqtt_onFailure, reconnect: true, useSSL:false});
+  function mqtt_onConnect(){
+      mqtt_client.subscribe("mex/command/#", {qos:2});
   }
-  body {
-    background-color: dimgrey;
+
+  function mqtt_onFailure(){
+      console.log("MQTT Failed");
   }
-  </style>
+
+  function mqtt_onConnectionLost(responseObject){
+      console.log("MQTT Connection Lost");
+  }
+
+  function mqtt_onMessageArrived(message){
+      const payload = JSON.parse(message.payloadString);
+
+      // if(payload["message"]!=undefined){
+      //     Metro.notify.create("Message : "+payload.message, "<i class='fas fa-envelope mr-2'> System Message", {cls: "white", width: 300, keepOpen: false});
+      // }
+
+  }
+
+  window.addEventListener('DOMContentLoaded', function(){
+      
+  });
+
+  /* MQTT commands */
+  window.addEventListener("command", function(event){
+        switch(event.data.function){
+            case "program_start": { 
+                // on_device_manual_control(url, event.data.args);
+            } break; 
+            case "program_pause" : {
+            } break;
+            case "program_stop" : { 
+            } break; 
+            case "set_zero" : { 
+            } break; 
+            case "rotate_forward" : { 
+            } break;
+            case "rotate_reverse" : { 
+            } break;
+            case "rotate_stop" : { 
+            } break;
+            case "motor_on":{
+            } break;
+            case "motor_off":{
+            } break;
+            case "side_load_on":{
+            } break;
+            case "side_load_off":{
+            } break;
+        }
+    });
+
+/* program start command */
+function command_program_start(){
+  mqtt_client.publish("mex/command/program_start", json.dump({}), 2);
+}
+
+</script>
+
 {% endblock %}
 
 {% block contents %}
@@ -26,11 +93,17 @@
 <div class="content">
   <div class="container-fluid">
     <div class="row">
-      <div class="col-lg-8">
+      <div class="col-lg-6 pr-0">
         {% include 'card_program.html' %}
       </div>
-      <div class="col-lg-4">
+      <div class="col-lg-1 pl-0">
+        {% include 'card_program_op.html' %}
+      </div>
+      <div class="col-lg-4 pr-0">
         {% include 'card_status.html' %}
+      </div>
+      <div class="col-lg-1 pl-0">
+        {% include 'card_status_op.html' %}
       </div>
     </div>
     <div class="row">

@@ -1,21 +1,17 @@
 
 
-<div class="card">
+<div class="card card-outline card-warning">
     <div class="card-header border-0">
-        <h3 class="card-title font-weight-bolder">Program Step</h3>
+        <h3 class="card-title font-weight-bolder">프로그램</h3>
         <div class="card-tools">
-          <button type="button" class="btn btn-success btn-sm"><i class="fas fa-plus mr-1"></i> Add</button>
+          <!-- <button type="button" class="btn btn-success btn-sm"><i class="fas fa-plus mr-1"></i> Add</button> -->
         </div>
     </div>
     <div class="card-body table-responsive p-0 font-weight-lighter">
-        <div id="programtable"></div>
+        <div id="jsGrid"></div>
     </div>
     <div class="card-footer bg-transparent">
         <div class="d-flex flex-row justify-content-end">
-            <div>
-                <button type="button" class="btn btn-success"> Run</button>
-                <button type="button" class="btn btn-danger"> Stop</button>
-            </div>
             <div>
                 <span class="badge badge-fill badge-success">시작 4</span>|
             </div>
@@ -31,81 +27,172 @@
 </div>
 
 <script type="text/javascript">
+function load(){
+    var MyDateField = function(config) {
+        jsGrid.Field.call(this, config);
+    };
 
-$(function () {
-    $("#programtable").jsGrid({
-        height: "280px",
+    var commandlist = function(config){
+        jsGrid.Field.call(this, config);
+    }
+
+    commandlist.prototype = new jsGrid.Field({
+        sorter: function(date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function(value) {
+            return new Date(value).toDateString();
+        },
+
+        // insertTemplate: function(value) {
+        //     return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        // },
+
+        // editTemplate: function(value) {
+        //     return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        // },
+
+        insertValue: function() {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function() {
+            return this._editPicker.datepicker("getDate").toISOString();
+        }
+    });
+
+    MyDateField.prototype = new jsGrid.Field({
+        sorter: function(date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function(value) {
+            return new Date(value).toDateString();
+        },
+
+        // insertTemplate: function(value) {
+        //     return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        // },
+
+        // editTemplate: function(value) {
+        //     return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        // },
+
+        insertValue: function() {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function() {
+            return this._editPicker.datepicker("getDate").toISOString();
+        }
+    });
+
+    jsGrid.fields.myDateField = MyDateField;
+    jsGrid.fields.mex_command = commandlist;
+
+    $("#jsGrid").jsGrid({
+        height: "330px",
         width: "100%",
 
-        filtering: false,
+        inserting: true,
         editing: true,
         sorting: true,
         paging: false,
-        autoload: true,
-        deleteConfirm: function(item) {
-            return "The client \"" + item.Name + "\" will be removed. Are you sure?";
-        },
-        rowClick: function(args) {
-            showDetailsDialog("Edit", args.item);
-        },
 
-        // controller: {
-        //     loadData: function() {
-        //         var d = $.Deferred();
- 
-        //         $.ajax({
-        //             url: "http://services.odata.org/V3/(S(3mnweai3qldmghnzfshavfok))/OData/OData.svc/Products",
-        //             dataType: "json"
-        //         }).done(function(response) {
-        //             d.resolve(response.value);
-        //         });
- 
-        //         return d.promise();
-        //     }
-        // },
-        controller : {
-            loadData : function(){
-                var d = $.Deferred();
-                let data = {
-                    "Step": 1,
-                    //"Command": 1,
-                    "Time(s)": 6,
-                    "Speed": 1,
-                    "Load": 1,
-                    "Acc/Dev": 1
-                };
-                var jdata = JSON.stringify(data);
-                console.log(jdata);
-                d.resolve(jdata);
-                return jdata;
-            }
-        },
+        data: db.users,
 
         fields: [
-            { name: "Step", type: "number", width: 50 },
-            //{ name: "Command", type: "select", items: db.command, valueField: "id", textField: "name" },
-            { name: "Time(s)", type: "number" },
-            { name: "Speed", type: "number" },
-            { name: "Load", type: "number" },
-            { name: "Acc/Dec", type: "number" },
-            {
-                type: "control",
-                modeSwitchButton: false,
-                editButton: false
-                // headerTemplate: function() {
-                //     return $("<button>").attr("type", "button").text("Add")
-                //             .on("click", function () {
-                //                 showDetailsDialog("Add", {});
-                //             });
-                // }
-            }
+            { name: "Step", width: 30, align: "center" },
+            { name: "Command", type: "mex_command", align:"center"},
+            { name: "시간(sec)", type: "text", align: "center" },
+            { type: "속도(rpm)", type:"text", align:"center" },
+            { type: "측면하중(ON/OFF)", type:"text", align:"center" },
+            { type: "가감속시간(rpm/sec)", type:"text", align:"center" },
+            { type: "control", editButton: false, modeSwitchButton: false }
         ]
     });
-  });
+
+}
+
+
+
+
+// $(function () {
+
+//     $("#programtable").jsGrid({
+//         height: "100%",
+//         width: "100%",
+
+//         filtering: false,
+//         editing: true,
+//         sorting: true,
+//         paging: false,
+//         autoload: true,
+//         deleteConfirm: function(item) {
+//             return "The client \"" + item.Name + "\" will be removed. Are you sure?";
+//         },
+//         rowClick: function(args) {
+//             showDetailsDialog("Edit", args.item);
+//         },
+
+//         // controller: {
+//         //     loadData: function() {
+//         //         var d = $.Deferred();
+ 
+//         //         $.ajax({
+//         //             url: "http://services.odata.org/V3/(S(3mnweai3qldmghnzfshavfok))/OData/OData.svc/Products",
+//         //             dataType: "json"
+//         //         }).done(function(response) {
+//         //             d.resolve(response.value);
+//         //         });
+ 
+//         //         return d.promise();
+//         //     }
+//         // },
+        // controller : {
+        //     loadData : function(){
+        //         var d = $.Deferred();
+        //         let data = {
+        //             "Step": 1,
+        //             //"Command": 1,
+        //             "Time(s)": 6,
+        //             "Speed": 1,
+        //             "Load": 1,
+        //             "Acc/Dev": 1
+        //         };
+        //         var jdata = JSON.stringify(data);
+        //         console.log(jdata);
+        //         d.resolve(jdata);
+        //         return jdata;
+        //     }
+        // },
+
+        // fields: [
+        //     { name: "Step", type: "number", width: 50 },
+        //     //{ name: "Command", type: "select", items: db.command, valueField: "id", textField: "name" },
+        //     { name: "Time(s)", type: "number" },
+        //     { name: "Speed", type: "number" },
+        //     { name: "Load", type: "number" },
+        //     { name: "Acc/Dec", type: "number" },
+        //     {
+        //         type: "control",
+        //         modeSwitchButton: false,
+        //         editButton: false
+        //         // headerTemplate: function() {
+        //         //     return $("<button>").attr("type", "button").text("Add")
+        //         //             .on("click", function () {
+        //         //                 showDetailsDialog("Add", {});
+        //         //             });
+        //         // }
+        //     }
+        // ]
+//     });
+//   });
   
     /* page load */
 window.addEventListener('DOMContentLoaded', function(){
-    
+    load();
 });
 
 // $("#jsGrid").jsGrid({
