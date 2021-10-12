@@ -6,7 +6,6 @@ var path = require('path')
 const BrowserWindow = electron.BrowserWindow
 let config_file = fs.readFileSync(path.resolve(__dirname, 'config.json'));
 let config = JSON.parse(config_file);
-console.log("confgure:", config);
 
 app.on('ready', function(){
     let window = new BrowserWindow({

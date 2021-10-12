@@ -9,6 +9,5 @@ fi
 
 #copy execution file to the remote
 echo "copying files to target machine"
-scp -p -r ./dist/*.deb $2@"$1":$3
 scp -p -r ./dist/mex_loadcell $2@"$1":$3
 echo "copied"

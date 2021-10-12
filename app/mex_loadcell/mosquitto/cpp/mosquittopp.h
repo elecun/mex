@@ -34,7 +34,8 @@ Contributors:
 #endif
 
 #include <cstdlib>
-#include <mosquitto.h>
+//#include <mosquitto.h>
+#include "mosquitto/mosquitto.h"
 //#include <3rdparty/mosquitto/mosquitto.h>
 #include <time.h>
 

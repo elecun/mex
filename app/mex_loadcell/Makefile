@@ -14,16 +14,16 @@ ARCH := x86_64
 CC := g++
 GCC := gcc
 LD_LIBRARY_PATH += -L./lib/x86_64
-OUTDIR		= ./bin/x86_64/
-BUILDDIR		= ./bin/x86_64/
-INCLUDE_DIR = -I./ -I./include/
+OUTDIR		= ./../../dist/
+BUILDDIR		= ./../../dist/
+INCLUDE_DIR = -I./
 LD_LIBRARY_PATH += -L/usr/local/lib -L./lib/x86_64
 
 
 # OS
 ifeq ($(OS),Linux) #for Linux
 	LDFLAGS = -Wl,--export-dynamic -Wl,-rpath=$(LD_LIBRARY_PATH)
-	LDLIBS = -pthread
+	LDLIBS = -pthread -lboost_thread -lmosquitto
 	GTEST_LDLIBS = -lgtest
 endif
 
@@ -53,7 +53,7 @@ $(BUILDDIR)main.o:	$(SOURCE_FILES)main.cc
 all : mex_loadcell
 
 deploy : FORCE
-	cp $(BUILDDIR)*.task $(BUILDDIR)edge $(BINDIR)
+	cp $(BINDIR)
 clean : FORCE 
-		$(RM) $(BUILDDIR)*.o $(BUILDDIR)openedge $(BUILDDIR)edge $(BUILDDIR)*.task $(BUILDDIR)*.service
+		$(RM) $(BUILDDIR)*.o
 FORCE : 
