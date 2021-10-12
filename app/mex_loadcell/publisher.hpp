@@ -1,11 +1,11 @@
 /**
- * @file    serial.hpp
- * @brief   serial commnunocation with boost library
- * @author  Byunghun Hwang
+ * @file    publisher.hpp
+ * @brief   data publisher with MQTT
+ * @author  Byunghun Hwang<bh.hwang@iae.re.kr>
  */
 
-#ifndef _MEX_SERIAL_HPP_
-#define _MEX_SERIAL_HPP_
+#ifndef _MEX_PUBLISHER_HPP_
+#define _MEX_PUBLISHER_HPP_
 
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
@@ -19,17 +19,16 @@
 #include <atomic>
 #include <boost/smart_ptr.hpp>
 
+#include "mosquitto/mosquitto.h"
+
 using namespace std;
 
 
-class serial {
-    #define MAX_READ_BUFFER 2048
+class publisher {
 
     public:
 
-        typedef void(*ptrProcess)(char*, int);
-
-        serial(const char* dev, int baudrate):_service(), _port(_service, dev), _operation(false){
+        publisher(const char* dev, int baudrate):_service(), _port(_service, dev), _operation(false){
 
             _port.set_option(boost::asio::serial_port_base::parity());	// default none
             _port.set_option(boost::asio::serial_port_base::character_size(8));
@@ -40,10 +39,6 @@ class serial {
         }
         virtual ~serial(){
             
-        }
-
-        void set_processor(ptrProcess ptr){ /* processor pointer */
-            _proc = ptr;
         }
 
         void start(){ /* start read */

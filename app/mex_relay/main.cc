@@ -1,6 +1,6 @@
 /**
  * @file    main.cc
- * @brief   MEX Application for read loadcell data from serial comm.
+ * @brief   MEX Application to control relay
  * @author  bh.hwang@iae.re.kr
  */
 
@@ -14,6 +14,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "json.hpp"
+#include <map>
+#include <string>
 
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
@@ -28,13 +30,17 @@
 using namespace std;
 using namespace nlohmann;
 
-#define MEX_LOADCELL_VALUE_TOPIC    "jstec/mex/loadcell"
-#define MEX_LOADCELL_CONTROL_TOPIC  "jstec/mex/loadcell/control"
+#define MEX_RELAY_CONTROL_TOPIC    "jstec/mex/relay/control"
 
 //global variables
 serial* _pSerial = nullptr;
 struct mosquitto* _mqtt = nullptr;
 int _pub_inteval_sec = 1;
+
+map<string, int> _relay_command {
+            {"on", 1},
+            {"off", 2}
+        };
 
 
 /* serial com. processing function  */
@@ -90,13 +96,62 @@ void connect_callback(struct mosquitto* mosq, void *obj, int result)
 /* MQTT message subscription callback */
 void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_message* message)
 {
+    #define MAX_BUFFER_SIZE     1024
+
+    // read buffer
+    char* buffer = new char[MAX_BUFFER_SIZE];
+    memset(buffer, 0, sizeof(char)*MAX_BUFFER_SIZE);
+    memcpy(buffer, message->payload, sizeof(char)*message->payloadlen);
+    string topic(message->topic);
+    string strmsg = buffer;
+    delete []buffer;
+
+    // control message process
+    bool match = false;
+	mosquitto_topic_matches_sub("jstec/mex/relay/control", message->topic, &match);
+    if(match){
+        try{
+        json msg = json::parse(strmsg);
+
+        int id = 0;
+        if(msg.find("id")!=msg.end()){
+            id = msg["id"].get<int>();
+        }
+
+        //command
+        if(msg.find("command")!=msg.end()){
+            string command = msg["command"].get<string>();
+            std::transform(command.begin(), command.end(), command.begin(),[](unsigned char c){ return std::tolower(c); }); //to lower case
+
+            if(_relay_command.count(command)){
+                switch(_relay_command[command]){
+                    case 1: { //on
+                        unsigned char frame[8] = {0x01, 0x05, 0x00, 0x00, 0xff, 0x00, 0x8c, 0x3a};
+                        spdlog::info("turn on");
+
+                    } break;
+                    case 2: { //off
+                        unsigned char frame[8] = {0x01, 0x05, 0x00, 0x00, 0x00, 0x00, 0xcd, 0xca};
+                        spdlog::info("turn off");
+                    } break;
+                }
+            }
+        }
+    }
+    catch(json::exception& e){
+        console::error("Message Error : {}", e.what());
+    }
+        
+
+    }
+
+    
+
+    spdlog::info("on message");
 	// bool match = 0;
 	// printf("got message '%.*s' for topic '%s'\n", message->payloadlen, (char*) message->payload, message->topic);
 
-	// mosquitto_topic_matches_sub("/devices/wb-adc/controls/+", message->topic, &match);
-	// if (match) {
-	// 	printf("got message for ADC topic\n");
-	// }
+    
 
 }
 
@@ -156,7 +211,7 @@ int main(int argc, char* argv[])
     spdlog::stdout_color_st("console");
 
     int optc = 0;
-    string _device_port = "/dev/ttyS0";
+    string _device_port = "/dev/ttyAP0";
     int _baudrate = 9600;
 
     string _mqtt_broker = "0.0.0.0";
@@ -179,16 +234,11 @@ int main(int argc, char* argv[])
                 _mqtt_broker = optarg;
             }
             break;
-
-            case 'i' : { /* interval */
-                _pub_inteval_sec = atoi(optarg);
-            }
-            break;
             
             case 'h':
             default:
-            cout << fmt::format("MEX loadcell (built {}/{})", __DATE__, __TIME__) << endl;
-            cout << "Usage: mex_loadcell [-p port] [-b baudrate] [-t broker ip] [-i interval]" << endl;
+            cout << fmt::format("MEX relay control (built {}/{})", __DATE__, __TIME__) << endl;
+            cout << "Usage: mex_relay [-p port] [-b baudrate] [-t broker ip]" << endl;
             exit(EXIT_FAILURE);
             break;
         }
