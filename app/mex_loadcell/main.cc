@@ -22,7 +22,6 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-
 #include "mosquitto/mosquitto.h"
 #include "serial.hpp"
 
@@ -56,7 +55,7 @@ void process(char* rbuf, int size){
 
         if(_serial_buffer[0]==0x0d && _serial_buffer[1]==0x0a && _serial_buffer[12]==0x0d && _serial_buffer[13]==0x0a && _serial_buffer[8]==0x2e){
             std::copy(_serial_buffer.begin()+2, _serial_buffer.begin()+12, std::back_inserter(packet));
-            //spdlog::info("data : {:x}", spdlog::to_hex(packet));
+            spdlog::info("data : {:x}", spdlog::to_hex(packet));
             _serial_buffer.erase(_serial_buffer.begin(), _serial_buffer.begin()+14);
             break;
         }
@@ -71,6 +70,7 @@ void process(char* rbuf, int size){
     json _pubdata;
     _pubdata["loadcell"]["value"] = value;
     string strdata = _pubdata.dump();
+    
     if(_mqtt){
         int ret = mosquitto_publish(_mqtt, nullptr, MEX_LOADCELL_VALUE_TOPIC, strdata.size(), strdata.c_str(), 2, false);
         mosquitto_loop(_mqtt, 3, 1);
@@ -231,10 +231,10 @@ int main(int argc, char* argv[])
             _pSerial = new serial(_device_port.c_str(), _baudrate);
             _pSerial->set_processor(process);
             _pSerial->start();
+            spdlog::info("start serial");
         }
 
-        // create data publish
-        _t_pub = boost::make_shared<boost::thread>(publish);
+        ::pause();
 
     }
     catch(const std::exception& e){
