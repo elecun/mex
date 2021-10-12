@@ -35,6 +35,8 @@ using namespace nlohmann;
 //global variables
 serial* _pSerial = nullptr;
 struct mosquitto* _mqtt = nullptr;
+int _pub_inteval_sec = 1;
+boost::shared_ptr<boost::thread> _t_pub;
 
 /* serial com. processing function  */
 deque<char> _serial_buffer;
@@ -54,7 +56,7 @@ void process(char* rbuf, int size){
 
         if(_serial_buffer[0]==0x0d && _serial_buffer[1]==0x0a && _serial_buffer[12]==0x0d && _serial_buffer[13]==0x0a && _serial_buffer[8]==0x2e){
             std::copy(_serial_buffer.begin()+2, _serial_buffer.begin()+12, std::back_inserter(packet));
-            spdlog::info("data : {:x}", spdlog::to_hex(packet));
+            //spdlog::info("data : {:x}", spdlog::to_hex(packet));
             _serial_buffer.erase(_serial_buffer.begin(), _serial_buffer.begin()+14);
             break;
         }
@@ -64,10 +66,10 @@ void process(char* rbuf, int size){
         }
     }
 
-    //process impl.
+    // data publish to database
     float value = atof(&packet[1]);
     json _pubdata;
-    _pubdata["value"] = value;
+    _pubdata["loadcell"]["value"] = value;
     string strdata = _pubdata.dump();
     if(_mqtt){
         int ret = mosquitto_publish(_mqtt, nullptr, MEX_LOADCELL_VALUE_TOPIC, strdata.size(), strdata.c_str(), 2, false);
@@ -99,6 +101,7 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
 }
 
 void terminate() {
+
     if(_pSerial){
         _pSerial->stop();
 
@@ -109,8 +112,8 @@ void terminate() {
     mosquitto_destroy(_mqtt);
     mosquitto_lib_cleanup();
 
-  spdlog::info("Successfully terminated");
-  exit(EXIT_SUCCESS);
+    spdlog::info("Successfully terminated");
+    exit(EXIT_SUCCESS);
 }
 
 void cleanup(int sig) {
@@ -125,6 +128,21 @@ void cleanup(int sig) {
       spdlog::info("Cleaning up the program");
   }
   ::terminate(); 
+}
+
+/* periodically publish with interval time(s) */
+void publish(){
+    spdlog::info("start publish");
+
+    try {
+        while(1){
+            spdlog::info("publish data");
+            boost::this_thread::sleep_for(boost::chrono::seconds(1));
+        }
+    }
+    catch(boost::thread_interrupted&) {
+        spdlog::info("pub interrupted");
+    }
 }
 
 
@@ -163,30 +181,39 @@ int main(int argc, char* argv[])
     {
         switch(optc){
             case 'p': { /* device port */
-            spdlog::info("> set device port : {}", optarg);
             _device_port = optarg;
             }
             break;
 
             case 'b': { /* baudrate */
-            spdlog::info("> set port baudrate : {}", optarg);
             _baudrate = atoi(optarg);
             }
             break;
 
             case 't': { /* target ip to pub */
-            spdlog::info("> set broker IP : {}", optarg);
             _mqtt_broker = optarg;
             }
+            break;
+
+            case 'i' : { /* interval */
+                _pub_inteval_sec = atoi(optarg);
+            }
+            break;
             
             case 'h':
             default:
             cout << fmt::format("MEX loadcell (built {}/{})", __DATE__, __TIME__) << endl;
-            cout << "Usage: mex_loadcell [-p port] [-b baudrate] [-t broker ip]" << endl;
+            cout << "Usage: mex_loadcell [-p port] [-b baudrate] [-t broker ip] [-i interval]" << endl;
             exit(EXIT_FAILURE);
             break;
         }
     }
+
+    // show arguments
+    spdlog::info("> set device port : {}", _device_port);
+    spdlog::info("> set port baudrate : {}", _baudrate);
+    spdlog::info("> set broker IP : {}", _mqtt_broker);
+    spdlog::info("> set interval(sec) : {}", _pub_inteval_sec);
 
     try {
 
@@ -205,6 +232,9 @@ int main(int argc, char* argv[])
             _pSerial->set_processor(process);
             _pSerial->start();
         }
+
+        // create data publish
+        _t_pub = boost::make_shared<boost::thread>(publish);
 
     }
     catch(const std::exception& e){

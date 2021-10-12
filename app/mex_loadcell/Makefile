@@ -23,7 +23,7 @@ LD_LIBRARY_PATH += -L/usr/local/lib -L./lib/x86_64
 # OS
 ifeq ($(OS),Linux) #for Linux
 	LDFLAGS = -Wl,--export-dynamic -Wl,-rpath=$(LD_LIBRARY_PATH)
-	LDLIBS = -pthread -lboost_thread -lmosquitto
+	LDLIBS = -pthread -lboost_thread -lmosquitto -lboost_chrono
 	GTEST_LDLIBS = -lgtest
 endif
 
