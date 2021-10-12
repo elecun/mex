@@ -66,10 +66,10 @@ $ python3 manage.py startapp app_mex
 
 
 # install timeseries database
-1. install influxdb v2 (2.0.8) for AMD64
+1. install influxdb v2 (2.0.9) for AMD64
 ```
-$ wget https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.8-amd64.deb
-$ sudo dpkg -i influxdb2-2.0.8-amd64.deb
+$ wget https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.9-amd64.deb
+$ sudo dpkg -i influxdb2-2.0.9-amd64.deb
 ```
 
 # install relational database
@@ -79,10 +79,10 @@ $ sudo apt-get install mariadb-server mariadb-client
 ```
 
 # install data collector
-1. install telegraf 1.19.2
+1. install telegraf 1.20.2
 ```
-$ wget https://dl.influxdata.com/telegraf/releases/telegraf_1.19.2-1_amd64.deb
-$ sudo dpkg -i telegraf_1.19.2-1_amd64.deb
+$ wget https://dl.influxdata.com/telegraf/releases/telegraf_1.20.2-1_amd64.deb
+$ sudo dpkg -i telegraf_1.20.2-1_amd64.deb
 ```
 
 # setup rdbms

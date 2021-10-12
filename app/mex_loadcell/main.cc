@@ -13,6 +13,7 @@
 #include <deque>
 #include <sys/types.h>
 #include <unistd.h>
+#include "json.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
@@ -26,22 +27,27 @@
 #include "serial.hpp"
 
 using namespace std;
+using namespace nlohmann;
+
+#define MEX_LOADCELL_VALUE_TOPIC    "jstec/mex/loadcell"
+#define MEX_LOADCELL_CONTROL_TOPIC  "jstec/mex/loadcell/control"
 
 //global variables
 serial* _pSerial = nullptr;
+struct mosquitto* _mqtt = nullptr;
 
 /* serial com. processing function  */
-deque<unsigned char> _serial_buffer;
-void process(unsigned char* rbuf, int size){
+deque<char> _serial_buffer;
+void process(char* rbuf, int size){
 
     // insert to buffer
-    std::vector<unsigned char> data(rbuf, rbuf+size);
+    std::vector<char> data(rbuf, rbuf+size);
     for(auto& i:data){
         _serial_buffer.emplace_back(i);
     }
 
     //data alignment & save into packet container
-    vector<unsigned char> packet;
+    vector<char> packet;
     while(1){
         if(_serial_buffer.size()<14)
             return;
@@ -59,6 +65,17 @@ void process(unsigned char* rbuf, int size){
     }
 
     //process impl.
+    float value = atof(&packet[1]);
+    json _pubdata;
+    _pubdata["value"] = value;
+    string strdata = _pubdata.dump();
+    if(_mqtt){
+        int ret = mosquitto_publish(_mqtt, nullptr, MEX_LOADCELL_VALUE_TOPIC, strdata.size(), strdata.c_str(), 2, false);
+        mosquitto_loop(_mqtt, 3, 1);
+        if(ret){
+            spdlog::error("Broker connection error");
+        }
+    }
 
 }
 
@@ -71,23 +88,26 @@ void connect_callback(struct mosquitto* mosq, void *obj, int result)
 /* MQTT message subscription callback */
 void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_message* message)
 {
-	bool match = 0;
-	printf("got message '%.*s' for topic '%s'\n", message->payloadlen, (char*) message->payload, message->topic);
+	// bool match = 0;
+	// printf("got message '%.*s' for topic '%s'\n", message->payloadlen, (char*) message->payload, message->topic);
 
-	mosquitto_topic_matches_sub("/devices/wb-adc/controls/+", message->topic, &match);
-	if (match) {
-		printf("got message for ADC topic\n");
-	}
+	// mosquitto_topic_matches_sub("/devices/wb-adc/controls/+", message->topic, &match);
+	// if (match) {
+	// 	printf("got message for ADC topic\n");
+	// }
 
 }
 
 void terminate() {
     if(_pSerial){
         _pSerial->stop();
-        
+
         delete _pSerial;
         _pSerial = nullptr;
     }
+
+    mosquitto_destroy(_mqtt);
+    mosquitto_lib_cleanup();
 
   spdlog::info("Successfully terminated");
   exit(EXIT_SUCCESS);
@@ -137,9 +157,7 @@ int main(int argc, char* argv[])
     int _baudrate = 9600;
 
     string _mqtt_broker = "0.0.0.0";
-    struct mosquitto* _mqtt = nullptr;
     int _mqtt_rc = 0;
-
 
     while((optc=getopt(argc, argv, "p:b:h"))!=-1)
     {
@@ -155,11 +173,16 @@ int main(int argc, char* argv[])
             _baudrate = atoi(optarg);
             }
             break;
+
+            case 't': { /* target ip to pub */
+            spdlog::info("> set broker IP : {}", optarg);
+            _mqtt_broker = optarg;
+            }
             
             case 'h':
             default:
             cout << fmt::format("MEX loadcell (built {}/{})", __DATE__, __TIME__) << endl;
-            cout << "Usage: mex_loadcell [-p port] [-b baudrate]" << endl;
+            cout << "Usage: mex_loadcell [-p port] [-b baudrate] [-t broker ip]" << endl;
             exit(EXIT_FAILURE);
             break;
         }
@@ -167,15 +190,15 @@ int main(int argc, char* argv[])
 
     try {
 
-        // mosquitto_lib_init();
-        // _mqtt = mosquitto_new("jstec", true, 0);
+        mosquitto_lib_init();
+        _mqtt = mosquitto_new("jstec", true, 0);
 
-        // if(_mqtt){
-		//     mosquitto_connect_callback_set(_mqtt, connect_callback);
-		//     mosquitto_message_callback_set(_mqtt, message_callback);
-        //     _mqtt_rc = mosquitto_connect(_mqtt, _mqtt_broker.c_str(), 1883, 60);
-        //     mosquitto_subscribe(_mqtt, NULL, "jstec/mex_loadcall/control", 2);
-        // }
+        if(_mqtt){
+		    mosquitto_connect_callback_set(_mqtt, connect_callback);
+		    mosquitto_message_callback_set(_mqtt, message_callback);
+            _mqtt_rc = mosquitto_connect(_mqtt, _mqtt_broker.c_str(), 1883, 60);
+            mosquitto_subscribe(_mqtt, NULL, MEX_LOADCELL_CONTROL_TOPIC, 2);
+        }
         
         if(!_pSerial){
             _pSerial = new serial(_device_port.c_str(), _baudrate);

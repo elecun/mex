@@ -25,7 +25,7 @@ class serial {
 
     public:
 
-        typedef void(*ptrProcess)(unsigned char*, int);
+        typedef void(*ptrProcess)(char*, int);
 
         serial(const char* dev, int baudrate):_io(), _port(_io, dev), _stop(false){
 
@@ -69,8 +69,8 @@ class serial {
             _rbuffer[bytes_tranfered] = 0;
             if(bytes_tranfered>0){
                 if(_proc){
-                    unsigned char* _tmpBuffer = new unsigned char[bytes_tranfered];
-                    memcpy(_tmpBuffer, _rbuffer, sizeof(unsigned char)*(bytes_tranfered));
+                    char* _tmpBuffer = new char[bytes_tranfered];
+                    memcpy(_tmpBuffer, _rbuffer, sizeof(char)*(bytes_tranfered));
                     _proc(_tmpBuffer, static_cast<int>(bytes_tranfered));
                     delete []_tmpBuffer;
                 }
@@ -87,7 +87,7 @@ class serial {
 
 
     private:
-        unsigned char _rbuffer[MAX_READ_BUFFER];
+        char _rbuffer[MAX_READ_BUFFER];
         boost::asio::io_service _io;
         boost::asio::serial_port _port;
         ptrProcess _proc;
