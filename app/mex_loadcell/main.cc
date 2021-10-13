@@ -108,6 +108,7 @@ void terminate() {
         _pSerial = nullptr;
     }
 
+    mosquitto_loop_stop(_mqtt, true);
     mosquitto_destroy(_mqtt);
     mosquitto_lib_cleanup();
 
@@ -208,6 +209,7 @@ int main(int argc, char* argv[])
 		    mosquitto_message_callback_set(_mqtt, message_callback);
             _mqtt_rc = mosquitto_connect(_mqtt, _mqtt_broker.c_str(), 1883, 60);
             mosquitto_subscribe(_mqtt, NULL, MEX_LOADCELL_CONTROL_TOPIC, 2);
+            mosquitto_loop_start(_mqtt);
         }
         
         if(!_pSerial){

@@ -20,7 +20,10 @@
 #include <boost/smart_ptr.hpp>
 #include "subport.hpp"
 #include <map>
+#include <queue>
+#include <vector>
 #include "json.hpp"
+#include "safeq.hpp"
 
 using namespace std;
 using namespace nlohmann;
@@ -57,7 +60,7 @@ class serialbus {
         void start(){ /* start read */
             _operation = true;
             _worker.reset(new boost::asio::io_service::work(_service));
-            read_assign();
+            assign();
             _tg.create_thread(boost::bind(&boost::asio::io_service::run, boost::ref(_service)));
             _tg.create_thread([&](void){_service.run();});
         }
@@ -68,6 +71,7 @@ class serialbus {
             _service.stop();
             _tg.join_all();
             _service.reset();
+            _port.close();
         }
         
         /* adding sub port class instance */
@@ -75,15 +79,35 @@ class serialbus {
             _subport_container.insert(std::make_pair(idx, port));
         }
 
+        subport* get_subport(int idx){
+            return _subport_container[idx];
+        }
+
+        /* push the write data */
+        void push_write(unsigned char* buffer, int size){
+            vector<unsigned char> data(buffer, buffer+size);
+            _write_buffer.produce(std::move(data));
+            spdlog::info("write buffer size : {}", _write_buffer.size());
+        }
+
     private:
-        void read_assign(){
+        /* function assign for thread */
+        void assign(){
             boost::function<void(void)> read_handler = [&](void) {
                 while(_operation){
                     if(_port.is_open()){
-                        for(auto& port: _subport_container){
+                        for(auto& sub: _subport_container){
                             json response;
-                            port.second->request(&_port, response);
+                            sub.second->request(&_port, response);
                             call_post(response);
+
+                            if(_write_buffer.size()){
+                                vector<unsigned char> packet;
+                                while(_write_buffer.consume(packet)){
+                                    _port.write_some(boost::asio::buffer(packet, packet.size()));
+                                    boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
+                                }
+                            }
                         }
                     }
                     else
@@ -93,25 +117,10 @@ class serialbus {
             _service.post(read_handler);
         }
 
+        /* post process function */
         void call_post(json& response){
             if(_post_proc){
                 _post_proc(response);
-            }
-        }
-
-        
-
-        void handler(const boost::system::error_code& error, size_t bytes_transfered){
-            _rbuffer[bytes_transfered] = 0;
-            if(bytes_transfered>0){
-                spdlog::info("{}bytes read", bytes_transfered);
-
-                if(_proc){
-                    char* _tmpBuffer = new char[bytes_transfered];
-                    memcpy(_tmpBuffer, _rbuffer, sizeof(char)*(bytes_transfered));
-                    _proc(_tmpBuffer, static_cast<int>(bytes_transfered));
-                    delete []_tmpBuffer;
-                }
             }
         }
 
@@ -130,6 +139,7 @@ class serialbus {
         boost::asio::io_service::strand _io_rpm;
 
         map<int, subport*> _subport_container; /* port container, use only for sync mode. */
+        safeQueue<vector<unsigned char>> _write_buffer;
 
 };
 

@@ -106,6 +106,11 @@ static void postprocess(json& msg){
 
 }
 
+void subscribe_callback(struct mosquitto *mosq, void *userdata, int mid, int qos_count, const int *granted_qos)
+{
+    spdlog::info("subscribed");
+}
+
 /* MQTT Connection callback */
 void connect_callback(struct mosquitto* mosq, void *obj, int result)
 {
@@ -115,58 +120,69 @@ void connect_callback(struct mosquitto* mosq, void *obj, int result)
 /* MQTT message subscription callback */
 void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_message* message)
 {
-    // #define MAX_BUFFER_SIZE     1024
+    const int max_buffer = 2048;
 
-    // // read buffer
-    // char* buffer = new char[MAX_BUFFER_SIZE];
-    // memset(buffer, 0, sizeof(char)*MAX_BUFFER_SIZE);
-    // memcpy(buffer, message->payload, sizeof(char)*message->payloadlen);
-    // string topic(message->topic);
-    // string strmsg = buffer;
-    // delete []buffer;
+    // read buffer
+    char* buffer = new char[max_buffer];
+    memset(buffer, 0, sizeof(char)*max_buffer);
+    memcpy(buffer, message->payload, sizeof(char)*message->payloadlen);
+    string topic(message->topic);
+    string strmsg = buffer;
+    delete []buffer;
 
-    // // control message process
-    // bool match = false;
-	// mosquitto_topic_matches_sub("jstec/mex/relay/control", message->topic, &match);
-    // if(match){
-    //     try{
-    //     json msg = json::parse(strmsg);
+    // control message process
+    bool match = false;
+	mosquitto_topic_matches_sub("jstec/mex/relay/control", message->topic, &match);
+    if(match){
+        try{
+            json msg = json::parse(strmsg);
 
-    //     int id = 0;
-    //     if(msg.find("id")!=msg.end()){
-    //         id = msg["id"].get<int>();
-    //     }
+            int id = 0;
+            if(msg.find("id")!=msg.end()){
+                id = msg["id"].get<int>();
+            }
+            else return;
 
-    //     //command
-    //     if(msg.find("command")!=msg.end()){
-    //         string command = msg["command"].get<string>();
-    //         std::transform(command.begin(), command.end(), command.begin(),[](unsigned char c){ return std::tolower(c); }); //to lower case
+            //command
+            if(msg.find("command")!=msg.end()){
+                string command = msg["command"].get<string>();
+                std::transform(command.begin(), command.end(), command.begin(),[](unsigned char c){ return std::tolower(c); }); //to lower case
 
-    //         if(_relay_command.count(command)){
-    //             switch(_relay_command[command]){
-    //                 case 1: { //on
-    //                     unsigned char frame[8] = {0x01, 0x05, 0x00, 0x00, 0xff, 0x00, 0x8c, 0x3a};
-    //                     spdlog::info("turn on");
+                if(_relay_command.count(command)){
+                    switch(_relay_command[command]){
+                        case 1: { //on
+                            spdlog::info("do command : {}", command);
+                            relay* _p = dynamic_cast<relay*>(_serialbus->get_subport(id));
+                            if(_p){
+                                spdlog::info("casting");
+                                vector<unsigned char> packet;
+                                _p->set_on(packet);
+                                // _serialbus->push_write(&packet[0], packet.size());
+                                // spdlog::info("turn on");
+                            }
+                            
+                        } break;
+                        case 2: { //off
+                            relay* _p = dynamic_cast<relay*>(_serialbus->get_subport(id));
+                            vector<unsigned char> packet;
+                            _p->set_off(packet);
+                            _serialbus->push_write(&packet[0], packet.size());
+                            spdlog::info("turn on");
+                            spdlog::info("turn off");
+                        } break;
+                    }
+                }
+            }
+        }
+        catch(json::exception& e){
+            spdlog::error("Message Error : {}", e.what());
+        }
 
-    //                 } break;
-    //                 case 2: { //off
-    //                     unsigned char frame[8] = {0x01, 0x05, 0x00, 0x00, 0x00, 0x00, 0xcd, 0xca};
-    //                     spdlog::info("turn off");
-    //                 } break;
-    //             }
-    //         }
-    //     }
-    // }
-    // catch(json::exception& e){
-    //     console::error("Message Error : {}", e.what());
-    // }
-        
+    }
 
-    // }
-
-    // spdlog::info("on message");
-	// // bool match = 0;
-	// // printf("got message '%.*s' for topic '%s'\n", message->payloadlen, (char*) message->payload, message->topic);
+    spdlog::info("on message");
+	// bool match = 0;
+	// printf("got message '%.*s' for topic '%s'\n", message->payloadlen, (char*) message->payload, message->topic);
 
 
 }
@@ -180,6 +196,7 @@ void terminate() {
         _serialbus = nullptr;
     }
 
+    mosquitto_loop_stop(_mqtt, true);
     mosquitto_destroy(_mqtt);
     mosquitto_lib_cleanup();
 
@@ -272,12 +289,16 @@ int main(int argc, char* argv[])
         _mqtt = mosquitto_new("jstec", true, 0);
 
         if(_mqtt){
+            spdlog::info("connecting to broker...");
 		    mosquitto_connect_callback_set(_mqtt, connect_callback);
 		    mosquitto_message_callback_set(_mqtt, message_callback);
+            mosquitto_subscribe_callback_set(_mqtt, subscribe_callback);
             _mqtt_rc = mosquitto_connect(_mqtt, _mqtt_broker.c_str(), 1883, 60);
+            spdlog::info("mqtt connection : {}", _mqtt_rc);
             mosquitto_subscribe(_mqtt, NULL, MEX_RELAY_CONTROL_TOPIC, 2);
             mosquitto_subscribe(_mqtt, NULL, MEX_TEMPERATURE_VALUE_TOPIC, 2);
             mosquitto_subscribe(_mqtt, NULL, MEX_RPM_VALUE_TOPIC, 2);
+            mosquitto_loop_start(_mqtt);
         }
         
         if(!_serialbus){

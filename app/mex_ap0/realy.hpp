@@ -74,18 +74,21 @@ class relay : public subport {
             response["relay"]["value"] = value;
         }
 
-        void set_on(){
-            unsigned char frame[] = { 0x01, 0x05, 0x00, (char)_id, 0xff, 0x00, 0x00, 0x00};
+        void set_on(vector<unsigned char>& packet){
+            unsigned char frame[] = { (unsigned char)_code, 0x05, 0x00, (unsigned char)_id, 0xff, 0x00, 0x00, 0x00};
             unsigned short crc = _crc16(frame, 6);
             frame[6] = (crc >> 8) & 0xff;
             frame[7] = crc & 0xff;
+            //std::copy(&frame[0], &frame[8], back_inserter(packet));
+            spdlog::info("realy on : {}", _id);
         }
 
-        void set_off(){
-            unsigned char frame[] = { 0x01, 0x05, 0x00, (char)_id, 0x00, 0x00, 0x00, 0x00};
+        void set_off(vector<unsigned char>& packet){
+            unsigned char frame[] = { (unsigned char)_code, 0x05, 0x00, (unsigned char)_id, 0x00, 0x00, 0x00, 0x00};
             unsigned short crc = _crc16(frame, 6);
             frame[6] = (crc >> 8) & 0xff;
             frame[7] = crc & 0xff;
+            std::copy(&frame[0], &frame[8], back_inserter(packet));
         }
 
         void get_on(){

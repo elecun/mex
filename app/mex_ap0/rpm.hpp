@@ -63,7 +63,7 @@ class rpm : public subport {
         }
 
         void get_value(){
-            unsigned char frame[] = { (char)_code, 0x04, 0x03, 0xe9, 0x00, 0x02, 0x00, 0x00};
+            unsigned char frame[] = { (unsigned char)_code, 0x04, 0x03, 0xe9, 0x00, 0x02, 0x00, 0x00};
             unsigned short crc = _crc16(frame, 6);
             frame[6] = (crc >> 8) & 0xff;
             frame[7] = crc & 0xff;
