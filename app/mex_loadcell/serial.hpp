@@ -75,10 +75,10 @@ class serial {
                             boost::asio::buffer(_rbuffer, MAX_READ_BUFFER),
                             boost::bind(&serial::handler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
                     }
-                else
-                    spdlog::error("port is not opened");
-                    
-                    boost::this_thread::sleep_for(boost::chrono::seconds(1));
+                    else
+                        spdlog::error("port is not opened");
+
+                    boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
                 }
             };
             _service.post(read_handler);

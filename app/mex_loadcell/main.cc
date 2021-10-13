@@ -70,13 +70,12 @@ void process(char* rbuf, int size){
     json _pubdata;
     _pubdata["loadcell"]["value"] = value;
     string strdata = _pubdata.dump();
-    
     if(_mqtt){
         int ret = mosquitto_publish(_mqtt, nullptr, MEX_LOADCELL_VALUE_TOPIC, strdata.size(), strdata.c_str(), 2, false);
         mosquitto_loop(_mqtt, 3, 1);
-        if(ret){
+        if(ret)
             spdlog::error("Broker connection error");
-        }
+        spdlog::info("published : {}", strdata);
     }
 
 }
