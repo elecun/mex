@@ -214,7 +214,6 @@ int main(int argc, char* argv[])
             _pSerial = new serial(_device_port.c_str(), _baudrate);
             _pSerial->set_processor(process);
             _pSerial->start();
-            spdlog::info("start serial");
         }
 
         ::pause();

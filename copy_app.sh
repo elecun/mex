@@ -9,5 +9,6 @@ fi
 
 #copy execution file to the remote
 echo "copying files to target machine"
-scp -p -r ./dist/mex_loadcell $2@"$1":$3
+sshpass -p 'qwer1234' scp -p -r ./dist/mex_loadcell $2@"$1":$3
+sshpass -p 'qwer1234' scp -p -r ./dist/mex_ap0 $2@"$1":$3
 echo "copied"
