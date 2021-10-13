@@ -44,13 +44,13 @@ SOURCE_FILES = ./
 INSTALL_DIR = /usr/local/bin/
 
 # Make
-mex_loadcell:	$(BUILDDIR)main.o
+mex_ap0:	$(BUILDDIR)main.o
 		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
 
 $(BUILDDIR)main.o:	$(SOURCE_FILES)main.cc
 					$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
 
-all : mex_loadcell
+all : mex_ap0
 
 deploy : FORCE
 	cp $(BINDIR)

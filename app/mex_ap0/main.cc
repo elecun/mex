@@ -1,6 +1,6 @@
 /**
  * @file    main.cc
- * @brief   MEX Application to control relay
+ * @brief   MEX Application (temnperature, rpm, relay)
  * @author  bh.hwang@iae.re.kr
  */
 

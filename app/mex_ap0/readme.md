@@ -1,5 +1,10 @@
 
-## mex application for read load from ttyS0
+## mex application for ttyAP0
+
+* Temperature (dedicated protocol)
+
+* RPM (modbusRTU)
+* side load relay control (modbusRTU)
 
 * required packages
 ```
