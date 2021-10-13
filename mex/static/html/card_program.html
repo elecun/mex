@@ -1,28 +1,35 @@
 
 
-<div class="card card-outline card-warning">
-    <div class="card-header border-0">
-        <h3 class="card-title font-weight-bolder">프로그램</h3>
-        <div class="card-tools">
-          <!-- <button type="button" class="btn btn-success btn-sm"><i class="fas fa-plus mr-1"></i> Add</button> -->
+<div class="card card-warning card-outline card-tabs">
+    <div class="card-header p-0 pt-1 border-bottom-0">
+        <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true"><i class="fas fa-tasks"></i> 프로그램</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false"><i class="fas fa-tools"></i> 설정</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body p-0">
+        <div class="tab-content" id="custom-tabs-four-tabContent">
+            <div class="tab-pane fade show active" id="custom-tabs-four-home" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
+               <div id="jsGrid"></div>
+            </div>
+            <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+               {% include 'card_settings.html' %}
+            </div>
         </div>
     </div>
-    <div class="card-body table-responsive p-0 font-weight-lighter">
-        <div id="jsGrid"></div>
-    </div>
     <div class="card-footer bg-transparent">
-        <div class="d-flex flex-row justify-content-end">
+        <!-- <div class="d-flex flex-row justify-content-end">
             <div>
                 <span class="badge badge-fill badge-success">시작 4</span>|
             </div>
             <div>
                 <span class="badge badge-fill badge-danger">종료 4</span>
             </div>
-
-            
-              
-            </button>
-        </div>
+        </div> -->
     </div>
 </div>
 

@@ -1,0 +1,69 @@
+
+<style>
+    .btn-circle {
+    width: 108px;
+    height: 108px;
+    padding: 35px 0px;
+    border-radius: 25px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.42857;
+}
+</style>
+
+<a class="btn btn-app bg-warning" id="btn_program_start">
+    <i class="fas fa-play"></i> Program Start
+</a>
+
+<a class="btn btn-app bg-warning" id="btn_program_pause">
+    <i class="fas fa-pause"></i> Program Pause
+  </a>
+
+<a class="btn btn-app bg-warning" id="btn_program_stop">
+    <span class="badge bg-danger"></span>
+    <i class="fas fa-stop"></i> Program Stop
+</a>
+
+<a class="btn btn-app bg-warning" id="btn_set_zero">
+    <span class="badge bg-danger"></span>
+    <i class="fas fa-cog"></i> Set Zero
+</a>
+
+
+<script language="javascript">
+
+    window.addEventListener('DOMContentLoaded', function(){
+        document.getElementById('btn_program_stop').className += ' disabled';
+        document.getElementById('btn_program_pause').className += ' disabled';
+    });
+
+    var update_timer = null;
+    /* chart update with time interval */
+    function chart_update(){
+        alert("chart update");
+    }
+
+    /* start program event */
+    document.getElementById("btn_program_start").addEventListener("click", function() {
+        //alert("start program");
+        update_timer = setInterval(chart_update, 3000);
+        document.getElementById('btn_program_start').className += ' disabled';
+        document.getElementById('btn_program_stop').classList.remove('disabled');
+        document.getElementById('btn_program_pause').classList.remove('disabled');
+    });
+
+    /* pause program event */
+    document.getElementById("btn_program_pause").addEventListener("click", function() {
+        //alert("start program");
+        clearInterval(update_timer);
+        document.getElementById('btn_program_start').classList.remove('disabled');
+    });
+
+    /* stop program event */
+    document.getElementById("btn_program_stop").addEventListener("click", function() {
+        alert("stop program");
+        document.getElementById('btn_program_start').classList.remove('disabled');
+    });
+
+
+</script>
