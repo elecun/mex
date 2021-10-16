@@ -20,6 +20,35 @@
   <script type="text/javascript" src="{% static 'plugins/chart.js/chart.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'plugins/paho-mqtt/paho-mqtt.js' %}"></script>
+  
+<script type="text/javascript">
+  let mqtt_client_id = "mex-client-"+parseInt(Math.random()*10000, 10);
+  var mqtt_client = new Paho.Client("{{system.mqtt_broker_ip}}", Number({{system.mqtt_broker_port}}), mqtt_client_id);
+  var mqtt_connected = false;
+  mqtt_client.onConnectionLost = mqtt_onConnectionLost;
+  mqtt_client.onMessageArrived = mqtt_onMessageArrived;
+  mqtt_client.connect({onSuccess:mqtt_onConnect, onFailure:mqtt_onFailure, reconnect: true, useSSL:false});
+  function mqtt_onConnect(){
+      mqtt_client.subscribe("mex/command/#", {qos:2});
+  }
+
+  function mqtt_onFailure(){
+      console.log("MQTT Failed");
+  }
+
+  function mqtt_onConnectionLost(responseObject){
+      mqtt_connected = false;
+  }
+
+  function mqtt_onMessageArrived(message){
+      const payload = JSON.parse(message.payloadString);
+
+      switch(message.topic){
+        case "mex/command/emergency": break;
+      }
+
+  }
+</script>
   {% block javascript %}
   {% endblock %}
 

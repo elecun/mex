@@ -23,10 +23,17 @@
 
 {% load static %}
 
-<div class="fab"><img src="{% static 'images/emg.png' %}"></div>
+<div class="fab"><img src="{% static 'images/emg.png' %}" id="btn_emergency_stop"></div>
 
 <script language="javascript">
-    
 
+   /* emergency stop event */
+   document.getElementById("btn_emergency_stop").addEventListener("click", function() {
+
+      const msg = {};
+      msg["test"] = 1;
+      mqtt_client.publish("mex/command", JSON.stringify(msg), 2);
+        
+    });
 
 </script>

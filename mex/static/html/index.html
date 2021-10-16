@@ -20,34 +20,41 @@
 <script type="text/javascript" src="{% static 'js/db.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/restapi.js' %}"></script>
 <script type="text/javascript">
-  let mqtt_client_id = "mex-client-"+parseInt(Math.random()*10000, 10);
-  var mqtt_client = new Paho.Client("{{system.mqtt_broker_ip}}", Number({{system.mqtt_broker_port}}), mqtt_client_id);
-  mqtt_client.onConnectionLost = mqtt_onConnectionLost;
-  mqtt_client.onMessageArrived = mqtt_onMessageArrived;
-  mqtt_client.connect({onSuccess:mqtt_onConnect, onFailure:mqtt_onFailure, reconnect: true, useSSL:false});
-  function mqtt_onConnect(){
-      mqtt_client.subscribe("mex/command/#", {qos:2});
-  }
+  // let mqtt_client_id = "mex-client-"+parseInt(Math.random()*10000, 10);
+  // let mqtt_client = new Paho.Client("{{system.mqtt_broker_ip}}", Number({{system.mqtt_broker_port}}), mqtt_client_id);
+  // mqtt_client.onConnectionLost = mqtt_onConnectionLost;
+  // mqtt_client.onMessageArrived = mqtt_onMessageArrived;
+  // mqtt_client.connect({onSuccess:mqtt_onConnect, onFailure:mqtt_onFailure, reconnect: true, useSSL:false});
+  // function mqtt_onConnect(){
+  //     mqtt_client.subscribe("mex/command/#", {qos:2});
+  //     //mqtt_client.publish("mex/command", "heelo", 2);
+  //     alert("connected");
+  // }
 
-  function mqtt_onFailure(){
-      console.log("MQTT Failed");
-  }
+  // function mqtt_onFailure(){
+  //     console.log("MQTT Failed");
+  // }
 
-  function mqtt_onConnectionLost(responseObject){
-      console.log("MQTT Connection Lost");
-  }
+  // function mqtt_onConnectionLost(responseObject){
+  //     console.log("MQTT Connection Lost");
+  // }
 
-  function mqtt_onMessageArrived(message){
-      const payload = JSON.parse(message.payloadString);
+  // function mqtt_onMessageArrived(message){
+  //     const payload = JSON.parse(message.payloadString);
 
-      // if(payload["message"]!=undefined){
-      //     Metro.notify.create("Message : "+payload.message, "<i class='fas fa-envelope mr-2'> System Message", {cls: "white", width: 300, keepOpen: false});
-      // }
+  //     // if(payload["message"]!=undefined){
+  //     //     Metro.notify.create("Message : "+payload.message, "<i class='fas fa-envelope mr-2'> System Message", {cls: "white", width: 300, keepOpen: false});
+  //     // }
 
-  }
+  // }
 
   window.addEventListener('DOMContentLoaded', function(){
-      
+    if(mqtt_client){
+      mqtt_client.publish("mex/command", "heelo", 2);
+    }
+    else {
+      alert("not connected");
+    }
   });
 
   /* MQTT commands */
