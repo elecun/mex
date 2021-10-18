@@ -6,3 +6,5 @@ psutil
 mysqlclient
 gunicorn
 influxdb-client
+django-celery-beat
+pandas

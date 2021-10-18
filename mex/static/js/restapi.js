@@ -19,7 +19,6 @@ function REST_GET(url){
     });
 }
 
-/* Common REST API POST Method */
 function REST_POST(url, data){
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 	return fetch(url, {

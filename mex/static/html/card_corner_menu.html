@@ -27,13 +27,16 @@
 
 <script language="javascript">
 
+   /* emergency stop request */
+   async function request_emergency_stop(){
+        let param = {"command":"control_emergency"};
+        let response = await REST_POST("{% url 'control_emergency' %}", param);
+        console.log(response);
+    }
+
    /* emergency stop event */
    document.getElementById("btn_emergency_stop").addEventListener("click", function() {
-
-      const msg = {};
-      msg["test"] = 1;
-      mqtt_client.publish("mex/command", JSON.stringify(msg), 2);
-        
-    });
+      request_emergency_stop();
+   });
 
 </script>
