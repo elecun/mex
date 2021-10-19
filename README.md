@@ -15,7 +15,7 @@ $ source ./venv/bin/activate
 (venv)$ sudo aptitude install -y nodejs npm
 ```
 ```
-(venv)$ sudo apt-get install python3.8-venv libmysqlclient-dev git build-essential python3.8-dev mariadb-server mariadb-client libmysqlclient-dev
+(venv)$ sudo apt-get install libmysqlclient-dev git build-essential python3.8-dev mariadb-server mariadb-client libmysqlclient-dev
 (venv)$ npm init (create only, do not type this command!!)
 (venv)$ npm install --save-dev electron electron-builder electron-packager electron-installer-squirrel-windows
 (venv)$ npm install --save python-shell
