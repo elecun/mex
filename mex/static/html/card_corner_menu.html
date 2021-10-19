@@ -19,6 +19,10 @@
 .fab:hover {
    transform: scale(1.05);
 }
+
+.fab:active {
+   transform: translateY(4px);
+}
 </style>
 
 {% load static %}
@@ -32,7 +36,7 @@
         let param = {"command":"control_emergency"};
         let response = await REST_POST("{% url 'control_emergency' %}", param);
         console.log(response);
-    }
+   }
 
    /* emergency stop event */
    document.getElementById("btn_emergency_stop").addEventListener("click", function() {

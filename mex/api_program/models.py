@@ -33,3 +33,26 @@ class Program(models.Model):
 
     def __str__(self):
         return self.program_name
+
+
+
+# general settings
+class Settings(models.Model):
+    machine_name = models.CharField(max_length=256, blank=False, null=False)
+    jsno = models.CharField(max_length=128, blank=False, null=False)
+    product_size = models.FloatField()
+    load = models.FloatField()
+    roller_size = models.FloatField()
+    exp_time = models.FloatField()
+    update_period = models.PositiveIntegerField(default=10)
+    limit_temperature_min = models.IntegerField(default=0)
+    limit_temperature_max = models.IntegerField(default=100)
+    limit_tenperature_min_count = models.PositiveIntegerField(default=3)
+    limit_rpm = models.PositiveIntegerField()
+    limit_rpm_count = models.PositiveIntegerField(default=3)
+    limit_load_min = models.FloatField()
+    limit_load_max = models.FloatField()
+    limit_load_min_count = models.PositiveIntegerField(default=3)
+    limit_load_max_count = models.PositiveIntegerField(default=3)
+    def __str__(self):
+        return id

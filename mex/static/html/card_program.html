@@ -4,26 +4,31 @@
     <div class="card-header p-0 pt-1 border-bottom-0">
         <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
             <li class="nav-item">
-              <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true"><i class="fas fa-tasks"></i> 프로그램</a>
+              <a class="nav-link active" id="tab_program_link" data-toggle="pill" href="#tab_program" role="tab" aria-controls="tab_program" aria-selected="true"><i class="fas fa-tasks"></i> 프로그램</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false"><i class="fas fa-tools"></i> 일반 설정</a>
+              <a class="nav-link" id="tab_general_setting_link" data-toggle="pill" href="#tab_general_setting" role="tab" aria-controls="tab_general_setting" aria-selected="false"><i class="fas fa-tools"></i> 일반 설정</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" id="tab_setting_load_link" data-toggle="pill" href="#tab_setting_load" role="tab" aria-controls="tab_setting_load" aria-selected="false"><i class="fas fa-folder-open"></i> 로드</a>
+              </li>
         </ul>
     </div>
     <div class="card-body p-0">
         <div class="tab-content" id="custom-tabs-four-tabContent">
-            <div class="tab-pane fade show active" id="custom-tabs-four-home" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
+            <div class="tab-pane show active" id="tab_program" role="tabpanel">
                <div id="jsGrid"></div>
             </div>
-            <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+            <div class="tab-pane" id="tab_general_setting" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
                {% include 'card_settings.html' %}
             </div>
+            <div class="tab-pane" id="tab_setting_load" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                {% include 'card_load.html' %}
+             </div>
         </div>
     </div>
     <div class="card-footer bg-transparent">
         <div class="d-flex flex-row justify-content-end">
-            <button type="button" class="btn btn-success mr-2"><i class="fas fa-folder-open"></i> Load</button>
             <button type="button" class="btn btn-primary"><i class="fas fa-save"></i> Save & Update</button>
         </div>
     </div>
