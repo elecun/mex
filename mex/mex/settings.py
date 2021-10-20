@@ -161,6 +161,6 @@ REST_FRAMEWORK = {
 # LOGIN_REDIRECT_URL = '/' #url redirection after logged in
 # LOGOUT_REDIRECT_URL = '/' #url redirection after logged in
 
-MQTT_BROKER_ADDRESS = "0.0.0.0"
+MQTT_BROKER_ADDRESS = "192.168.3.105"
 MQTT_BROKER_PORT = 1883
 MQTT_BROKER_WEBSCOKET = 8083
