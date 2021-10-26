@@ -52,7 +52,7 @@ def context_processors(request):
             'status_current':"현재 상태",
             'status_manual_control':"수동 제어",
             'status_manual_control_forward':"정회전",
-            'status_manual_control_reverse':"정회전",
+            'status_manual_control_reverse':"역회전",
             'status_manual_control_stop':"중지",
             'status_manual_control_motor':"모터 ON/OFF",
             'status_manual_control_sideload':"측면하중 ON/OFF",
