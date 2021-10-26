@@ -1,88 +1,124 @@
 
-<style>
-  .btn-app {
-      margin: 0 0 10px 0px !important;
-      min-width: 110px;
-  }
-</style>
 
-<div class="card card-outline card-secondary">
-    <div class="card-header border-0">
-        <h3 class="card-title">현재 상태</h3>
-        <div class="card-tools">
+<div class="card card-lightblue shadow catd-tabs" style="height: 445px;">
+    <div class="card-header p-0 pt-1 border-bottom-0">
+      <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+        <!-- status tab title & link -->
+        <li class="nav-item">
+            <a class="nav-link active" id="tab_status_current_link" data-toggle="pill" href="#tab_status_current" role="tab" aria-controls="tab_status" aria-selected="true">
+              <i class="fas fa-list"></i> {{menu_ko.status_current}}
+            </a>
+        </li>
+
+        <!-- status manual control tab title & link -->
+        <li class="nav-item">
+          <a class="nav-link" id="tab_status_manual_control_link" data-toggle="pill" href="#tab_status_manual_control" role="tab" aria-controls="tab_status_manual_control" aria-selected="false">
+            <i class="fas fa-user-cog"></i> {{menu_ko.status_manual_control}}
+          </a>
+        </li>
+
+    </ul>
+    </div>
+
+    <div class="card-body">
+
+      <div class="tab-content" id="custom-tabs-four-tabContent">
+        <div class="tab-pane show active" id="tab_status_current" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+            {% include 'card_status_current.html' %}
+        </div>
+        <div class="tab-pane" id="tab_status_manual_control" role="tabpanel">
+            {% include 'card_status_manual_control.html' %}
+        </div>
       </div>
-    </div>
-    <div class="card-body p-0">
-      <table class="table">
-        <thead>
-          <tr>
-            <th width="10px">#</th>
-            <th width="30%">Measure</th>
-            <th>Value/Progress</th>
-            <th width="100px"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1.</td>
-            <td>Load</td>
-            <td>
-              <div class="progress progress-xs">
-                <div class="progress-bar progress-bar-danger" style="width: 55%"></div>
-              </div>
-            </td>
-            <td><span class="badge bg-danger">55%</span></td>
-          </tr>
-          <tr>
-            <td>2.</td>
-            <td>Speed</td>
-            <td>
-              <div class="progress progress-xs">
-                <div class="progress-bar bg-warning" style="width: 70%"></div>
-              </div>
-            </td>
-            <td><span class="badge bg-warning">70%</span></td>
-          </tr>
-          <tr>
-            <td>3.</td>
-            <td>Temperature</td>
-            <td>
-              <div class="progress progress-xs progress-striped active">
-                <div class="progress-bar bg-primary" style="width: 30%"></div>
-              </div>
-            </td>
-            <td><span class="badge bg-primary">30%</span></td>
-          </tr>
-          <tr>
-            <td>4.</td>
-            <td>Current Steps</td>
-            <td>
-              <div class="progress progress-xs progress-striped active">
-                <div class="progress-bar bg-success" style="width: 90%"></div>
-              </div>
-            </td>
-            <td><span class="badge bg-success">1/10</span></td>
-          </tr>
-
-          <tr>
-            <td>4.</td>
-            <td>Step Time(min)</td>
-            <td>
-              <div class="progress progress-xs progress-striped active">
-                <div class="progress-bar bg-success" style="width: 90%"></div>
-              </div>
-            </td>
-            <td><span class="badge bg-success">1/10</span></td>
-          </tr>
-
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card-footer bg-transparent border-success">
 
     </div>
 </div>
+
+
+<script>
+  $(function($) {
+
+      $(".knob").knob({
+          change : function (value) {
+              //console.log("change : " + value);
+          },
+          release : function (value) {
+              //console.log(this.$.attr('value'));
+              console.log("release : " + value);
+          },
+          cancel : function () {
+              console.log("cancel : ", this);
+          },
+          /*format : function (value) {
+           return value + '%';
+           },*/
+          draw : function () {
+
+              // "tron" case
+              if(this.$.data('skin') == 'tron') {
+
+                  this.cursorExt = 0.3;
+
+                  var a = this.arc(this.cv)  // Arc
+                          , pa                   // Previous arc
+                          , r = 1;
+
+                  this.g.lineWidth = this.lineWidth;
+
+                  if (this.o.displayPrevious) {
+                      pa = this.arc(this.v);
+                      this.g.beginPath();
+                      this.g.strokeStyle = this.pColor;
+                      this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, pa.s, pa.e, pa.d);
+                      this.g.stroke();
+                  }
+
+                  this.g.beginPath();
+                  this.g.strokeStyle = r ? this.o.fgColor : this.fgColor ;
+                  this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, a.s, a.e, a.d);
+                  this.g.stroke();
+
+                  this.g.lineWidth = 2;
+                  this.g.beginPath();
+                  this.g.strokeStyle = this.o.fgColor;
+                  this.g.arc( this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
+                  this.g.stroke();
+
+                  return false;
+              }
+          }
+      });
+
+      // Example of infinite knob, iPod click wheel
+      var v, up=0,down=0,i=0
+              ,$idir = $("div.idir")
+              ,$ival = $("div.ival")
+              ,incr = function() { i++; $idir.show().html("+").fadeOut(); $ival.html(i); }
+              ,decr = function() { i--; $idir.show().html("-").fadeOut(); $ival.html(i); };
+      $("input.infinite").knob(
+              {
+                  min : 0
+                  , max : 20
+                  , stopper : false
+                  , change : function () {
+                  if(v > this.cv){
+                      if(up){
+                          decr();
+                          up=0;
+                      }else{up=1;down=0;}
+                  } else {
+                      if(v < this.cv){
+                          if(down){
+                              incr();
+                              down=0;
+                          }else{down=1;up=0;}
+                      }
+                  }
+                  v = this.cv;
+              }
+              });
+  });
+</script>
 
 
 <!-- <div class="card">

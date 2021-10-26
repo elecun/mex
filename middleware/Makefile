@@ -1,5 +1,5 @@
 
-# Makefile for MEX Application
+# Makefile for MEX Middlware
 # Author : Byunghun Hwang <bh.hwang@iae.re.kr>
 # Usage : make ARCH=x86_64
 

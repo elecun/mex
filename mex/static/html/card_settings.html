@@ -1,37 +1,172 @@
-<table class="table table-sm table-bordered">
-    <tbody>
-        <tr>
-            <td class="text-right">장비명 :</td>
-            <td><input type="text" style="width:100%"></td>
-            <td class="text-right">JS No.</td>
-            <td><input type="text"></td>
-        </tr>
-        <tr>
-            <td class="text-right">제품 사이즈(pi) :</td>
-            <td><input type="text"></td>
-            <td class="text-right">구동 롤러사이즈 :</td>
-            <td><input type="text"></td>
-        </tr>
-        <tr>
-            <td class="text-right">수직하중(kgf) :</td>
-            <td><input type="text"></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td class="text-right">시험시간(hr) :</td>
-            <td><input type="text"></td>
-            <td class="text-right">측정주기(sec) :</td>
-            <td><input type="text"></td>
-        </tr>
-        <tr>
-            <td class="text-right">제한온도 :</td>
-            <td>min</td>
-            <td><input type="text"></td>
-        </tr>
-        <tr>
-            <td>max</td>
-            <td><input type="text"></td>
-        </tr>
-    </tbody>
-  </table>
+
+
+<div class="card card-dark card-tabs shadow" style="height: 445px;">
+    <div class="card-header p-0 pt-1 border-bottom-0">
+        <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+            <!-- settings general tab title & link -->
+            <li class="nav-item">
+                <a class="nav-link active" id="tab_settings_general_link" data-toggle="pill" href="#tab_settings_general" role="tab" aria-controls="tab_settings_general" aria-selected="true"><i class="fas fa-tools"></i> {{menu_ko.settings_general}}</a>
+            </li>
+
+            <!-- settings details tab title & link -->
+            <li class="nav-item">
+              <a class="nav-link" id="tab_settings_details_link" data-toggle="pill" href="#tab_settings_details" role="tab" aria-controls="tab_settings_details" aria-selected="false"><i class="fas fa-tasks"></i> {{menu_ko.settings_details}}</a>
+            </li>
+
+            <!-- settings load tab title & link -->
+            <li class="nav-item">
+                <a class="nav-link" id="tab_settings_load_link" data-toggle="pill" href="#tab_settings_load" role="tab" aria-controls="tab_settings_load" aria-selected="false"><i class="fas fa-folder-open"></i> {{menu_ko.settings_load}}</a>
+              </li>
+        </ul>
+    </div>
+    <div class="card-body table-responsive">
+        <div class="tab-content" id="custom-tabs-four-tabContent">
+            <div class="tab-pane show active" id="tab_settings_general" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                {% include 'card_settings_general.html' %}
+            </div>
+            <div class="tab-pane" id="tab_settings_details" role="tabpanel">
+                {% include 'card_settings_details.html' %}
+            </div>
+            <div class="tab-pane" id="tab_settings_load" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                {% include 'card_settings_load.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="card-footer bg-transparent">
+        <!-- <div class="d-flex flex-row justify-content-end">
+            <button type="button" class="btn btn-primary"><i class="fas fa-save"></i> Save & Update</button>
+        </div> -->
+    </div>
+</div>
+
+<script type="text/javascript">
+
+/* tab event for side menu display control */
+$('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+    var target = $(e.target).attr("href");
+    switch(target){
+        /* settings general tab activated */
+        case "#tab_settings_general": {
+            $('#btn_start_step').addClass("d-none");
+            $('#btn_stop_step').addClass("d-none");
+            $('#btn_pause_step').addClass("d-none");
+            $('#btn_settings_save').addClass("d-none");
+        } break;
+        /* settings details tab activated */
+        case "#tab_settings_details": {
+            $('#btn_start_step').removeClass("d-none");
+            $('#btn_stop_step').removeClass("d-none");
+            $('#btn_pause_step').removeClass("d-none");
+            $('#btn_settings_save').removeClass("d-none");
+        } break;
+
+        /* settings load tab activated */
+        case "#tab_settings_load": {
+            $('#btn_start_step').addClass("d-none");
+            $('#btn_stop_step').addClass("d-none");
+            $('#btn_pause_step').addClass("d-none");
+            $('#btn_settings_save').addClass("d-none");
+        } break;
+    }
+});
+
+
+function load(){
+    var MyDateField = function(config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    var commandlist = function(config){
+        jsGrid.Field.call(this, config);
+    }
+
+    commandlist.prototype = new jsGrid.Field({
+        sorter: function(date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function(value) {
+            return new Date(value).toDateString();
+        },
+
+        // insertTemplate: function(value) {
+        //     return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        // },
+
+        // editTemplate: function(value) {
+        //     return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        // },
+
+        insertValue: function() {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function() {
+            return this._editPicker.datepicker("getDate").toISOString();
+        }
+    });
+
+    MyDateField.prototype = new jsGrid.Field({
+        sorter: function(date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function(value) {
+            return new Date(value).toDateString();
+        },
+
+        // insertTemplate: function(value) {
+        //     return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        // },
+
+        // editTemplate: function(value) {
+        //     return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        // },
+
+        insertValue: function() {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function() {
+            return this._editPicker.datepicker("getDate").toISOString();
+        }
+    });
+
+    jsGrid.fields.myDateField = MyDateField;
+    jsGrid.fields.mex_command = commandlist;
+
+    $("#jsGrid").jsGrid({
+        height: "330px",
+        width: "100%",
+
+        inserting: true,
+        editing: true,
+        sorting: true,
+        paging: false,
+
+        data: db.users,
+
+        fields: [
+            { name: "Step", width: 30, align: "center" },
+            { name: "Command", type: "mex_command", align:"center"},
+            { name: "시간(sec)", type: "text", align: "center" },
+            { type: "속도(rpm)", type:"text", align:"center" },
+            { type: "측면하중(ON/OFF)", type:"text", align:"center" },
+            { type: "가감속시간(rpm/sec)", type:"text", align:"center" },
+            { type: "control", editButton: false, modeSwitchButton: false }
+        ]
+    });
+
+}
+
+  
+/* page load */
+window.addEventListener('DOMContentLoaded', function(){
+    /* initially hide menu */
+    $('#btn_start_step').addClass("d-none");
+    $('#btn_stop_step').addClass("d-none");
+    $('#btn_pause_step').addClass("d-none");
+    //load();
+});
+
+</script>

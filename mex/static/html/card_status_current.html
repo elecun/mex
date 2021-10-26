@@ -1,0 +1,64 @@
+
+
+<div class="row justify-content-md-center">
+
+    <!-- load(kgf)-->
+    <div class="col-xs-2 text-center p-2">
+      <input type="text" class="knob" value="10" data-width="90" data-height="90" data-fgColor="#163c66" data-linecap="round">
+      <div class="knob-label">{{menu_ko.status_load}}</div>
+    </div>
+
+    <!-- rpm-->
+    <div class="col-xs-2 text-center p-2">
+      <input type="text" class="knob" value="90" data-width="90" data-height="90" data-fgColor="#d1a758" data-linecap="round">
+      <div class="knob-label">{{menu_ko.status_rpm}}</div>
+    </div>
+
+    <!-- temperature 1-->
+    <div class="col-xs-2 text-center p-2">
+      <input type="text" class="knob" value="22" data-width="90" data-height="90" data-fgColor="#166659" data-linecap="round">
+      <div class="knob-label">{{menu_ko.status_temperature_1}}</div>
+    </div>
+    
+    <!-- temperature 2-->
+    <div class="col-xs-2 text-center p-2">
+      <input type="text" class="knob" value="23" data-width="90" data-height="90" data-fgColor="#166659" data-linecap="round">
+      <div class="knob-label">{{menu_ko.status_temperature_2}}</div>
+    </div>
+
+    <!-- temperature 3-->
+    <div class="col-xs-2 text-center p-2">
+      <input type="text" class="knob" value="25" data-width="90" data-height="90" data-fgColor="#166659" data-linecap="round">
+      <div class="knob-label">{{menu_ko.status_temperature_3}}</div>
+    </div>
+
+</div>
+
+<div class="row mt-2">
+    <!-- exp progress -->
+    <table class="table table-borderless p-0">
+
+      <!-- current step -->
+      <tr>
+        <td width="20%" class="text-right">{{menu_ko.status_inprogress_step}}</td>
+        <td class="pt-3">
+          <div class="progress progress-lg" style="height: 20px;">
+            <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+          </div>
+        </td>
+        <td style="width: 100px;" class="text-bold">1/10</span></td>
+      </tr>
+
+      <!-- current in-progress time -->
+      <tr>
+        <td width="20%" class="text-right">{{menu_ko.status_inprogress_time}}</td>
+        <td class="pt-3">
+          <div class="progress progress-lg" style="height: 20px;">
+            <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" style="width: 15%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">15%</div>
+          </div>
+        </td>
+        <td style="width: 100px;" class="text-bold">Elapsed</span></td>
+      </tr>
+
+    </table>
+  </div>
