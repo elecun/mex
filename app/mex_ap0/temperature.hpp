@@ -59,7 +59,7 @@ class temperature : public subport {
             float value = parse_value(rbuffer, read_len);
             //spdlog::info("temperature {} : {}", _id, value);
 
-            boost::this_thread::sleep_for(boost::chrono::milliseconds(250));    //must sleep
+            boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));    //must sleep
 
             response["temperature"]["id"] = _id;
             response["temperature"]["value"] = value;
