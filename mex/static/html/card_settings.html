@@ -2,6 +2,13 @@
 
 <div class="card card-dark card-tabs shadow" style="height: 445px;">
     <div class="card-header p-0 pt-1 border-bottom-0">
+
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand"></i></button>
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+
+        <!-- navigation tabs -->
         <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
             <!-- settings general tab title & link -->
             <li class="nav-item">
@@ -71,93 +78,93 @@ $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
 });
 
 
-function load(){
-    var MyDateField = function(config) {
-        jsGrid.Field.call(this, config);
-    };
+// function load(){
+//     var MyDateField = function(config) {
+//         jsGrid.Field.call(this, config);
+//     };
 
-    var commandlist = function(config){
-        jsGrid.Field.call(this, config);
-    }
+//     var commandlist = function(config){
+//         jsGrid.Field.call(this, config);
+//     }
 
-    commandlist.prototype = new jsGrid.Field({
-        sorter: function(date1, date2) {
-            return new Date(date1) - new Date(date2);
-        },
+//     commandlist.prototype = new jsGrid.Field({
+//         sorter: function(date1, date2) {
+//             return new Date(date1) - new Date(date2);
+//         },
 
-        itemTemplate: function(value) {
-            return new Date(value).toDateString();
-        },
+//         itemTemplate: function(value) {
+//             return new Date(value).toDateString();
+//         },
 
-        // insertTemplate: function(value) {
-        //     return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
-        // },
+//         // insertTemplate: function(value) {
+//         //     return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+//         // },
 
-        // editTemplate: function(value) {
-        //     return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
-        // },
+//         // editTemplate: function(value) {
+//         //     return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+//         // },
 
-        insertValue: function() {
-            return this._insertPicker.datepicker("getDate").toISOString();
-        },
+//         insertValue: function() {
+//             return this._insertPicker.datepicker("getDate").toISOString();
+//         },
 
-        editValue: function() {
-            return this._editPicker.datepicker("getDate").toISOString();
-        }
-    });
+//         editValue: function() {
+//             return this._editPicker.datepicker("getDate").toISOString();
+//         }
+//     });
 
-    MyDateField.prototype = new jsGrid.Field({
-        sorter: function(date1, date2) {
-            return new Date(date1) - new Date(date2);
-        },
+//     MyDateField.prototype = new jsGrid.Field({
+//         sorter: function(date1, date2) {
+//             return new Date(date1) - new Date(date2);
+//         },
 
-        itemTemplate: function(value) {
-            return new Date(value).toDateString();
-        },
+//         itemTemplate: function(value) {
+//             return new Date(value).toDateString();
+//         },
 
-        // insertTemplate: function(value) {
-        //     return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
-        // },
+//         // insertTemplate: function(value) {
+//         //     return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+//         // },
 
-        // editTemplate: function(value) {
-        //     return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
-        // },
+//         // editTemplate: function(value) {
+//         //     return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+//         // },
 
-        insertValue: function() {
-            return this._insertPicker.datepicker("getDate").toISOString();
-        },
+//         insertValue: function() {
+//             return this._insertPicker.datepicker("getDate").toISOString();
+//         },
 
-        editValue: function() {
-            return this._editPicker.datepicker("getDate").toISOString();
-        }
-    });
+//         editValue: function() {
+//             return this._editPicker.datepicker("getDate").toISOString();
+//         }
+//     });
 
-    jsGrid.fields.myDateField = MyDateField;
-    jsGrid.fields.mex_command = commandlist;
+//     jsGrid.fields.myDateField = MyDateField;
+//     jsGrid.fields.mex_command = commandlist;
 
-    $("#jsGrid").jsGrid({
-        height: "330px",
-        width: "100%",
+//     $("#settings_details_steplist").jsGrid({
+//         height: "330px",
+//         width: "100%",
 
-        inserting: true,
-        editing: true,
-        sorting: true,
-        paging: false,
+//         inserting: true,
+//         editing: true,
+//         sorting: true,
+//         paging: false,
 
-        data: db.users,
+//         data: db.users,
 
-        fields: [
-            { name: "Step", width: 30, align: "center" },
-            { name: "Command", type: "mex_command", align:"center"},
-            { name: "시간(sec)", type: "text", align: "center" },
-            { type: "속도(rpm)", type:"text", align:"center" },
-            { type: "측면하중(ON/OFF)", type:"text", align:"center" },
-            { type: "가감속시간(rpm/sec)", type:"text", align:"center" },
-            { type: "control", editButton: false, modeSwitchButton: false }
-        ]
-    });
+//         fields: [
+//             { name: "Step", width: 30, align: "center" },
+//             { name: "Command", type: "mex_command", align:"center"},
+//             { name: "시간(sec)", type: "text", align: "center" },
+//             { type: "속도(rpm)", type:"text", align:"center" },
+//             { type: "측면하중(ON/OFF)", type:"text", align:"center" },
+//             { type: "가감속시간(rpm/sec)", type:"text", align:"center" },
+//             { type: "control", editButton: false, modeSwitchButton: false }
+//         ]
+//     });
 
-}
+// }
 
   
 /* page load */

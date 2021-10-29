@@ -1,1 +1,135 @@
+
 <div id="jsGrid"></div>
+
+
+<script type="text/javascript">
+
+/* tab event for side menu display control */
+$('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+    var target = $(e.target).attr("href");
+    switch(target){
+        /* settings general tab activated */
+        case "#tab_settings_general": {
+            $('#btn_start_step').addClass("d-none");
+            $('#btn_stop_step').addClass("d-none");
+            $('#btn_pause_step').addClass("d-none");
+            $('#btn_settings_save').addClass("d-none");
+        } break;
+        /* settings details tab activated */
+        case "#tab_settings_details": {
+            $('#btn_start_step').removeClass("d-none");
+            $('#btn_stop_step').removeClass("d-none");
+            $('#btn_pause_step').removeClass("d-none");
+            $('#btn_settings_save').removeClass("d-none");
+        } break;
+
+        /* settings load tab activated */
+        case "#tab_settings_load": {
+            $('#btn_start_step').addClass("d-none");
+            $('#btn_stop_step').addClass("d-none");
+            $('#btn_pause_step').addClass("d-none");
+            $('#btn_settings_save').addClass("d-none");
+        } break;
+    }
+});
+
+
+function load(){
+    var MyDateField = function(config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    var commandlist = function(config){
+        jsGrid.Field.call(this, config);
+    }
+
+    commandlist.prototype = new jsGrid.Field({
+        sorter: function(date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function(value) {
+            return new Date(value).toDateString();
+        },
+
+        // insertTemplate: function(value) {
+        //     return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        // },
+
+        // editTemplate: function(value) {
+        //     return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        // },
+
+        insertValue: function() {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function() {
+            return this._editPicker.datepicker("getDate").toISOString();
+        }
+    });
+
+    MyDateField.prototype = new jsGrid.Field({
+        sorter: function(date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function(value) {
+            return new Date(value).toDateString();
+        },
+
+        // insertTemplate: function(value) {
+        //     return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        // },
+
+        // editTemplate: function(value) {
+        //     return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        // },
+
+        insertValue: function() {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function() {
+            return this._editPicker.datepicker("getDate").toISOString();
+        }
+    });
+
+    jsGrid.fields.myDateField = MyDateField;
+    jsGrid.fields.mex_command = commandlist;
+
+    $("#jsGrid").jsGrid({
+        height: "330px",
+        width: "100%",
+
+        inserting: true,
+        editing: true,
+        sorting: true,
+        paging: false,
+
+        data: db.users,
+
+        fields: [
+            { name: "Step", width: 30, align: "center" },
+            { name: "Command", type: "mex_command", align:"center"},
+            { name: "시간(sec)", type: "text", align: "center" },
+            { type: "속도(rpm)", type:"text", align:"center" },
+            { type: "측면하중(ON/OFF)", type:"text", align:"center" },
+            { type: "가감속시간(rpm/sec)", type:"text", align:"center" },
+            { type: "control", editButton: false, modeSwitchButton: false }
+        ]
+    });
+
+}
+
+  
+/* page load */
+window.addEventListener('DOMContentLoaded', function(){
+    /* initially hide menu */
+    $('#btn_start_step').addClass("d-none");
+    $('#btn_stop_step').addClass("d-none");
+    $('#btn_pause_step').addClass("d-none");
+    //load();
+});
+
+</script>

@@ -1,75 +1,86 @@
 <div class="row m-0">
+    <div class="col-sm-12">
+        <form>
+            <div class="form-group">
+              <label for="edit_settings_name">{{menu_ko.settings_name}}</label>
+              <input type="text" class="form-control form-control-sm" id="edit_settings_name" placeholder="">
+            </div>
+          </form>
+    </div>
+</div>
+
+<div class="row m-0">
     <div class="col-sm-6">
-        <table class="table table-sm table-responsive text-nowrap m-0">
+        <table class="table table-sm table-borderless table-responsive m-0">
             <tbody>
                 <tr>
                     <td class="text-right">{{menu_ko.settings_general_machinename}} :</td>
-                    <td><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td><input type="text" id="edit_settings_general_machinename" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                 </tr>
                 <tr>
                     <td class="text-right">{{menu_ko.settings_general_jsno}} :</td>
-                    <td><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td><input type="text" id="edit_settings_general_jsno" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                 </tr>
                 <tr>
                     <td class="text-right">{{menu_ko.settings_general_productsize}} :</td>
-                    <td><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td><input type="text" id="edit_settings_general_productsize" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                 </tr>
                 <tr>
                     <td class="text-right">{{menu_ko.settings_general_rollersize}} :</td>
-                    <td><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td><input type="text" id="edit_settings_general_rollersize" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                 </tr>
                 <tr>
                     <td class="text-right">{{menu_ko.settings_general_vload}} :</td>
-                    <td><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td><input type="text" id="edit_settings_genral_vload" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                 </tr>
                 <tr>
                     <td class="text-right">{{menu_ko.settings_general_wtime}}(hr) :</td>
-                    <td><input type="text" placeholder=""></td>
+                    <td><input type="text" id="edit_settings_general_wtime" class="form-control form-control-sm" placeholder=""></td>
                 </tr>
                 <tr>
                     <td class="text-right">{{menu_ko.settings_general_interval}} :</td>
-                    <td><input type="text" placeholder=""></td>
+                    <td><input type="text" id="edit_settings_general_interval" class="form-control form-control-sm" placeholder=""></td>
                 </tr>
             </tbody>
         </table>
     </div>
     <div class="col-sm-6">
-        <table class="table table-sm table-responsive text-nowrap m-0">
+        <table class="table table-sm table-borderless table-responsive text-nowrap m-0">
             <tbody>
                 <tr>
                     <td width="10%" class="text-right">{{menu_ko.settings_general_temp}} </td>
                     <td width="20%" class="text-right">{{menu_ko.settings_general_temp_min}} :</td>
-                    <td width="25%"><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td width="25%"><input type="text" id="edit_settings_general_temp_min" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                     <td width="20%" class="text-right">{{menu_ko.settings_general_temp_min_count}} :</td>
-                    <td width="25%"><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td width="25%"><input type="text" id="edit_settings_general_temp_min_count" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                 </tr>
                 <tr>
                     <td width="10%" class="text-right"></td>
                     <td width="20%" class="text-right">{{menu_ko.settings_general_temp_max}} :</td>
-                    <td width="25%"><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td width="25%"><input type="text" id="edit_settings_general_temp_max" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                     <td width="20%" class="text-right">{{menu_ko.settings_general_temp_max_count}} :</td>
-                    <td width="25%"><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td width="25%"><input type="text" id="edit_settings_general_temp_max_count" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                 </tr>
                 <tr>
                     <td width="10%" class="text-right">{{menu_ko.settings_general_rpm}} </td>
                     <td width="20%" class="text-right">{{menu_ko.settings_general_rpm_max}} :</td>
-                    <td width="25%"><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td width="25%"><input type="text" id="edit_settings_general_rpm_max" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                     <td width="20%" class="text-right">{{menu_ko.settings_general_rpm_max_count}} :</td>
-                    <td width="25%"><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td width="25%"><input type="text" id="edit_settings_general_rpm_max_count" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                 </tr>
                 <tr>
                     <td width="10%" class="text-right">{{menu_ko.settings_general_load}} </td>
                     <td width="20%" class="text-right">{{menu_ko.settings_general_load_min}} :</td>
-                    <td width="25%"><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td width="25%"><input type="text" id="edit_settings_general_load_min" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                     <td width="20%" class="text-right">{{menu_ko.settings_general_load_min_count}} :</td>
-                    <td width="25%"><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td width="25%"><input type="text" id="edit_settings_general_load_min_count" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                 </tr>
                 <tr>
                     <td width="10%" class="text-right"></td>
                     <td width="20%" class="text-right">{{menu_ko.settings_general_load_max}} :</td>
-                    <td width="25%"><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td width="25%"><input type="text" id="edit_settings_general_load_max" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                     <td width="20%" class="text-right">{{menu_ko.settings_general_load_max_count}} :</td>
-                    <td width="25%"><input type="text" style="width: 100%;" placeholder=""></td>
+                    <td width="25%"><input type="text" id="edit_settings_general_load_max_count" class="form-control form-control-sm" style="width: 100%;" placeholder=""></td>
                 </tr>
             </tbody>
         </table>
