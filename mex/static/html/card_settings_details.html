@@ -101,24 +101,51 @@ function load(){
     $("#jsGrid").jsGrid({
         height: "330px",
         width: "100%",
-
-        inserting: true,
+ 
+        filtering: true,
         editing: true,
         sorting: true,
-        paging: false,
-
-        data: db.users,
-
+        paging: true,
+        autoload: true,
+ 
+        pageSize: 15,
+        pageButtonCount: 5,
+ 
+        deleteConfirm: "Do you really want to delete the client?",
+ 
+        controller: db,
+ 
         fields: [
-            { name: "Step", width: 30, align: "center" },
-            { name: "Command", type: "mex_command", align:"center"},
-            { name: "시간(sec)", type: "text", align: "center" },
-            { type: "속도(rpm)", type:"text", align:"center" },
-            { type: "측면하중(ON/OFF)", type:"text", align:"center" },
-            { type: "가감속시간(rpm/sec)", type:"text", align:"center" },
-            { type: "control", editButton: false, modeSwitchButton: false }
+            { name: "Name", type: "text", width: 150 },
+            { name: "Age", type: "number", width: 50 },
+            { name: "Address", type: "text", width: 200 },
+            { name: "Country", type: "select", items: db.countries, valueField: "Id", textField: "Name" },
+            { name: "Married", type: "checkbox", title: "Is Married", sorting: false },
+            { type: "control" }
         ]
     });
+
+    // $("#jsGrid").jsGrid({
+    //     height: "330px",
+    //     width: "100%",
+
+    //     inserting: true,
+    //     editing: true,
+    //     sorting: true,
+    //     paging: false,
+
+    //     data: db.users,
+
+    //     fields: [
+    //         { name: "Step", width: 30, align: "center" },
+    //         { name: "Command", type: "mex_command", align:"center"},
+    //         { name: "시간(sec)", type: "text", align: "center" },
+    //         { type: "속도(rpm)", type:"text", align:"center" },
+    //         { type: "측면하중(ON/OFF)", type:"text", align:"center" },
+    //         { type: "가감속시간(rpm/sec)", type:"text", align:"center" },
+    //         { type: "control", editButton: false, modeSwitchButton: false }
+    //     ]
+    // });
 
 }
 
