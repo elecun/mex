@@ -24,6 +24,8 @@ def context_processors(request):
             'settings_general':"일반설정",
             'settings_load':"설정로드",
             'settings_save' : "설정저장",
+            'settings_new' : "새 설정",
+            'settings_reserve' : "예약설정",
             'start_step' : "시험시작",
             'pause_step' : "시험일시정지",
             'stop_step' : "시험중지",
@@ -64,7 +66,12 @@ def context_processors(request):
             'status_temperature_3':"P3 온도(℃)",
             'status_inprogress_step':"현재 STEP",
             'status_inprogress_time':"현재 진행시간",
-            'chart_open':"데이터 열기"
+            'chart_open':"데이터 열기",
+            'chart_raw_download':"CSV 내보내기",
+            'chart_image_download':"이미지 내보내기",
+            'settings_reserve_datetime':"실행 날짜/시각",
+            'settings_reserve_add':"예약 추가",
+            'settings_reserve_list':"예약 리스트",
         }
     }
 

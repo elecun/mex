@@ -2,22 +2,42 @@
 
 {% load static %}
 
-<div class="modal fade" id="mex_hidden_conf" tabindex="-1" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="modal_chart_open" tabindex="-1" aria-labelledby="modal_chart_open_title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalCenterTitle">Modal title</h5>
+        <h5 class="modal-title" id="modal_chart_open_title">Data Open</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <p>Placeholder text for this demonstration of a vertically centered modal dialog.</p>
+        
+
+        
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-primary" id="btn_chart_data_load">Load</button>
       </div>
     </div>
   </div>
 </div>
+
+
+<script type="text/javascript">
+  /* shortcut key event for modal chart open window */
+  shortcut.add("Ctrl+Alt+O", function() {
+    $('#modal_chart_open').modal('show');
+    $('#mex_hidden_conf').on('show.bs.modal', function (event) {
+      console.log("opened");
+    });
+  });
+
+  /* load data */
+  document.getElementById("btn_chart_data_load").addEventListener("click", function() {
+    console.log("load");
+    $('#modal_chart_open').modal('hide');
+  });
+
+</script>

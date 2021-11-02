@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="{% static 'plugins/jsgrid/jsgrid.min.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/jsgrid/jsgrid-theme.min.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/bootstrap-toggle/css/bootstrap-toggle.min.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}"></script>
   <style>
 
     /* display alignment with padding */
@@ -25,12 +27,16 @@
 <script type="text/javascript" src="{% static 'plugins/jsgrid/jsgrid.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/bootstrap-toggle/js/bootstrap-toggle.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/moment/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/echarts/echarts.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/shortcut.js' %}"></script>
 
 <script type="text/javascript">
   window.addEventListener('DOMContentLoaded', function(){
     if(mqtt_client){
-      mqtt_client.publish("mex/command", "heelo", 2);
+      mqtt_client.publish("mex/command", "hello", 2);
     }
     else {
       alert("not connected");
@@ -79,6 +85,8 @@ function command_program_start(){
 {% block contents %}
   <!-- for hidden configurations -->
   {% include 'modal_hconf.html' %}
+  <!-- for chart data open -->
+  {% include 'modal_chart_open.html' %}
 
 <!-- main contents -->
 <div class="content">
@@ -110,3 +118,6 @@ function command_program_start(){
 
 {% endblock %}
 
+
+{% block post_javascript %}
+{% endblock %}
