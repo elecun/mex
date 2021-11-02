@@ -1,0 +1,45 @@
+
+
+{% load static %}
+
+<div class="modal fade" id="modal_settings_new" tabindex="-1" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">{{menu_ko.settings_new}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+        <form>
+            {% csrf_token %}
+            <div class="form-group row">
+                <label for="settings_name" class="col-sm-2 col-form-label">설정명</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="settings_name">
+                    <input type="hidden" id="settings_uid">
+                </div>
+            </div>
+        </form>
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    /* shortcut key event for system configuration */
+shortcut.add("Ctrl+Alt+N", function() {
+  $('#modal_settings_new').modal('show')
+  $('#modal_settings_new').on('show.bs.modal', function (event) {
+
+  })
+});
+
+  </script>

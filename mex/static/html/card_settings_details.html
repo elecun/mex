@@ -1,6 +1,6 @@
 
 <style>
-    div > #jsGrid {
+    div > #step_table {
     height: 100%;
     color: #262626;
     font-family: 'Helvetica Neue Light', 'Open Sans', Helvetica;
@@ -12,9 +12,8 @@
 </style>
 
 {% load static %}
-<script type="text/javascript" src="{% static 'js/db.js' %}"></script>
 
-<div id="jsGrid"></div>
+<div id="step_table"></div>
 
 
 <script type="text/javascript">
@@ -48,58 +47,78 @@ $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
     }
 });
 
+var db = {
+
+    loadData: function(filter) {
+        return $.grep(this.steps, function(step) {
+            return (!filter.Name || client.Name.indexOf(filter.Name) > -1)
+                && (!filter.Age || client.Age === filter.Age)
+                && (!filter.Address || client.Address.indexOf(filter.Address) > -1)
+                && (!filter.Country || client.Country === filter.Country)
+                && (filter.Married === undefined || client.Married === filter.Married);
+        });
+    },
+
+    insertItem: function(insertingStep) {
+        this.steps.push(insertingStep);
+    },
+
+    updateItem: function(updatingStep) { },
+
+    deleteItem: function(deletingStep) {
+        var stepIndex = $.inArray(deletingStep, this.steps);
+        this.steps.splice(stepIndex, 1);
+    }
+};
+
+window.db = db;
+
+db.commands = [
+    { command: "Forward", id:0 },
+    { command: "Reverse", id:1 },
+    { command: "Stop", id:2 }
+];
+
+db.steps = [
+{
+    "Step": 1,
+    "Command": 0,
+    "Time":1,
+    "Speed":1,
+    "Load":1,
+    "Acc/Dec":1
+}
+];
 
 
-$("#jsGrid").jsGrid({
+
+$("#step_table").jsGrid({
     height: "330px",
-    width: "100%",
+    width: "943px",
 
-    filtering: true,
     editing: true,
     sorting: true,
     paging: true,
     autoload: true,
+    inserting:true,
 
     pageSize: 15,
     pageButtonCount: 5,
 
-    deleteConfirm: "Do you really want to delete the client?",
+    deleteConfirm: "Do you really want to delete?",
 
     controller: db,
 
     fields: [
-        { name: "Name", type: "text", width: 150 },
-        { name: "Age", type: "number", width: 50 },
-        { name: "Address", type: "text", width: 200 },
-        { name: "Country", type: "select", items: db.countries, valueField: "Id", textField: "Name" },
-        { name: "Married", type: "checkbox", title: "Is Married", sorting: false },
-        { type: "control" }
+        { name: "Step", type: "number", width: 50, readOnly:false, align:"right" },
+        { name: "Command", type: "select", items: db.commands, valueField: "id", textField: "command" },
+        { name: "Time", type: "text", readOnly:false, align:"right"},
+        { name: "Speed", type: "text", readOnly:false, align:"right"},
+        { name: "Load", type: "text", readOnly:false, align:"right" },
+        { name: "Acc/Dec", type: "text", readOnly:false, align:"right" },
+        { type: "control", editButton: false, modeSwitchButton: false, deleteButtonTooltip: "Delete",}
     ]
 });
-
-    // $("#jsGrid").jsGrid({
-    //     height: "330px",
-    //     width: "100%",
-
-    //     inserting: true,
-    //     editing: true,
-    //     sorting: true,
-    //     paging: false,
-
-    //     data: db.users,
-
-    //     fields: [
-    //         { name: "Step", width: 30, align: "center" },
-    //         { name: "Command", type: "mex_command", align:"center"},
-    //         { name: "시간(sec)", type: "text", align: "center" },
-    //         { type: "속도(rpm)", type:"text", align:"center" },
-    //         { type: "측면하중(ON/OFF)", type:"text", align:"center" },
-    //         { type: "가감속시간(rpm/sec)", type:"text", align:"center" },
-    //         { type: "control", editButton: false, modeSwitchButton: false }
-    //     ]
-    // });
-
-
 
   
 /* page load */
@@ -108,7 +127,6 @@ window.addEventListener('DOMContentLoaded', function(){
     $('#btn_start_step').addClass("d-none");
     $('#btn_stop_step').addClass("d-none");
     $('#btn_pause_step').addClass("d-none");
-    //load();
 });
 
 </script>

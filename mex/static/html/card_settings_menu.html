@@ -27,8 +27,7 @@
 <script language="javascript">
 
     window.addEventListener('DOMContentLoaded', function(){
-        //document.getElementById('btn_program_stop').className += ' disabled';
-        //document.getElementById('btn_program_pause').className += ' disabled';
+        
     });
 
     var update_timer = null;
@@ -36,6 +35,11 @@
     function chart_update(){
         alert("chart update");
     }
+
+    /* open new settings */
+    document.getElementById("btn_settings_new").addEventListener("click", function() {
+        $('#modal_settings_new').modal('show');
+    });
 
     /* start program event */
     document.getElementById("btn_program_start").addEventListener("click", function() {
@@ -49,7 +53,7 @@
     /* pause program event */
     document.getElementById("btn_program_pause").addEventListener("click", function() {
         //alert("start program");
-        clearInterval(update_timer);
+        
         //document.getElementById('btn_program_start').classList.remove('disabled');
     });
 
