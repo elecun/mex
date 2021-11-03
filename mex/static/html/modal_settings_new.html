@@ -18,8 +18,8 @@
             <div class="form-group row">
                 <label for="settings_name" class="col-sm-2 col-form-label">설정명</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="settings_name">
-                    <input type="hidden" id="settings_uid">
+                    <input type="text" class="form-control" id="new_settings_name" required>
+                    <input type="hidden" id="new_settings_uid" value="">
                 </div>
             </div>
         </form>
@@ -27,19 +27,53 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Create</button>
+        <button type="button" class="btn btn-primary" id="btn_settings_new_create">Create</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-    /* shortcut key event for system configuration */
-shortcut.add("Ctrl+Alt+N", function() {
-  $('#modal_settings_new').modal('show')
-  $('#modal_settings_new').on('show.bs.modal', function (event) {
+  /* async request to generate uid for creating new settings */
+  async function request_setting_uid_generate(){
+    let response = await REST_GET("{% url 'api_settings_uid_generate' %}");
+    if(response){
+      document.getElementById('new_settings_uid').value = response.data.uid;
+      document.getElementById('btn_settings_new_create').classList.remove('disabled');
+    }
+    else{
+      console.log("Nothing generated UID");
+    }
+  }
 
-  })
-});
+  /* async request to create new settings */
+  async function request_create_new_settings(){
+    let uid = document.getElementById('new_settings_uid').value;
+    let name = document.getElementById('new_settings_name').value;
+    let response = await REST_POST("{% url 'api_settings_new' %}", {"uid":uid, "name":name});
+    if(response.status==200){
+      document.getElementById('edit_settings_name').value = name;
+      document.getElementById('hidden_settings_uid').value = uid;
+    }
+  }
+  
+  /* create event listener */
+  document.getElementById('btn_settings_new_create').addEventListener('click', function(){
+    $('#modal_settings_new').modal('hide');
+    //create new setting
+    request_create_new_settings();
+  });
+
+  /* after window is shown, do request uid */
+  $('#modal_settings_new').on('show.bs.modal', function (event) {
+    document.getElementById('new_settings_name').value = "";
+    document.getElementById('btn_settings_new_create').classList.add('disabled');
+    request_setting_uid_generate(); //after shown do request uid
+  });
+
+  /* shortcut key event for system configuration */
+  shortcut.add("Ctrl+Alt+N", function() {
+    $('#modal_settings_new').modal('show');
+  });
 
   </script>

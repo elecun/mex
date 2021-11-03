@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'api_control',
     'api_data',
     'api_program',
+    'api_settings',
     'rest_framework',
 ]
 
@@ -162,6 +163,6 @@ REST_FRAMEWORK = {
 # LOGOUT_REDIRECT_URL = '/' #url redirection after logged in
 
 #MQTT_BROKER_ADDRESS = "168.126.66.23"
-MQTT_BROKER_ADDRESS = "127.0.0.1"
+MQTT_BROKER_ADDRESS = "192.168.11.8"
 MQTT_BROKER_PORT = 1883
 MQTT_BROKER_WEBSCOKET = 8083

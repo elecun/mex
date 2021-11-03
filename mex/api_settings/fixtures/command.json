@@ -1,6 +1,6 @@
 [
     {
-      "model": "api_program.Command",
+      "model": "api_settings.Command",
       "pk": 1,
       "fields": {
         "command":"FORWARD",
@@ -8,7 +8,7 @@
       }
     },
     {
-        "model": "api_program.Command",
+        "model": "api_settings.Command",
         "pk": 2,
         "fields": {
           "command":"REVERSE",
@@ -16,7 +16,7 @@
         }
       },
       {
-        "model": "api_program.Command",
+        "model": "api_settings.Command",
         "pk": 3,
         "fields": {
           "command":"STOP",
