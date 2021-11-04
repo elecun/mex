@@ -36,7 +36,7 @@ using namespace nlohmann;
 #define MEX_RELAY_CONTROL_TOPIC    "jstec/mex/relay/control"
 #define MEX_RELAY_VALUE_TOPIC    "jstec/mex/relay"
 #define MEX_RPM_VALUE_TOPIC         "jstec/mex/rpm"
-#define MEX_TEMPERATURE_VALUE_TOPIC         "jstec/mex/temperature"
+#define MEX_TEMPERATURE_VALUE_TOPIC         "mex/sensor/temperature"
 
 //global variables
 serialbus* _serialbus = nullptr;

@@ -22,7 +22,6 @@ urlpatterns = [
     path('', include('app_mex.urls')),
     path('api/control/', include('api_control.urls')),
     path('api/data/', include('api_data.urls')),
-    path('api/program/', include('api_program.urls')),
     path('api/settings/', include('api_settings.urls')),
 ]
 

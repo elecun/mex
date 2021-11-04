@@ -5,7 +5,9 @@
             <label for="edit_settings_name">{{menu_ko.settings_name}} :</label>
               <div class="input-group date" id="reservationdatetime" data-target-input="nearest">
                 <input type="text" id="edit_settings_name" class="form-control form-control-sm" readonly>
+                <button class="btn btn-sm bg-secondary" id="btn_setting_reload"><i class="fas fa-sync-alt"></i> Reload</button>
                 <input type="hidden" id="hidden_settings_uid">
+                <input type="hidden" id="hidden_settings_id">
               </div>
           </div>
 
@@ -41,8 +43,8 @@
                     <td><input type="text" id="edit_settings_general_wtime" class="form-control form-control-sm" placeholder=""></td>
                 </tr>
                 <tr>
-                    <td class="text-right">{{menu_ko.settings_general_interval}} :</td>
-                    <td><input type="text" id="edit_settings_general_interval" class="form-control form-control-sm" placeholder=""></td>
+                    <td class="text-right">{{menu_ko.settings_general_update_interval}} :</td>
+                    <td><input type="text" id="edit_settings_general_update_interval" class="form-control form-control-sm" placeholder=""></td>
                 </tr>
             </tbody>
         </table>

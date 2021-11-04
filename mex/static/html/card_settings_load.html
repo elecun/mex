@@ -1,141 +1,139 @@
 
+<style>
 
-<table class="table table-head-fixed text-nowrap">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Date</th>
-        <th>Setting Data</th>
-        <th width="30%">Note</th>
-        <th width="10%"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>183</td>
-        <td>John Doe</td>
-        <td>11-7-2014</td>
-        <td><span class="tag tag-success">Approved</span></td>
-        <td>
-            <button type="button" class="btn btn-sm" ><i class="fas fa-folder-open text-success"></i> Load</button>
-            <button type="button" class="btn btn-sm" ><i class="fas fa-trash text-danger"></i> Delete</button>
-        </td>
-      </tr>
-      
-    </tbody>
-  </table>
+.dataTables_scrollHeadInner {
+  width: 100% !important;
+}
+.dataTables_scrollHeadInner table {
+  width: 100% !important;
+}
+
+</style>
+
+<div class="row m-0 mt-1">
+  <div class="col-sm-12">
+    <table class="table table-sm display compact" id="table_settings_list" width="100%">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>UID</th>
+          <th>Craeted</th>
+          <th>Name</th>
+          <th>Machine</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+      <tfoot>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+
 
 <script type="text/javascript">
+
+/* setting list table */
+var settings_list_table = $('#table_settings_list').DataTable({
+      "autoload":true,
+      "scrollX":false,
+      "scrollY": "250px",
+      "scrollCollapse":true,
+      "paging":false,
+      "ordering":true,
+      "columnDefs": [
+        {
+            "targets": [ 1 ],
+            "visible": false,
+            "searchable": false
+        }]
+});
+
+/* delete settings by id */
+async function request_settings_delete(id){
+  if(confirm("Delete?")){
+    const req = {"id":id};
+    const response = await REST_POST("{% url 'api_settings_delete' %}", req);
+    if(response.ok){
+      update_settings_list();
+    }
+  }
+}
+
+/* apply the parameters for all forms */
+function apply_settings_data(params){
+  document.getElementById('edit_settings_name').value = params.data.name;
+  document.getElementById('hidden_settings_id').value = params.data.id;
+  document.getElementById('hidden_settings_uid').value = params.data.uid;
+
+  document.getElementById('edit_settings_general_machinename').value = params.data.machine_name;
+  document.getElementById('edit_settings_general_jsno').value = params.data.jsno;
+  document.getElementById('edit_settings_general_productsize').value = params.data.product_size;
+  document.getElementById('edit_settings_general_rollersize').value = params.data.roller_size;
+  document.getElementById('edit_settings_genral_vload').value = params.data.vload;
+  document.getElementById('edit_settings_general_wtime').value = params.data.wtime;
+  document.getElementById('edit_settings_general_update_interval').value = params.data.update_interval;
+
+  document.getElementById('edit_settings_general_temp_min').value = params.data.limit_temperature_min;
+  document.getElementById('edit_settings_general_temp_min_count').value = params.data.limit_temperature_min_count;
+  document.getElementById('edit_settings_general_temp_max').value = params.data.limit_temperature_max;
+  document.getElementById('edit_settings_general_temp_max_count').value = params.data.limit_temperature_max_count;
+  document.getElementById('edit_settings_general_rpm_max').value = params.data.limit_rpm_max;
+  document.getElementById('edit_settings_general_rpm_max_count').value = params.data.limit_rpm_max_count;
+  document.getElementById('edit_settings_general_load_min').value = params.data.limit_load_min;
+  document.getElementById('edit_settings_general_load_min_count').value = params.data.limit_load_min_count;
+  document.getElementById('edit_settings_general_load_max').value = params.data.limit_load_max;
+  document.getElementById('edit_settings_general_load_max_count').value = params.data.limit_load_max_count;
+
+  //parse steps & insert items
+  const steps = JSON.parse(params.data.steps);
+  $("#settings_step_table").jsGrid("option", "data", []); //clear data
+  steps.forEach(function(element){
+    $("#settings_step_table").jsGrid("insertItem", element).done(function() {});
+  });
+}
+
+/* load settings by id*/
+async function request_settings_load(id){
+  if(confirm("Load selected?")){
+    let url = "{% url 'api_settings_load' 99 %}".replace('99', id);
+    const response = await REST_GET(url);
+    const data = await response.json();
+    if(response.ok){
+      apply_settings_data(data);
+      $('#tab_settings_general_link').tab('show'); //tab move
+    }
+  }
+}
     
-    
+/* request settings list */
+async function update_settings_list(){
+  settings_list_table.clear();
+
+  const response = await REST_GET("{% url 'api_settings_list' %}");
+  const listdata = await response.json();
+
+  if(response.ok){
+    listdata.data.forEach(function(s){
+      var date_created = new Date(s.created_at);
+      const date = date_created.toLocaleDateString() + date_created.toLocaleTimeString();
+      var manage = '<button type="button" class="btn btn-light btn-sm" onclick=javascript:request_settings_load('+s.id+');><i class="fas fa-folder-open mr-1 text-info"></i> Load</button>\
+                    <button type="button" class="btn btn-light btn-sm" onclick=javascript:request_settings_delete('+s.id+');><i class="fas fa-trash mr-1 text-danger"></i> Delete</button>';
+      settings_list_table.row.add([s.id, s.uid, date, s.name, s.machine_name, manage]);
+    });
+    settings_list_table.draw();
+
+  }
+}
+
+/* page load */
+window.addEventListener('DOMContentLoaded', function(){
+  update_settings_list();
+});    
+
 
     
-    
-    
-    
-    // $(function () {
-    
-    //     $("#programtable").jsGrid({
-    //         height: "100%",
-    //         width: "100%",
-    
-    //         filtering: false,
-    //         editing: true,
-    //         sorting: true,
-    //         paging: false,
-    //         autoload: true,
-    //         deleteConfirm: function(item) {
-    //             return "The client \"" + item.Name + "\" will be removed. Are you sure?";
-    //         },
-    //         rowClick: function(args) {
-    //             showDetailsDialog("Edit", args.item);
-    //         },
-    
-    //         // controller: {
-    //         //     loadData: function() {
-    //         //         var d = $.Deferred();
-     
-    //         //         $.ajax({
-    //         //             url: "http://services.odata.org/V3/(S(3mnweai3qldmghnzfshavfok))/OData/OData.svc/Products",
-    //         //             dataType: "json"
-    //         //         }).done(function(response) {
-    //         //             d.resolve(response.value);
-    //         //         });
-     
-    //         //         return d.promise();
-    //         //     }
-    //         // },
-            // controller : {
-            //     loadData : function(){
-            //         var d = $.Deferred();
-            //         let data = {
-            //             "Step": 1,
-            //             //"Command": 1,
-            //             "Time(s)": 6,
-            //             "Speed": 1,
-            //             "Load": 1,
-            //             "Acc/Dev": 1
-            //         };
-            //         var jdata = JSON.stringify(data);
-            //         console.log(jdata);
-            //         d.resolve(jdata);
-            //         return jdata;
-            //     }
-            // },
-    
-            // fields: [
-            //     { name: "Step", type: "number", width: 50 },
-            //     //{ name: "Command", type: "select", items: db.command, valueField: "id", textField: "name" },
-            //     { name: "Time(s)", type: "number" },
-            //     { name: "Speed", type: "number" },
-            //     { name: "Load", type: "number" },
-            //     { name: "Acc/Dec", type: "number" },
-            //     {
-            //         type: "control",
-            //         modeSwitchButton: false,
-            //         editButton: false
-            //         // headerTemplate: function() {
-            //         //     return $("<button>").attr("type", "button").text("Add")
-            //         //             .on("click", function () {
-            //         //                 showDetailsDialog("Add", {});
-            //         //             });
-            //         // }
-            //     }
-            // ]
-    //     });
-    //   });
-      
-        /* page load */
-    window.addEventListener('DOMContentLoaded', function(){
-        
-    });
-    
-    // $("#jsGrid").jsGrid({
-    //      height: "90%",
-    //      width: "100%",
-    
-    //      filtering: true,
-    //      editing: true,
-    //      sorting: true,
-    //      paging: true,
-    //      autoload: true,
-    
-    //      pageSize: 15,
-    //      pageButtonCount: 5,
-    
-    //      deleteConfirm: "Do you really want to delete the client?",
-    
-    //      controller: db,
-    
-    //      fields: [
-    //          { name: "Name", type: "text", width: 150 },
-    //          { name: "Age", type: "number", width: 50 },
-    //          { name: "Address", type: "text", width: 200 },
-    //          { name: "Country", type: "select", items: db.countries, valueField: "Id", textField: "Name" },
-    //          { name: "Married", type: "checkbox", title: "Is Married", sorting: false },
-    //          { type: "control" }
-    //      ]
-    //  });
-    
-    </script>
+</script>
     

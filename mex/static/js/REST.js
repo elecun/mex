@@ -13,9 +13,6 @@ function REST_GET(url){
 		cache:'no-cache',
 		redirect:'follow',
 		referrer:'no-referrer',
-    })
-    .then(function(response) {
-        return response.json();
     });
 }
 
@@ -29,9 +26,6 @@ function REST_POST(url, data){
 		redirect:'follow',
 		referrer:'no-referrer',
 		body: JSON.stringify(data),
-    })
-    .then(function(response) {
-        return response.json();
     });
 }
 

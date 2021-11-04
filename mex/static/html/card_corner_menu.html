@@ -33,14 +33,14 @@
 
    /* emergency stop request */
    async function request_emergency_stop(){
-        let param = {"command":"control_emergency"};
-        let response = await REST_POST("{% url 'control_emergency' %}", param);
-        console.log(response);
+      //   let param = {"command":"control_emergency"};
+      //   let response = await REST_POST("{% url 'api_control_emergency' %}", param);
+      //   console.log(response);
    }
 
    /* emergency stop event */
-   document.getElementById("btn_emergency_stop").addEventListener("click", function() {
-      request_emergency_stop();
-   });
+   // document.getElementById("btn_emergency_stop").addEventListener("click", function() {
+   //    request_emergency_stop();
+   // });
 
 </script>

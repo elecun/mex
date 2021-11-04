@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{% static 'plugins/bootstrap-toggle/css/bootstrap-toggle.min.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}"></script>
+  <link rel="stylesheet" href="{% static 'plugins/datatables/jquery.dataTables.min.css' %}"></script>
   <style>
 
     /* display alignment with padding */
@@ -24,6 +25,7 @@
 {% endblock %}
 
 {% block javascript %}
+
 <script type="text/javascript" src="{% static 'plugins/jsgrid/jsgrid.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/bootstrap-toggle/js/bootstrap-toggle.min.js' %}"></script>
@@ -31,51 +33,95 @@
 <script type="text/javascript" src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/echarts/echarts.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/datatables/datatables.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/shortcut.js' %}"></script>
 
+
+
 <script type="text/javascript">
-  window.addEventListener('DOMContentLoaded', function(){
-    if(mqtt_client){
-      mqtt_client.publish("mex/command", "hello", 2);
-    }
-    else {
-      alert("not connected");
-    }
-  });
 
-  /* MQTT commands */
-  window.addEventListener("command", function(event){
-        switch(event.data.function){
-            case "program_start": { 
-                // on_device_manual_control(url, event.data.args);
-            } break; 
-            case "program_pause" : {
-            } break;
-            case "program_stop" : { 
-            } break; 
-            case "set_zero" : { 
-            } break; 
-            case "rotate_forward" : { 
-            } break;
-            case "rotate_reverse" : { 
-            } break;
-            case "rotate_stop" : { 
-            } break;
-            case "motor_on":{
-            } break;
-            case "motor_off":{
-            } break;
-            case "side_load_on":{
-            } break;
-            case "side_load_off":{
-            } break;
-        }
-    });
+/* page load */
+window.addEventListener('DOMContentLoaded', function(){
+  
+});
 
-/* program start command */
-function command_program_start(){
-  mqtt_client.publish("mex/command/program_start", json.dump({}), 2);
+let mqtt_client_id = "mex-client-"+parseInt(Math.random()*10000, 10);
+var mqtt_client = new Paho.Client("{{system.mqtt_broker_ip}}", Number({{system.mqtt_broker_port}}), mqtt_client_id);
+var mqtt_connected = false;
+mqtt_client.onConnectionLost = mqtt_onConnectionLost;
+mqtt_client.onMessageArrived = mqtt_onMessageArrived;
+mqtt_client.connect({onSuccess:mqtt_onConnect, onFailure:mqtt_onFailure, reconnect: true, useSSL:false});
+
+/* MQTT Connection event callback */
+function mqtt_onConnect(){
+  mqtt_connected = true;
+  mqtt_client.subscribe("mex/#");
+  $.notify("Successfully connected to system!!", {className: "success",position:"bottom left"});
 }
+
+/* MQTT Failure event callback */
+function mqtt_onFailure(){
+  $.notify("System connection has a problem", {className: "error",position:"bottom left"});
+}
+
+/* MQTT Connection lost event callback */
+function mqtt_onConnectionLost(responseObject){
+    mqtt_connected = false;
+    $.notify("System connection is lost", {className: "error",position:"bottom left"});
+}
+
+/* MQTT message arrived event callback */
+function mqtt_onMessageArrived(message){
+    const payload = JSON.parse(message.payloadString);
+
+    switch(message.topic){
+      case "mex/sensor/temperature": { //temperature data
+
+      } break;
+
+      case "mex/sensor/rpm":{ //rpm data
+
+      } break;
+
+      case "mex/sensor/loadcell":{ //loadcell
+
+      } break;
+      
+    }
+
+}
+
+
+//   /* MQTT commands */
+//   window.addEventListener("command", function(event){
+//         switch(event.data.function){
+//             case "program_start": { 
+//                 // on_device_manual_control(url, event.data.args);
+//             } break; 
+//             case "program_pause" : {
+//             } break;
+//             case "program_stop" : { 
+//             } break; 
+//             case "set_zero" : { 
+//             } break; 
+//             case "rotate_forward" : { 
+//             } break;
+//             case "rotate_reverse" : { 
+//             } break;
+//             case "rotate_stop" : { 
+//             } break;
+//             case "motor_on":{
+//             } break;
+//             case "motor_off":{
+//             } break;
+//             case "side_load_on":{
+//             } break;
+//             case "side_load_off":{
+//             } break;
+//         }
+//     });
+
+
 
 
 </script>
@@ -89,6 +135,10 @@ function command_program_start(){
   {% include 'modal_chart_open.html' %}
   <!-- for new settings -->
   {% include 'modal_settings_new.html' %}
+  <!-- for notification -->
+  {% include 'modal_notify.html' %}
+  <!-- for error -->
+  {% include 'modal_error.html' %}
 
 <!-- main contents -->
 <div class="content">
@@ -122,4 +172,7 @@ function command_program_start(){
 
 
 {% block post_javascript %}
+<script type="text/javascript">
+
+</script>
 {% endblock %}

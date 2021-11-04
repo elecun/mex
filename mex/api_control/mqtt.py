@@ -1,61 +1,32 @@
 
 
-import paho.mqtt.client as mqtt
-from django.conf import settings
+# import paho.mqtt.client as mqtt
+# from django.conf import settings
+# import json
 
-'''
-for singleton pattern
-'''
-class Singleton:
-  __instance = None
+# # for MQTT callback
+# def on_connect(client, obj, flags, rc):
+#     print("> mqtt connect rc: "+str(rc))
+#     mqtt_client.
 
-  @classmethod
-  def __getInstance(cls):
-    return cls.__instance
+# def on_message(client, userdata, msg):
+#     print(msg.topic+" "+str(msg.payload))
 
-  @classmethod
-  def instance(cls, *args, **kargs):
-    cls.__instance = cls(*args, **kargs)
-    cls.instance = cls.__getInstance
-    return cls.__instance
+# def on_publish(client, obj, mid):
+#     print("mid: "+str(mid))
 
-'''
-singleton controlMqtt class
-'''
-class controlMqtt(mqtt.Client):
+# def on_subscribe(client, obj, mid, granted_qos):
+#     print("Subscribed: "+str(mid)+" "+str(granted_qos))
 
-    def __init__(self, *args, **kwargs):
-        self._connected = False
-        super().__init__(*args, **kwargs)
+# def on_log(client, obj, level, string):
+#     print(string)
 
-    def __del__(self):
-        self.loop_stop()
-        self.disconnect()
+# def on_disconnect(client, userdata, rc):
+#     print("uvlc control mqtt on_disconnect")
 
-    def is_connected(self):
-        return self._connected
-
-    def on_connect(self, client, obj, flags, rc):
-        if rc==0:
-            self._connected = True
-        print("MQTT connected: "+str(rc))
-
-    def on_disconnect(self, client, userdata, rc):
-        print("mqtt disconnected")
-
-    def on_message(self, client, obj, msg):
-        print(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
-
-    def on_publish(self, client, obj, mid):
-        print("mid: "+str(mid))
-
-    def on_subscribe(self, client, obj, mid, granted_qos):
-        print("Subscribed: "+str(mid)+" "+str(granted_qos))
-
-    def on_log(self, client, obj, level, string):
-        print(string)
-
-    def run(self, address, port):
-        self.connect(address, port, 60)
-        self.publish("aop/uvlc/data", "test", 2)
-        # self.subscribe("aop/uvlc/monitor", 2)
+# mqtt_client = mqtt.Client()
+# mqtt_client.on_connect = on_connect
+# mqtt_client.on_disconnect = on_disconnect
+# mqtt_client.on_message = on_message
+# mqtt_client.connect(settings.MQTT_BROKER_ADDRESS, settings.MQTT_BROKER_PORT, 60)
+# # mqtt_client.loop_start()

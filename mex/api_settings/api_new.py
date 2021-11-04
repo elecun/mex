@@ -24,20 +24,21 @@ class API(APIView):
 
     def post(self, request, *args, **kwargs):
         try :
-            if 'uid' in request.data:
-                Settings.objects.get(uid=request.data["uid"])
-                print("This Setting is already exist")
-                return Response({"status":status.HTTP_500_INTERNAL_SERVER_ERROR, "message":"This setting is already exist"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except Settings.DoesNotExist:
-            # new settings
-            _new_settings = Settings()
-            _new_settings.uid = request.data["uid"]
-            _new_settings.name = request.data["name"]
-            _new_settings.save()
-            print("Registered New Settings")
-            return Response({"status":status.HTTP_200_OK}, status=status.HTTP_200_OK)
-            
+            if 'name' in request.data:
+                # new settings
+                _new_settings = Settings()
+                _new_settings.uid = uuid.uuid4().hex
+                _new_settings.name = request.data["name"]
+                _new_settings.note = request.data["note"]
+                _new_settings.save()
+                print("Registered New Settings : ", _new_settings.uid)
+                _new_settings_object = model_to_dict(_new_settings)
+                return Response({"data":_new_settings_object}, status=status.HTTP_200_OK)
+            else:
+                print("Setting name must be required")
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
             print("Exception : Regist new setting ", str(e))
-            return Response({"status":status.HTTP_500_INTERNAL_SERVER_ERROR, "message":str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"message":str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

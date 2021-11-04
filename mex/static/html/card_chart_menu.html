@@ -55,9 +55,9 @@ window.addEventListener('DOMContentLoaded', function(){
 
 /* emergency stop request */
 async function request_emergency_stop(){
-      let param = {"command":"control_emergency"};
-      let response = await REST_POST("{% url 'control_emergency' %}", param);
-      console.log(response);
+      // let param = {"command":"control_emergency"};
+      // let response = await REST_POST("{% url 'api_control_emergency' %}", param);
+      // console.log(response);
 }
 
 /* csv download */

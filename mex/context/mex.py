@@ -22,14 +22,14 @@ def context_processors(request):
         'menu_ko':{
             'settings_details':"상세설정",
             'settings_general':"일반설정",
-            'settings_load':"설정로드",
+            'settings_load':"불러오기",
             'settings_save' : "설정저장",
             'settings_new' : "새 설정",
             'settings_reserve' : "예약설정",
             'start_step' : "시험시작",
             'pause_step' : "시험일시정지",
             'stop_step' : "시험중지",
-            'set_zero' : "영점설정",
+            'zeroset' : "영점설정",
             'settings_name':"설정명",
             'settings_general_machinename':"장비명",
             'settings_general_jsno':"JS No.",
@@ -37,7 +37,7 @@ def context_processors(request):
             'settings_general_rollersize':"구동롤러 사이즈(ø)",
             'settings_general_jsno':"JS No.",
             'settings_general_wtime':"시험시간(hr)",
-            'settings_general_interval':"측정 주기(sec)",
+            'settings_general_update_interval':"측정 주기(sec)",
             'settings_general_rpm':"제한속도(rpm)",
             'settings_general_rpm_max':"max",
             'settings_general_rpm_max_count':"count",
@@ -72,6 +72,8 @@ def context_processors(request):
             'settings_reserve_datetime':"실행 날짜/시각",
             'settings_reserve_add':"예약 추가",
             'settings_reserve_list':"예약 리스트",
+            'message_update_success':"정상적으로 설정을 업데이트 하였습니다.",
+            'message_update_error_no_target':"업데이트할 설정 대상이 지정되지 않았습니다.",
         }
     }
 

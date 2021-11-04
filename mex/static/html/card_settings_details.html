@@ -9,12 +9,15 @@
     padding: 1px;
 }
 
+tr.jsgrid-row {
+  height: 2rem;
+}
+
 </style>
 
 {% load static %}
 
-<div id="step_table"></div>
-
+<div id="settings_step_table"></div>
 
 <script type="text/javascript">
 
@@ -47,16 +50,11 @@ $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
     }
 });
 
-var db = {
+/* step tables database */
+var step_db = {
 
     loadData: function(filter) {
-        return $.grep(this.steps, function(step) {
-            return (!filter.Name || client.Name.indexOf(filter.Name) > -1)
-                && (!filter.Age || client.Age === filter.Age)
-                && (!filter.Address || client.Address.indexOf(filter.Address) > -1)
-                && (!filter.Country || client.Country === filter.Country)
-                && (filter.Married === undefined || client.Married === filter.Married);
-        });
+        return [];
     },
 
     insertItem: function(insertingStep) {
@@ -71,33 +69,22 @@ var db = {
     }
 };
 
-window.db = db;
+//window.db = step_db;
 
-db.commands = [
+step_db.commands = [
     { command: "Forward", id:0 },
     { command: "Reverse", id:1 },
     { command: "Stop", id:2 }
 ];
 
-db.steps = [
-{
-    "Step": 1,
-    "Command": 0,
-    "Time":1,
-    "Speed":1,
-    "Load":1,
-    "Acc/Dec":1
-}
-];
+step_db.steps = [];
 
-
-
-$("#step_table").jsGrid({
-    height: "330px",
+$("#settings_step_table").jsGrid({
+    height: "240px",
     width: "943px",
 
     editing: true,
-    sorting: true,
+    sorting: false,
     paging: true,
     autoload: true,
     inserting:true,
@@ -106,12 +93,10 @@ $("#step_table").jsGrid({
     pageButtonCount: 5,
 
     deleteConfirm: "Do you really want to delete?",
-
-    controller: db,
-
+    controller: step_db,
     fields: [
         { name: "Step", type: "number", width: 50, readOnly:false, align:"right" },
-        { name: "Command", type: "select", items: db.commands, valueField: "id", textField: "command" },
+        { name: "Command", type: "select", items: step_db.commands, valueField: "id", textField: "command" },
         { name: "Time", type: "text", readOnly:false, align:"right"},
         { name: "Speed", type: "text", readOnly:false, align:"right"},
         { name: "Load", type: "text", readOnly:false, align:"right" },

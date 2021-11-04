@@ -3,6 +3,14 @@
 <a class="btn btn-app btn-app-side invisible mb-0" id="btn_empty">
 </a>
 
+<a class="btn btn-app btn-app-side bg-success shadow" id="btn_settings_new">
+    <i class="fas fa-plus"></i> {{menu_ko.settings_new}}
+</a>
+
+<a class="btn btn-app btn-app-side bg-primary shadow" id="btn_settings_save">
+    <i class="fas fa-save"></i> {{menu_ko.settings_save}}
+</a>
+
 <a class="btn btn-app btn-app-side bg-dark shadow" id="btn_start_step">
     <i class="fas fa-play"></i> {{menu_ko.start_step}}
 </a>
@@ -13,14 +21,6 @@
 
 <a class="btn btn-app btn-app-side bg-dark shadow" id="btn_stop_step">
     <i class="fas fa-stop"></i> {{menu_ko.stop_step}}
-</a>
-
-<a class="btn btn-app btn-app-side bg-success shadow" id="btn_settings_new">
-    <i class="fas fa-plus"></i> {{menu_ko.settings_new}}
-</a>
-
-<a class="btn btn-app btn-app-side bg-primary shadow" id="btn_settings_save">
-    <i class="fas fa-save"></i> {{menu_ko.settings_save}}
 </a>
 
 
@@ -41,24 +41,70 @@
         $('#modal_settings_new').modal('show');
     });
 
+    /* settings parameters update request */
+    async function request_settings_update(data){
+        let url = "{% url 'api_settings_update' 99 %}".replace('99', data["id"]);
+        const response = await REST_POST(url, data);
+
+        if(response.ok){
+            document.getElementById('modal_notify_content').innerText = "{{menu_ko.message_update_success}}";
+            $('#modal_notify').modal('show');
+        }
+    }
+
+    /* save & update settings */
+    document.getElementById('btn_settings_save').addEventListener('click', function(){
+
+        console.log(step_db.steps);
+
+        if(!document.getElementById('hidden_settings_id').value || !document.getElementById('edit_settings_name').value){
+            document.getElementById('modal_error_content').innerText = "{{menu_ko.message_update_error_no_target}}";
+            $('#modal_error').modal('show');
+        }
+        else{
+            var data = {};
+            data["id"] = document.getElementById('hidden_settings_id').value;
+            data["uid"] = document.getElementById('hidden_settings_uid').value;
+            data["name"] = document.getElementById('edit_settings_name').value;
+            data["machine_name"] = document.getElementById('edit_settings_general_machinename').value;
+            data["jsno"] = document.getElementById('edit_settings_general_jsno').value;
+            data["product_size"] = document.getElementById('edit_settings_general_productsize').value;
+            data["vload"] = document.getElementById('edit_settings_genral_vload').value;
+            data["roller_size"] = document.getElementById('edit_settings_general_rollersize').value;
+            data["wtime"] = document.getElementById('edit_settings_general_wtime').value;
+            data["update_interval"] = document.getElementById('edit_settings_general_update_interval').value;
+            data["limit_temperature_min"] = document.getElementById('edit_settings_general_temp_min').value;
+            data["limit_temperature_max"] = document.getElementById('edit_settings_general_temp_max').value;
+            data["limit_temperature_min_count"] = document.getElementById('edit_settings_general_temp_min_count').value;
+            data["limit_temperature_max_count"] = document.getElementById('edit_settings_general_temp_max_count').value;
+            data["limit_rpm_max"] = document.getElementById('edit_settings_general_rpm_max').value;
+            data["limit_rpm_max_count"] = document.getElementById('edit_settings_general_rpm_max_count').value;
+            data["limit_load_min"] = document.getElementById('edit_settings_general_load_min').value;
+            data["limit_load_max"] = document.getElementById('edit_settings_general_load_max').value;
+            data["limit_load_min_count"] = document.getElementById('edit_settings_general_load_min_count').value;
+            data["limit_load_max_count"] = document.getElementById('edit_settings_general_load_max_count').value;
+
+            data["steps"] = JSON.stringify(step_db.steps);
+            request_settings_update(data);
+        }
+    });
+
     /* start program event */
-    document.getElementById("btn_program_start").addEventListener("click", function() {
-        //alert("start program");
-        update_timer = setInterval(chart_update, 3000);
+    document.getElementById('btn_start_step').addEventListener('click', function() {
         //document.getElementById('btn_program_start').className += ' disabled';
         //document.getElementById('btn_program_stop').classList.remove('disabled');
         //document.getElementById('btn_program_pause').classList.remove('disabled');
     });
 
     /* pause program event */
-    document.getElementById("btn_program_pause").addEventListener("click", function() {
+    document.getElementById('btn_pause_step').addEventListener('click', function() {
         //alert("start program");
         
         //document.getElementById('btn_program_start').classList.remove('disabled');
     });
 
     /* stop program event */
-    document.getElementById("btn_program_stop").addEventListener("click", function() {
+    document.getElementById('btn_stop_step').addEventListener('click', function() {
         alert("stop program");
         //document.getElementById('btn_program_start').classList.remove('disabled');
     });

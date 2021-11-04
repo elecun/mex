@@ -15,7 +15,46 @@
   <i class="fas fa-stop"></i> {{menu_ko.status_manual_control_stop}}
 </a>
 
-<a class="btn btn-app btn-app-side bg-success shadow" id="btn_set_zero">
-  <i class="fas fa-slash"></i> {{menu_ko.set_zero}}
+<a class="btn btn-app btn-app-side bg-success shadow" id="btn_zeroset">
+  <i class="fas fa-slash"></i> {{menu_ko.zeroset}}
 </a>
 
+
+<script language="javascript">
+
+/* page load */
+window.addEventListener('DOMContentLoaded', function(){
+    
+});
+
+/* request zeroset command */
+async function request_zeroset(){
+  const response = await REST_POST("{% url 'api_control_zeroset' %}");
+  const data = response.json();
+
+  if(response.ok){
+    console.log("zeroset called");
+  }
+}
+
+/* mqtt command for zeroset */
+function mqtt_command_zeroset(){
+  if(mqtt_connected){
+    if(mqtt_client){
+      mqtt_client.publish("mex/control", JSON.stringify({"command":"zeroset"}), 2);
+    }
+    else {
+      alert("no mqtt client");
+    }
+  }
+  else{
+
+  }
+}
+
+/* call zeroset event */
+document.getElementById('btn_zeroset').addEventListener('click', function(){
+  mqtt_command_zeroset();
+});
+
+</script>

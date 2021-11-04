@@ -16,10 +16,15 @@
         <form>
             {% csrf_token %}
             <div class="form-group row">
-                <label for="settings_name" class="col-sm-2 col-form-label">설정명</label>
+                <label for="new_settings_name" class="col-sm-2 col-form-label text-right">설정명</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="new_settings_name" required>
-                    <input type="hidden" id="new_settings_uid" value="">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="new_settings_note" class="col-sm-2 col-form-label text-right">설명</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="new_settings_note" rows="3"></textarea>
                 </div>
             </div>
         </form>
@@ -33,42 +38,34 @@
   </div>
 </div>
 
-<script>
-  /* async request to generate uid for creating new settings */
-  async function request_setting_uid_generate(){
-    let response = await REST_GET("{% url 'api_settings_uid_generate' %}");
-    if(response){
-      document.getElementById('new_settings_uid').value = response.data.uid;
-      document.getElementById('btn_settings_new_create').classList.remove('disabled');
-    }
-    else{
-      console.log("Nothing generated UID");
-    }
-  }
+<script type="text/javascript">
 
   /* async request to create new settings */
   async function request_create_new_settings(){
-    let uid = document.getElementById('new_settings_uid').value;
     let name = document.getElementById('new_settings_name').value;
-    let response = await REST_POST("{% url 'api_settings_new' %}", {"uid":uid, "name":name});
-    if(response.status==200){
+    let note = document.getElementById('new_settings_note').value;
+
+    const response = await REST_POST("{% url 'api_settings_new' %}", {"name":name, "note":note});
+    const data = await response.json();
+
+    if(response.ok){
       document.getElementById('edit_settings_name').value = name;
-      document.getElementById('hidden_settings_uid').value = uid;
+      document.getElementById('btn_setting_reload').click();
+      update_settings_list();
+      apply_settings_data(data);
     }
   }
   
   /* create event listener */
   document.getElementById('btn_settings_new_create').addEventListener('click', function(){
     $('#modal_settings_new').modal('hide');
-    //create new setting
     request_create_new_settings();
   });
 
   /* after window is shown, do request uid */
   $('#modal_settings_new').on('show.bs.modal', function (event) {
     document.getElementById('new_settings_name').value = "";
-    document.getElementById('btn_settings_new_create').classList.add('disabled');
-    request_setting_uid_generate(); //after shown do request uid
+    document.getElementById('new_settings_note').value = "";
   });
 
   /* shortcut key event for system configuration */

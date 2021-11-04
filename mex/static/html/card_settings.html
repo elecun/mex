@@ -9,7 +9,7 @@
           </div>
 
         <!-- navigation tabs -->
-        <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+        <ul class="nav nav-tabs" id="tab_settings" role="tablist">
             <!-- settings general tab title & link -->
             <li class="nav-item">
                 <a class="nav-link active" id="tab_settings_general_link" data-toggle="pill" href="#tab_settings_general" role="tab" aria-controls="tab_settings_general" aria-selected="true">
@@ -36,7 +36,7 @@
         </ul>
     </div>
     <div class="card-body p-0">
-        <div class="tab-content" id="custom-tabs-four-tabContent">
+        <div class="tab-content" id="tab_settings_contents">
             <div class="tab-pane show active" id="tab_settings_general" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
                 {% include 'card_settings_general.html' %}
             </div>
@@ -51,11 +51,6 @@
             </div>
         </div>
     </div>
-    <!-- <div class="card-footer bg-transparent">
-        <div class="d-flex flex-row justify-content-end">
-            <button type="button" class="btn btn-primary"><i class="fas fa-save"></i> Save & Update</button>
-        </div>
-    </div> -->
 </div>
 
 <script type="text/javascript">
@@ -107,6 +102,11 @@ window.addEventListener('DOMContentLoaded', function(){
     $('#btn_start_step').addClass("d-none");
     $('#btn_stop_step').addClass("d-none");
     $('#btn_pause_step').addClass("d-none");
+});
+
+/* reload event listener */
+document.getElementById('btn_setting_reload').addEventListener('click', function(){
+    
 });
 
 </script>
