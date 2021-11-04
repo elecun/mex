@@ -3,15 +3,15 @@
 <a class="btn btn-app btn-app-side invisible mb-0" id="btn_empty">
 </a>
 
-<a class="btn btn-app btn-app-side bg-secondary shadow" id="btn_rotate_forward">
+<a class="btn btn-app btn-app-side bg-secondary shadow" id="btn_mc_forward">
   <i class="fas fa-undo"></i> {{menu_ko.status_manual_control_forward}}
 </a>
 
-<a class="btn btn-app btn-app-side bg-secondary shadow" id="btn_rotate_reverse">
+<a class="btn btn-app btn-app-side bg-secondary shadow" id="btn_mc_reverse">
   <i class="fas fa-redo"></i> {{menu_ko.status_manual_control_reverse}}
 </a>
 
-<a class="btn btn-app btn-app-side bg-secondary shadow" id="btn_rotate_stop">
+<a class="btn btn-app btn-app-side bg-secondary shadow" id="btn_mc_stop">
   <i class="fas fa-stop"></i> {{menu_ko.status_manual_control_stop}}
 </a>
 
@@ -27,34 +27,52 @@ window.addEventListener('DOMContentLoaded', function(){
     
 });
 
-/* request zeroset command */
-async function request_zeroset(){
-  const response = await REST_POST("{% url 'api_control_zeroset' %}");
-  const data = response.json();
-
-  if(response.ok){
-    console.log("zeroset called");
-  }
-}
-
 /* mqtt command for zeroset */
 function mqtt_command_zeroset(){
   if(mqtt_connected){
-    if(mqtt_client){
-      mqtt_client.publish("mex/control", JSON.stringify({"command":"zeroset"}), 2);
-    }
-    else {
-      alert("no mqtt client");
-    }
+    mqtt_client.publish("mex/control", JSON.stringify({"command":"zeroset"}), 2);
   }
-  else{
+}
 
+/* mqtt command for forward */
+function mqtt_command_forward(){
+  if(mqtt_connected){
+    mqtt_client.publish("mex/control", JSON.stringify({"command":"mc_forward"}), 2);
+  }
+}
+
+/* mqtt command for reverse */
+function mqtt_command_reverse(){
+  if(mqtt_connected){
+    mqtt_client.publish("mex/control", JSON.stringify({"command":"mc_reverse"}), 2);
+  }
+}
+
+/* mqtt command for stop */
+function mqtt_command_stop(){
+  if(mqtt_connected){
+    mqtt_client.publish("mex/control", JSON.stringify({"command":"mc_stop"}), 2);
   }
 }
 
 /* call zeroset event */
 document.getElementById('btn_zeroset').addEventListener('click', function(){
   mqtt_command_zeroset();
+});
+
+/* call forward event */
+document.getElementById('btn_mc_forward').addEventListener('click', function(){
+  mqtt_command_forward();
+});
+
+/* call reverse event */
+document.getElementById('btn_mc_reverse').addEventListener('click', function(){
+  mqtt_command_reverse();
+});
+
+/* call stop event */
+document.getElementById('btn_mc_stop').addEventListener('click', function(){
+  mqtt_command_stop();
 });
 
 </script>
