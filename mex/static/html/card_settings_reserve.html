@@ -3,11 +3,11 @@
   <div class="col-sm-12">
     <div class="form-group">
       <label>{{menu_ko.settings_reserve_datetime}} :</label>
-      <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-        <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+      <div class="input-group date" id="settings_reserve_date" data-target-input="nearest">
+        <div class="input-group-append" data-target="#settings_reserve_date" data-toggle="datetimepicker">
             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
         </div>
-        <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
+        <input type="text" class="form-control datetimepicker-input" data-target="#settings_reserve_date">
         <button id="btn_add_reserve" class="btn btn-sm btn-success ml-2"><i class="fas fa-plus"></i> {{menu_ko.settings_reserve_add}}</button>
       </div>
     </div>
@@ -17,47 +17,83 @@
 <div clsss="row m-0">
   <div class="col-sm-12">
     <label>{{menu_ko.settings_reserve_list}}</label>
-      <table class="table table-head-fixed text-nowrap">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Start Date/Time</th>
-              <th>Settings</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>11-7-2014</td>
-              <td>Setting title</td>
-              <td width="10%">
-                  <button type="button" class="btn btn-sm" ><i class="fas fa-pen text-success"></i> Edit</button>
-                  <button type="button" class="btn btn-sm" ><i class="fas fa-trash text-danger"></i> Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+    <table class="display compact" id="table_reserve_list" width="100%">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Start Date/Time</th>
+          <th>Setting Name</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+      <tfoot>
+      </tfoot>
+    </table>
   </div>
 </div>
 
 
 <script type="text/javascript">
 
+/* setting list table */
+var settings_reserve_table = $('#table_reserve_list').DataTable({
+  "autoload":true,
+  "scrollX":false,
+  "scrollY": "250px",
+  "scrollCollapse":true,
+  "paging":false,
+  "ordering":true,
+  "searching":false
+});
+
 /* add job reservation */
 document.getElementById("btn_add_reserve").addEventListener("click", function() {
       console.log("add job");
 });
 
-$('#datetimepicker1').datetimepicker({ 
+$('#settings_reserve_date').datetimepicker({ 
   icons: { time: 'far fa-clock' }, 
   locale: 'en',
   autoclose : true,
 });
+
+/* delete by id */
+async function request_settings_delete(id){
+  if(confirm("Delete?")){
+    const req = {"id":id};
+    const response = await REST_POST("{% url 'api_settings_delete' %}", req);
+    if(response.ok){
+      update_settings_list();
+    }
+  }
+}
+
+
+/* request reserve list */
+async function update_reserve_list(){
+  settings_reserve_table.clear();
+
+  const response = await REST_GET("{% url 'api_settings_list' %}");
+  const listdata = await response.json();
+
+  if(response.ok){
+    listdata.data.forEach(function(s){
+      var date_created = new Date(s.created_at);
+      const date = date_created.toLocaleDateString() + date_created.toLocaleTimeString();
+      var manage = '<button type="button" class="btn btn-light btn-sm" onclick=javascript:request_settings_delete('+s.id+');><i class="fas fa-trash mr-1 text-danger"></i> Delete</button>';
+      settings_reserve_table.row.add([s.id, s.uid, date, s.name, s.machine_name, manage]);
+    });
+    settings_reserve_table.draw();
+
+  }
+}
       
 /* page load */
 window.addEventListener('DOMContentLoaded', function(){
-    
+  update_reserve_list();
 });
 
     

@@ -25,7 +25,7 @@ def context_processors(request):
             'settings_load':"불러오기",
             'settings_save' : "설정저장",
             'settings_new' : "새 설정",
-            'settings_reserve' : "예약설정",
+            'settings_reserve' : "시험예약",
             'start_step' : "시험시작",
             'pause_step' : "시험일시정지",
             'stop_step' : "시험중지",
