@@ -1,4 +1,12 @@
 
+<style>
+  .datepicker,
+  .table-condensed {
+    width: 150px;
+    height: auto;
+  }
+</style>
+
 <div class="row m-0 mt-1">
   <div class="col-sm-12">
     <div class="form-group">
@@ -7,7 +15,7 @@
         <div class="input-group-append" data-target="#settings_reserve_date" data-toggle="datetimepicker">
             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
         </div>
-        <input type="text" class="form-control datetimepicker-input" data-target="#settings_reserve_date">
+        <input type="text" class="form-control datetimepicker-input" data-target="#settings_reserve_date" id="edit_reserve_datetime">
         <button id="btn_add_reserve" class="btn btn-sm btn-success ml-2"><i class="fas fa-plus"></i> {{menu_ko.settings_reserve_add}}</button>
       </div>
     </div>
@@ -49,15 +57,31 @@ var settings_reserve_table = $('#table_reserve_list').DataTable({
   "searching":false
 });
 
+async function request_reserve_new(){
+  const datetime = document.getElementById('edit_reserve_datetime').value;
+  const req = {"datetime": datetime};
+  const response = await REST_POST("{% url 'api_reserve_new' %}", req);
+  if(response.ok){
+    update_reserve_list();
+  }
+}
+
 /* add job reservation */
 document.getElementById("btn_add_reserve").addEventListener("click", function() {
-      console.log("add job");
+  request_reserve_new();
 });
 
 $('#settings_reserve_date').datetimepicker({ 
-  icons: { time: 'far fa-clock' }, 
-  locale: 'en',
+  icons: {
+      time: "fas fa-clock",
+      date: "fa fa-calendar",
+      up: "fas fa-arrow-up",
+      down: "fas fa-arrow-down"
+  },
   autoclose : true,
+  Default:false,
+  locale: "en-GB",
+  format: "YYYY-MM-DD HH:mm"
 });
 
 /* delete by id */
@@ -77,9 +101,10 @@ async function update_reserve_list(){
   settings_reserve_table.clear();
 
   const response = await REST_GET("{% url 'api_settings_list' %}");
-  const listdata = await response.json();
 
-  if(response.ok){
+  if(response.ok && response.status==200){
+    const listdata = await response.json();
+
     listdata.data.forEach(function(s){
       var date_created = new Date(s.created_at);
       const date = date_created.toLocaleDateString() + date_created.toLocaleTimeString();

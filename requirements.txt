@@ -7,4 +7,5 @@ mysqlclient
 gunicorn
 influxdb-client
 django-celery-beat
+django-tempus-dominus
 pandas

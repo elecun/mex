@@ -113,9 +113,10 @@ async function update_settings_list(){
   settings_list_table.clear();
 
   const response = await REST_GET("{% url 'api_settings_list' %}");
-  const listdata = await response.json();
 
-  if(response.ok){
+  if(response.ok && response.status==200){
+    const listdata = await response.json();
+    
     listdata.data.forEach(function(s){
       var date_created = new Date(s.created_at);
       const date = date_created.toLocaleDateString() + date_created.toLocaleTimeString();

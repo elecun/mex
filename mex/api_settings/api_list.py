@@ -28,7 +28,7 @@ class API(APIView):
                 return Response({"data":_list}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            print("Exception : UID Generation", str(e))
+            print("Exception : ", str(e))
             return Response({"message":str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
