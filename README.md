@@ -1,6 +1,66 @@
 # mex
 Machine Expert for JinsungTEC
 
+# Setup on Ubuntu 18.04.6 LTS
+
+
+```
+$ sudo apt-get install ssh net-tools build-essential curl libboost-all-dev mosquitto mosquitto-clients mosquitto-dev python3.8 python3.8-venv git libmysqlclient-dev sqlite3
+$ wget https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.9-amd64.deb
+$ sudo dpkg -i influxdb2-2.0.9-amd64.deb
+$ wget https://dl.influxdata.com/telegraf/releases/telegraf_1.20.3-1_amd64.deb
+$ sudo dpkg -i telegraf_1.20.3-1_amd64.deb
+$ sudo dpkg -i mex-0.0.2_amd64.deb
+$ sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
+$ curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_14_setup.sh
+$ chmod +x nodesource_14_setup.sh
+$ sudo bash nodesource_setup.sh
+$ sudo apt-get install -y nodejs
+```
+- boost library 1.65
+- python3.8
+- gcc 7.5
+
+## Config Mosquitto.conf (/etc/mosquitto/mosquitto.conf)
+```
+listener 1883
+protocol mqtt
+
+listener 8083
+protocol websockets
+
+allow_anonymous true
+```
+```
+$ sudo systemctl restart mosquitto.service
+```
+
+## Config Telegraf.conf (/etc/telegraf/telegraf.conf)
+```
+$ sudo systemctl start influxd.service
+```
+* influxdb(http://x.x.x.x:8086)에서 username:jstec2, password:qwer1234, organization:jstec, bucket:jstec 으로 설정
+```
+[[inputs.mqtt_consumer]]
+servers = ["tcp://127.0.0.1:1883"]
+topics = [
+    "mex/sensor/#"
+]
+qos = 2
+data_format = "json"
+
+[[outputs.influxdb_v2]]
+urls=["http://127.0.0.1:8086"]
+token="<from influxdb>"
+organization="jstec"
+bucket="jstec"
+user_agent="telegraf"
+
+```
+```
+$ sudo systemctl start telegraf
+```
+
 # Setup (on Ubuntu)
 ```
 $ source ./venv/bin/activate
