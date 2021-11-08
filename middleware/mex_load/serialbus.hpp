@@ -65,9 +65,9 @@ class serialbus {
             _port.close();
         }
 
-        void add_subport(const char* portname, subport* port){
-            _subport_container.insert(std::make_pair(portname, port));
-        }
+        // void add_subport(const char* portname, subport* port){
+        //     _subport_container.insert(std::make_pair(portname, port));
+        // }
 
     private:
 
@@ -77,7 +77,7 @@ class serialbus {
                     if(_port.is_open()){
                         _port.async_read_some(
                             boost::asio::buffer(_rbuffer, MAX_READ_BUFFER),
-                            boost::bind(&serial::handler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+                            boost::bind(&serialbus::handler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
                     }
                     else
                         spdlog::error("port is not opened");

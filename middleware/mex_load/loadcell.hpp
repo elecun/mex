@@ -18,11 +18,8 @@
 using namespace std;
 using namespace nlohmann;
 
-#define STX 0x02
-#define ETX 0x03
-#define ACK 0x06
 
-class sensor : public subport {
+class loadcell : public subport {
 
     public:
         sensor(){
