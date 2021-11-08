@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/middleware/include"
+                "${workspaceFolder}",
+                "${workspaceFolder}/middleware"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",

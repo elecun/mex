@@ -22,14 +22,14 @@
 using namespace std;
 
 
-class serial {
+class serialbus {
     #define MAX_READ_BUFFER 2048
 
     public:
 
         typedef void(*ptrProcess)(char*, int);
 
-        serial(const char* dev, int baudrate):_service(), _port(_service, dev), _operation(false){
+        serialbus(const char* dev, int baudrate):_service(), _port(_service, dev), _operation(false){
 
             _port.set_option(boost::asio::serial_port_base::parity());	// default none
             _port.set_option(boost::asio::serial_port_base::character_size(8));
@@ -38,7 +38,7 @@ class serial {
             _port.set_option(boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none)); // default none
 
         }
-        virtual ~serial(){
+        virtual ~serialbus(){
             
         }
 
@@ -50,7 +50,7 @@ class serial {
 
             _operation = true;
             _worker.reset(new boost::asio::io_service::work(_service));
-            read_assign();
+            assign();
             _ts.create_thread(boost::bind(&boost::asio::io_service::run, boost::ref(_service)));
             _ts.create_thread([&](void){_service.run();});
         }
@@ -61,13 +61,17 @@ class serial {
             _worker.reset();
             _service.stop();
             _ts.join_all();
-
             _service.reset();
+            _port.close();
+        }
+
+        void add_subport(const char* portname, subport* port){
+            _subport_container.insert(std::make_pair(portname, port));
         }
 
     private:
 
-        void read_assign(){
+        void assign(){
             boost::function<void(void)> read_handler = [&](void) {
                 while(_operation){
                     if(_port.is_open()){

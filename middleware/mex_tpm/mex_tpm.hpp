@@ -23,7 +23,7 @@
 #include <boost/chrono.hpp>
 
 #include <mosquitto.h>
-#include "serial.hpp"
+#include "serialbus.hpp"
 #include "temperature.hpp"
 
 

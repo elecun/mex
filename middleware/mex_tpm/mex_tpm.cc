@@ -213,8 +213,6 @@ int main(int argc, char* argv[])
         if(!g_pSerial){
             g_pSerial = new serial(_device_port.c_str(), _baudrate);
             g_pSerial->set_processor(process);
-
-            g_pSerial->add_subport
             g_pSerial->add_subport(1, new temperature(1));
             g_pSerial->add_subport(2, new temperature(2));
             g_pSerial->add_subport(3, new temperature(3));

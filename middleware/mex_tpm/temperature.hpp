@@ -4,14 +4,14 @@
  * @author Byunghun<bh.hwang@iae.re.kr>
  */
 
-#ifndef _MEX_AP0_TEMPERATURE_HPP_
-#define _MEX_AP0_TEMPERATURE_HPP_
+#ifndef _MEX_TPM_TEMPERATURE_HPP_
+#define _MEX_TPM_TEMPERATURE_HPP_
 
 #include <string>
-#include "spdlog/spdlog.h"
+#include <include/spdlog/spdlog.h>
 #include "subport.hpp"
-#include "spdlog/fmt/bin_to_hex.h"
-#include "json.hpp"
+#include <include/spdlog/fmt/bin_to_hex.h>
+#include <include/json.hpp>
 
 
 using namespace std;

@@ -23,7 +23,7 @@
 #include <boost/chrono.hpp>
 
 #include <mosquitto.h>
-#include "serial.hpp"
+#include "serialbus.hpp"
 
 
 using namespace std;
@@ -37,7 +37,7 @@ const char _start_bytes[2] = {0x0d, 0x0a};
 const char _end_bytes[2] = {0x0d, 0x0a};
 
 //global variables
-serial* g_pSerial = nullptr;
+serialbus* g_pSerial = nullptr;
 struct mosquitto* g_mqtt = nullptr; //global mqtt instance
 boost::thread* g_pub_thread = nullptr;
 
