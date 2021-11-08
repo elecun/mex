@@ -5,7 +5,7 @@ Machine Expert for JinsungTEC
 
 
 ```
-$ sudo apt-get install ssh net-tools build-essential curl libboost-all-dev mosquitto mosquitto-clients mosquitto-dev python3.8 python3.8-venv git libmysqlclient-dev sqlite3
+$ sudo apt-get install ssh net-tools build-essential curl libboost-all-dev mosquitto mosquitto-clients mosquitto-dev python3.8 python3.8-venv git libmysqlclient-dev sqlite3 python3-venv
 $ wget https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.9-amd64.deb
 $ sudo dpkg -i influxdb2-2.0.9-amd64.deb
 $ wget https://dl.influxdata.com/telegraf/releases/telegraf_1.20.3-1_amd64.deb
@@ -61,6 +61,13 @@ user_agent="telegraf"
 $ sudo systemctl start telegraf
 ```
 
+## setup from source
+```
+$ git clone https://github.com/elecun/mex.git
+mex/$ python3 -m venv venv
+(venv)$ pip3 install -r requirements.txt
+(venv)$ gunicorn --bind 0:8000 mex.wsgi
+```
 # Setup (on Ubuntu)
 ```
 $ source ./venv/bin/activate
