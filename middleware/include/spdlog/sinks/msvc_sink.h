@@ -5,8 +5,8 @@
 
 #if defined(_WIN32)
 
-#include <spdlog/details/null_mutex.h>
-#include <spdlog/sinks/base_sink.h>
+#include <include/spdlog/details/null_mutex.h>
+#include <include/spdlog/sinks/base_sink.h>
 
 #include <mutex>
 #include <string>

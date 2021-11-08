@@ -5,7 +5,7 @@ Machine Expert for JinsungTEC
 
 
 ```
-$ sudo apt-get install ssh net-tools build-essential curl libboost-all-dev mosquitto mosquitto-clients mosquitto-dev python3.8 python3.8-venv git libmysqlclient-dev sqlite3 python3-venv
+$ sudo apt-get install ssh net-tools build-essential curl libboost-all-dev mosquitto mosquitto-clients mosquitto-dev python3.8 python3.8-venv git libmysqlclient-dev sqlite3 python3-venv libmosquitto-dev
 $ wget https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.9-amd64.deb
 $ sudo dpkg -i influxdb2-2.0.9-amd64.deb
 $ wget https://dl.influxdata.com/telegraf/releases/telegraf_1.20.3-1_amd64.deb

@@ -4,12 +4,12 @@
 #pragma once
 
 #ifndef SPDLOG_HEADER_ONLY
-#include <spdlog/cfg/helpers.h>
+#include <include/spdlog/cfg/helpers.h>
 #endif
 
-#include <spdlog/spdlog.h>
-#include <spdlog/details/os.h>
-#include <spdlog/details/registry.h>
+#include <include/spdlog/spdlog.h>
+#include <include/spdlog/details/os.h>
+#include <include/spdlog/details/registry.h>
 
 #include <algorithm>
 #include <string>

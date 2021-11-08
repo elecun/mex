@@ -3,17 +3,17 @@
 
 #pragma once
 
-#include <spdlog/common.h>
-#include <spdlog/details/console_globals.h>
-#include <spdlog/details/null_mutex.h>
-#include <spdlog/sinks/sink.h>
+#include <include/spdlog/common.h>
+#include <include/spdlog/details/console_globals.h>
+#include <include/spdlog/details/null_mutex.h>
+#include <include/spdlog/sinks/sink.h>
 
 #include <memory>
 #include <mutex>
 #include <string>
 #include <array>
 
-#include <spdlog/details/windows_include.h>
+#include <include/spdlog/details/windows_include.h>
 #include <wincon.h>
 
 namespace spdlog {

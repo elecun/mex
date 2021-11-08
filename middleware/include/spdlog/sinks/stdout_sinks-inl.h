@@ -4,17 +4,17 @@
 #pragma once
 
 #ifndef SPDLOG_HEADER_ONLY
-#include <spdlog/sinks/stdout_sinks.h>
+#include <include/spdlog/sinks/stdout_sinks.h>
 #endif
 
-#include <spdlog/details/console_globals.h>
-#include <spdlog/pattern_formatter.h>
+#include <include/spdlog/details/console_globals.h>
+#include <include/spdlog/pattern_formatter.h>
 #include <memory>
 
 #ifdef _WIN32
 // under windows using fwrite to non-binary stream results in \r\r\n (see issue #1675)
 // so instead we use ::FileWrite
-#include <spdlog/details/windows_include.h>
+#include <include/spdlog/details/windows_include.h>
 #include <fileapi.h> // WriteFile (..)
 #include <io.h>      // _get_osfhandle(..)
 #include <stdio.h>   // _fileno(..)

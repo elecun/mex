@@ -4,8 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/app/mex_loadcell",
-                "${workspaceFolder}/app/mex_loadcell/mosquitto"
+                "${workspaceFolder}/middleware/include"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",

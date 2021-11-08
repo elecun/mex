@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include <spdlog/details/console_globals.h>
-#include <spdlog/details/synchronous_factory.h>
-#include <spdlog/sinks/sink.h>
+#include <include/spdlog/details/console_globals.h>
+#include <include/spdlog/details/synchronous_factory.h>
+#include <include/spdlog/sinks/sink.h>
 #include <cstdio>
 
 #ifdef _WIN32
-#include <spdlog/details/windows_include.h>
+#include <include/spdlog/details/windows_include.h>
 #endif
 
 namespace spdlog {

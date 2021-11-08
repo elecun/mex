@@ -42,6 +42,12 @@ SOURCE_FILES = ./
 INSTALL_DIR = /usr/local/bin/
 
 # Make
+mex_load:	$(BUILDDIR)mex_load.o
+		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
+$(BUILDDIR)mex_load.o:	$(SOURCE_FILES)mex_load/mex_load.cc
+						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
+
+
 mex_ap0:	$(BUILDDIR)mex_ap0.o
 		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
 
