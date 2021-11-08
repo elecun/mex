@@ -30,7 +30,7 @@ using namespace std;
 using namespace nlohmann;
 
 #define MEX_LOADCELL_VALUE_TOPIC    "mex/sensor/load"
-#define MEX_LOADCELL_CONTROL_TOPIC  "mex/load/ctrl/+"
+#define MEX_LOADCELL_CONTROL_TOPIC  "mex/load/ctrl"
 #define MQTT_CLIENT_ID "jstec_mex_load"
 
 const char _start_bytes[2] = {0x0d, 0x0a};

@@ -10,13 +10,14 @@
 int _pub_inteval_sec = 1;
 vector<char> receive_buf;
 bool _terminate = false;
+bool _run = true;
 
 void pub_thread_proc(){
     while(1){
         if(!receive_buf.empty()){
             // spdlog::info("received data : {:x}", spdlog::to_hex(receive_buf));
 
-            if(g_mqtt){
+            if(g_mqtt && _run>0){
                 // data publish to database
                 float value = atof(&receive_buf[1]);
                 spdlog::info("value : {}", value);
@@ -80,27 +81,21 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
 	bool match = false;
 	mosquitto_topic_matches_sub(MEX_LOADCELL_CONTROL_TOPIC, message->topic, &match);
     if(match){
-
-        bool sub_match = false;
-        mosquitto_topic_matches_sub("mex/load/ctrl/set", message->topic, &sub_match);
-        if(sub_match){
-            spdlog::info("{}", message->topic);
-            spdlog::info("{}", (char*)message->payload);
-
-            try{
-                json ctrl_data = json::parse((char*)message->payload);
-                if(ctrl_data.contains("interval")){
-                    _pub_inteval_sec = ctrl_data["interval"].get<int>();
-                    spdlog::info("Changed interval : {}", _pub_inteval_sec);
-                }
+        try{
+            json ctrl_data = json::parse((char*)message->payload);
+            if(ctrl_data.contains("interval")){
+                _pub_inteval_sec = ctrl_data["interval"].get<int>();
+                spdlog::info("Changed interval : {}", _pub_inteval_sec);
             }
-            catch(json::parse_error& e){
+            if(ctrl_data.contains("run")){
+                _run = ctrl_data["run"].get<int>();
+                spdlog::info("Change running status : {}(0=stop, 1=start)", _run);
+            }
+        }
+        catch(json::parse_error& e){
                 spdlog::error("Control set parse error : {}", e.what());
-            }
-            
         }
     }
-
 }
 
 /* termination */
