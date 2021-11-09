@@ -1,10 +1,10 @@
 /**
  * @file    main.cc
- * @brief   MEX Application for read temperature & rpm data from serial comm.
+ * @brief   MEX Application for control realy
  * @author  bh.hwang@iae.re.kr
  */
 
-#include "mex_tpm.hpp"
+#include "mex_relay.hpp"
 
 
 int _pub_inteval_sec = 1;
@@ -12,38 +12,36 @@ vector<char> receive_buf;
 bool _terminate = false;
 bool _run = true;
 
-float g_temperature_1 = 0.0;
-float g_temperature_2 = 0.0;
-float g_temperature_3 = 0.0;
-unsigned long g_rpm = 0;
+bool g_relay_sload = false;
+bool g_relay_zeroset = false;
 
 /* publish rpm & temperature data */
 void pub_thread_proc(){
     while(1){
 
         //continuously transferring data
-        if(g_mqtt && _run){
+        // if(g_mqtt && _run){
 
-            //1. rpm data publish
-            json _rpm_pubdata;
-            _rpm_pubdata["value"] = g_rpm;
-            string str_rpm_data = _rpm_pubdata.dump();
-            if(mosquitto_publish(g_mqtt, nullptr, MEX_RPM_VALUE_TOPIC, str_rpm_data.size(), str_rpm_data.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
-                spdlog::error("Data publish error for RPM data");
+        //     //1. rpm data publish
+        //     json _relay_pubdata;
+        //     _rpm_pubdata["value"] = g_rpm;
+        //     string str_rpm_data = _rpm_pubdata.dump();
+        //     if(mosquitto_publish(g_mqtt, nullptr, MEX_RPM_VALUE_TOPIC, str_rpm_data.size(), str_rpm_data.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
+        //         spdlog::error("Data publish error for RPM data");
 
-            spdlog::info("RPM :{}", g_rpm);
+        //     spdlog::info("RPM :{}", g_rpm);
 
-            //2. temperature data publish
-            json _temp_pubdata;
-            _temp_pubdata["temperature_1"] = g_temperature_1;
-            _temp_pubdata["temperature_2"] = g_temperature_2;
-            _temp_pubdata["temperature_3"] = g_temperature_3;
-            string str_temp_data = _temp_pubdata.dump();
-            if(mosquitto_publish(g_mqtt, nullptr, MEX_TEMPERATURE_VALUE_TOPIC, str_temp_data.size(), str_temp_data.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
-                spdlog::error("Data publish error for Temperature data");
+        //     //2. temperature data publish
+        //     json _temp_pubdata;
+        //     _temp_pubdata["temperature_1"] = g_temperature_1;
+        //     _temp_pubdata["temperature_2"] = g_temperature_2;
+        //     _temp_pubdata["temperature_3"] = g_temperature_3;
+        //     string str_temp_data = _temp_pubdata.dump();
+        //     if(mosquitto_publish(g_mqtt, nullptr, MEX_TEMPERATURE_VALUE_TOPIC, str_temp_data.size(), str_temp_data.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
+        //         spdlog::error("Data publish error for Temperature data");
 
-            spdlog::info("Temperature 1 :{}, Temperature 2 :{}, Temperature 3 :{}", g_temperature_1, g_temperature_2, g_temperature_3);
-        }
+        //     spdlog::info("Temperature 1 :{}, Temperature 2 :{}, Temperature 3 :{}", g_temperature_1, g_temperature_2, g_temperature_3);
+        // }
 
         boost::this_thread::sleep_for(boost::chrono::seconds(_pub_inteval_sec));
         if(_terminate)
@@ -55,21 +53,21 @@ void pub_thread_proc(){
 /* post process */
 static void postprocess(json& msg){
 
-    if(msg.contains("temperature1")){
-        g_temperature_1 = msg["temperature1"].get<float>();
-    }
+    // if(msg.contains("temperature1")){
+    //     g_temperature_1 = msg["temperature1"].get<float>();
+    // }
 
-    if(msg.contains("temperature2")){
-        g_temperature_2 = msg["temperature2"].get<float>();
-    }
+    // if(msg.contains("temperature2")){
+    //     g_temperature_2 = msg["temperature2"].get<float>();
+    // }
 
-    if(msg.contains("temperature3")){
-        g_temperature_3 = msg["temperature3"].get<float>();
-    }
+    // if(msg.contains("temperature3")){
+    //     g_temperature_3 = msg["temperature3"].get<float>();
+    // }
 
-    if(msg.contains("rpm")){
-        g_rpm = msg["rpm"].get<unsigned long>();
-    }
+    // if(msg.contains("rpm")){
+    //     g_rpm = msg["rpm"].get<unsigned long>();
+    // }
 }
 
 
@@ -83,13 +81,10 @@ void connect_callback(struct mosquitto* mosq, void *obj, int result)
 void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_message* message)
 {
     //processing for publishing rpm data
-	bool match_rpm_topic = false;
-	mosquitto_topic_matches_sub(MEX_RPM_CONTROL_TOPIC, message->topic, &match_rpm_topic);
+	bool match_relay_topic = false;
+	mosquitto_topic_matches_sub(MEX_RELAY_CONTROL_TOPIC, message->topic, &match_relay_topic);
 
-    bool match_temp_topic = false;
-	mosquitto_topic_matches_sub(MEX_TEMPERATURE_CONTROL_TOPIC, message->topic, &match_temp_topic);
-
-    if(match_rpm_topic || match_temp_topic){
+    if(match_relay_topic){
         try{
             json ctrl_data = json::parse((char*)message->payload);
             if(ctrl_data.contains("interval")){
@@ -99,6 +94,70 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
             if(ctrl_data.contains("run")){
                 _run = ctrl_data["run"].get<int>();
                 spdlog::info("Change running status : {}(0=stop, 1=start)", _run);
+            }
+
+            if(ctrl_data.contains("port1")){
+                bool _p1 = ctrl_data["port1"].get<int>();
+                if(g_pSerial->is_open()){
+                    subport* sp = g_pSerial->get_subport(1);
+                    relay* r = dynamic_cast<relay*>(sp);
+                    if(_p1){
+                        r->set_on();
+                        spdlog::info("relay port 1 set on");
+                    }
+                    else{
+                        r->set_off();
+                        spdlog::info("relay port 1 set off");
+                    }
+                }
+            }
+            else if(ctrl_data.contains("port2")){
+                bool _p2 = ctrl_data["port2"].get<int>();
+                if(g_pSerial->is_open()){
+                    subport* sp = g_pSerial->get_subport(2);
+                    relay* r = dynamic_cast<relay*>(sp);
+                    if(_p2){
+                        r->set_on();
+                        spdlog::info("relay port 2 set on");
+                    }
+                    else{
+                        r->set_off();
+                        spdlog::info("relay port 2 set off");
+                    }
+                        
+                }
+            }
+            else if(ctrl_data.contains("port3")){
+                bool _p3 = ctrl_data["port3"].get<int>();
+                if(g_pSerial->is_open()){
+                    subport* sp = g_pSerial->get_subport(3);
+                    relay* r = dynamic_cast<relay*>(sp);
+                    if(_p3){
+                        r->set_on();
+                        spdlog::info("relay port 3 set on");
+                    }
+                    else{
+                        r->set_off();
+                        spdlog::info("relay port 3 set off");
+                    }
+                        
+                }
+            }
+            else if(ctrl_data.contains("port4")){
+                bool _p4 = ctrl_data["port4"].get<int>();
+                if(g_pSerial->is_open()){
+                    subport* sp = g_pSerial->get_subport(4);
+                    relay* r = dynamic_cast<relay*>(sp);
+                    if(_p4){
+                        r->set_on();
+                        spdlog::info("relay port 4 set on");
+                    }
+                    else{
+                        r->set_off();
+                        spdlog::info("relay port 4 set off");
+                    }
+                        
+                }
             }
         }
         catch(json::parse_error& e){
@@ -213,8 +272,7 @@ int main(int argc, char* argv[])
             int mqtt_rc = mosquitto_connect(g_mqtt, _mqtt_broker.c_str(), 1883, 60);
             if(!mqtt_rc){
                 spdlog::info("MQTT Connected successfully");
-                mosquitto_subscribe(g_mqtt, NULL, MEX_TEMPERATURE_CONTROL_TOPIC, 2);
-                mosquitto_subscribe(g_mqtt, NULL, MEX_RPM_CONTROL_TOPIC, 2);
+                mosquitto_subscribe(g_mqtt, NULL, MEX_RELAY_CONTROL_TOPIC, 2);
                 mosquitto_loop_start(g_mqtt);
             }
         }
@@ -223,13 +281,11 @@ int main(int argc, char* argv[])
             g_pSerial = new serialbus(_device_port.c_str(), _baudrate);
             if(g_pSerial->is_open()){
                 g_pSerial->set_processor(postprocess);
-                g_pSerial->add_subport(1, new temperature("temperature1", 1));
-                g_pSerial->add_subport(2, new temperature("temperature2", 2));
-                g_pSerial->add_subport(3, new temperature("temperature3", 3));
-                g_pSerial->add_subport(4, new rpm("rpm", 4));
+                g_pSerial->add_subport(1, new relay("relay_sload", 1, 0));
+                g_pSerial->add_subport(2, new relay("relay_zeroset", 1, 3));
                 g_pSerial->start();
 
-                g_pub_thread = new boost::thread(&pub_thread_proc); //mqtt publish periodically
+                //g_pub_thread = new boost::thread(&pub_thread_proc); //mqtt publish periodically
             }
         }
 

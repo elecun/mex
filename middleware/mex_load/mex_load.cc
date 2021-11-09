@@ -12,6 +12,7 @@ vector<char> receive_buf;
 bool _terminate = false;
 bool _run = true;
 
+/* publish loadcell data */
 void pub_thread_proc(){
     while(1){
         if(!receive_buf.empty()){
@@ -22,11 +23,10 @@ void pub_thread_proc(){
                 float value = atof(&receive_buf[1]);
                 spdlog::info("value : {}", value);
                 json _pubdata;
-                _pubdata["load"] = value;
+                _pubdata["value"] = value;
                 string strdata = _pubdata.dump();
 
                 int ret = mosquitto_publish(g_mqtt, nullptr, MEX_LOADCELL_VALUE_TOPIC, strdata.size(), strdata.c_str(), 2, false);
-                mosquitto_loop(g_mqtt, 3, 1);
                 if(ret)
                     spdlog::error("Broker connection error");
             }

@@ -14,7 +14,16 @@ def context_processors(request):
             'mqtt_broker_port':int(settings.MQTT_BROKER_WEBSCOKET)
             },
         'frontend':{
-            
+            'status_load_min':0,
+            'status_load_max':1000,
+            'status_rpm_min':0,
+            'status_rpm_max':1000,
+            'status_temperature1_min':0,
+            'status_temperature1_max':100,
+            'status_temperature2_min':0,
+            'status_temperature2_max':100,
+            'status_temperature3_min':0,
+            'status_temperature3_max':100,
         },
         'backend':{
 

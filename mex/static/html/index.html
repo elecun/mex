@@ -73,17 +73,28 @@ function mqtt_onConnectionLost(responseObject){
 function mqtt_onMessageArrived(message){
     const payload = JSON.parse(message.payloadString);
 
+    /* status data update */
     switch(message.topic){
       case "mex/sensor/temperature": { //temperature data
-
+        const data = JSON.parse(message.payloadString);
+        document.getElementById('edit_status_temperature_1').value = data.temperature_1;
+        document.getElementById('edit_status_temperature_2').value = data.temperature_2;
+        document.getElementById('edit_status_temperature_3').value = data.temperature_3;
+        $("#edit_status_temperature_1").trigger('change');
+        $("#edit_status_temperature_2").trigger('change');
+        $("#edit_status_temperature_3").trigger('change');
       } break;
 
       case "mex/sensor/rpm":{ //rpm data
-
+        const rpm = JSON.parse(message.payloadString);
+        document.getElementById('edit_status_rpm').value = rpm.value;
+        $("#edit_status_rpm").trigger('change');
       } break;
 
       case "mex/sensor/load":{ //loadcell
-        //payload["load"]
+        const load = JSON.parse(message.payloadString);
+        document.getElementById('edit_status_load').value = load.value;
+        $("#edit_status_load").trigger('change');
       } break;
       
     }

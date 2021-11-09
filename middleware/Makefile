@@ -11,8 +11,8 @@ OS := $(shell uname)
 ARCH := x86_64
 
 #Compilers
-CC := g++
-GCC := gcc
+CC := g++-8
+GCC := gcc-8
 LD_LIBRARY_PATH += -L./lib/x86_64
 BUILDDIR		= ./dist/
 INCLUDE_DIR = -I./
@@ -52,29 +52,13 @@ mex_tpm:	$(BUILDDIR)mex_tpm.o
 $(BUILDDIR)mex_tpm.o:	$(SOURCE_FILES)mex_tpm/mex_tpm.cc
 						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
 
-
-mex_ap0:	$(BUILDDIR)mex_ap0.o
+mex_relay:	$(BUILDDIR)mex_relay.o
 		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
-
-mex_ap1:	$(BUILDDIR)mex_ap1.o
-		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
-
-mex_s0:	$(BUILDDIR)mex_s0.o
-		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
-
-mex_usb0:	$(BUILDDIR)mex_usb0.o
-		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
-
-$(BUILDDIR)mex_ap0.o:	$(SOURCE_FILES)mex_ap0/mex_ap0.cc
-						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
-$(BUILDDIR)mex_ap1.o:	$(SOURCE_FILES)mex_ap1/mex_ap1.cc
-						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
-$(BUILDDIR)mex_s0.o:	$(SOURCE_FILES)mex_s0/mex_s0.cc
-						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
-$(BUILDDIR)mex_usb0.o:	$(SOURCE_FILES)mex_usb/mex_usb0.cc
+$(BUILDDIR)mex_relay.o:	$(SOURCE_FILES)mex_relay/mex_relay.cc
 						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
 
-all : mex_loadcell
+
+all : mex_load mex_tpm mex_relay
 
 deploy : FORCE
 	cp $(BINDIR)

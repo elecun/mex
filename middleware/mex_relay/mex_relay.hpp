@@ -1,6 +1,6 @@
 
-#ifndef _MEX_TPM_HPP_
-#define _MEX_TPM_HPP_
+#ifndef _MEX_RELAY_APPLICATION_HPP_
+#define _MEX_RELAY_APPLICATION_HPP_
 
 #include <include/cxxopts.hpp>
 #include <include/spdlog/spdlog.h>
@@ -24,19 +24,16 @@
 
 #include <mosquitto.h>
 #include "serialbus.hpp"
-#include "temperature.hpp"
-#include "rpm.hpp"
+#include "relay.hpp"
 
 
 using namespace std;
 using namespace nlohmann;
 
-#define MEX_TEMPERATURE_VALUE_TOPIC    "mex/sensor/temperature"
-#define MEX_TEMPERATURE_CONTROL_TOPIC  "mex/temperature/ctrl"
-#define MEX_RPM_VALUE_TOPIC    "mex/sensor/rpm"
-#define MEX_RPM_CONTROL_TOPIC  "mex/rpm/ctrl"
+#define MEX_RELAY_VALUE_TOPIC    "mex/sensor/relay"
+#define MEX_RELAY_CONTROL_TOPIC  "mex/relay/ctrl"
 
-#define MQTT_CLIENT_ID "jstec_mex_tpm"
+#define MQTT_CLIENT_ID "jstec_mex_relay"
 
 const char _start_bytes[2] = {0x0d, 0x0a};
 const char _end_bytes[2] = {0x0d, 0x0a};

@@ -65,9 +65,10 @@ class serialbus {
             _port.close();
         }
 
-        // void add_subport(const char* portname, subport* port){
-        //     _subport_container.insert(std::make_pair(portname, port));
-        // }
+        /* port open check */
+        bool is_open(){
+            return _port.is_open();
+        }
 
     private:
 
