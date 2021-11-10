@@ -68,6 +68,223 @@ mex/$ python3 -m venv venv
 (venv)$ pip3 install -r requirements.txt
 (venv)$ gunicorn --bind 0:8000 mex.wsgi
 ```
+
+## register service all applications
+* /etc/init.d/에 mex_load 생성
+```
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          mex_load
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     3 4 5
+# Default-Stop:
+# Short-Description: your description here
+### END INIT INFO
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/home/jstec2/software/mex/middleware/dist
+DESC="mex_load daemon"
+NAME=mex_load
+DAEMON=/home/jstec2/software/mex/middleware/dist/mex_load
+PIDFILE=/var/run/mex_loadd.pid
+SCRIPTNAME=/etc/init.d/"$NAME"
+
+
+case "$1" in
+start)  log_daemon_msg "Starting mex_load" "mex_load"
+        start_daemon -p $PIDFILE $DAEMON $EXTRA_OPTS
+        log_end_msg $?
+        ;;
+stop)   log_daemon_msg "Stopping mex_load" "mex_load"
+        killproc -p $PIDFILE $DAEMON
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && [ -e "$PIDFILE" ] && rm -f $PIDFILE
+        log_end_msg $RETVAL
+        ;;
+restart) log_daemon_msg "Restarting mex_load" "mex_load" 
+        $0 stop
+        $0 start
+        ;;
+status)
+        status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+        ;;
+*)      log_action_msg "Usage: /etc/init.d/mex_load {start|stop|status|restart|reload}"
+        exit 2
+        ;;
+esac
+exit 0
+```
+
+* /etc/init.d/에 mex_relay 생성
+```
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          mex_relay
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     3 4 5
+# Default-Stop:
+# Short-Description: your description here
+### END INIT INFO
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/home/jstec2/software/mex/middleware/dist
+DESC="mex_relay daemon"
+NAME=mex_relay
+DAEMON=/home/jstec2/software/mex/middleware/dist/mex_relay
+PIDFILE=/var/run/mex_relayd.pid
+SCRIPTNAME=/etc/init.d/"$NAME"
+
+
+case "$1" in
+start)  log_daemon_msg "Starting mex_relay" "mex_relay"
+        start_daemon -p $PIDFILE $DAEMON $EXTRA_OPTS
+        log_end_msg $?
+        ;;
+stop)   log_daemon_msg "Stopping mex_relay" "mex_relay"
+        killproc -p $PIDFILE $DAEMON
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && [ -e "$PIDFILE" ] && rm -f $PIDFILE
+        log_end_msg $RETVAL
+        ;;
+restart) log_daemon_msg "Restarting mex_relay" "mex_relay" 
+        $0 stop
+        $0 start
+        ;;
+status)
+        status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+        ;;
+*)      log_action_msg "Usage: /etc/init.d/mex_relay {start|stop|status|restart|reload}"
+        exit 2
+        ;;
+esac
+exit 0
+```
+* /etc/init.d/에 mex_tpm 생성
+```
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          mex_tpm
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     3 4 5
+# Default-Stop:
+# Short-Description: your description here
+### END INIT INFO
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/home/jstec2/software/mex/middleware/dist
+DESC="mex_tpm daemon"
+NAME=mex_tpm
+DAEMON=/home/jstec2/software/mex/middleware/dist/mex_tpm
+PIDFILE=/var/run/mex_tpmd.pid
+SCRIPTNAME=/etc/init.d/"$NAME"
+
+
+case "$1" in
+start)  log_daemon_msg "Starting mex_tpm" "mex_tpm"
+        start_daemon -p $PIDFILE $DAEMON $EXTRA_OPTS
+        log_end_msg $?
+        ;;
+stop)   log_daemon_msg "Stopping mex_tpm" "mex_tpm"
+        killproc -p $PIDFILE $DAEMON
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && [ -e "$PIDFILE" ] && rm -f $PIDFILE
+        log_end_msg $RETVAL
+        ;;
+restart) log_daemon_msg "Restarting mex_tpm" "mex_tpm" 
+        $0 stop
+        $0 start
+        ;;
+status)
+        status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+        ;;
+*)      log_action_msg "Usage: /etc/init.d/mex_tpm {start|stop|status|restart|reload}"
+        exit 2
+        ;;
+esac
+exit 0
+```
+
+* /etc/init.d/에 mex_plc 생성
+```
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          mex_plc
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     3 4 5
+# Default-Stop:
+# Short-Description: your description here
+### END INIT INFO
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/home/jstec2/software/mex/middleware/dist
+DESC="mex_plc daemon"
+NAME=mex_plc
+DAEMON=/home/jstec2/software/mex/middleware/dist/mex_plc
+PIDFILE=/var/run/mex_plcd.pid
+SCRIPTNAME=/etc/init.d/"$NAME"
+
+
+case "$1" in
+start)  log_daemon_msg "Starting mex_plc" "mex_plc"
+        start_daemon -p $PIDFILE $DAEMON $EXTRA_OPTS
+        log_end_msg $?
+        ;;
+stop)   log_daemon_msg "Stopping mex_plc" "mex_plc"
+        killproc -p $PIDFILE $DAEMON
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && [ -e "$PIDFILE" ] && rm -f $PIDFILE
+        log_end_msg $RETVAL
+        ;;
+restart) log_daemon_msg "Restarting mex_plc" "mex_plc" 
+        $0 stop
+        $0 start
+        ;;
+status)
+        status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+        ;;
+*)      log_action_msg "Usage: /etc/init.d/mex_plc {start|stop|status|restart|reload}"
+        exit 2
+        ;;
+esac
+exit 0
+```
+
+* 부팅시 실행되도록 설정
+```
+$ sudo chmod 755 /etc/init.d/mex_load
+$ sudo chmod 755 /etc/init.d/mex_relay
+$ sudo chmod 755 /etc/init.d/mex_tpm
+$ sudo chmod 755 /etc/init.d/mex_plc
+$ sudo update-rc.d mex_load defaults
+$ sudo update-rc.d mex_relay defaults
+$ sudo update-rc.d mex_tpm defaults
+$ sudo update-rc.d mex_plc defaults
+```
+
+* /etc/systemd/system에 mex_load.service 생성
+```
+$ sudo nano /etc/systemd/system/mex_load.service
+
+[Unit]
+Description=MEX Load Middleware
+Wants=network-online.target
+After=network-online.target
+ 
+[Service]
+ExecStart=/home/jstec2/software/mex/middleware/dist/mex_load -p /dev/ttyS0 -b 9600 -t 127.0.0.1 -i 1
+WorkingDirectory=/home/jstec2/software/mex/middleware/dist
+ 
+[Install]
+WantedBy=default.target
+```
+
+* 서비스 등록
+```
+$ sudo systemctl daemon-reload
+$ sudo systemctl enable edge (부팅시 자동 실행되도록..)
+$ sudo systemctl start edge
+```
+
 # Setup (on Ubuntu)
 ```
 $ source ./venv/bin/activate
