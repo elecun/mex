@@ -13,6 +13,7 @@
 #include "crc_table.hpp"
 #include <queue>
 #include <vector>
+#include <mutex>
 
 using namespace std;
 
@@ -20,12 +21,20 @@ using namespace std;
 class relay : public subport {
 
     const int _max_read_buffer_ = 2048;
+    typedef struct _wpacket {
+        unsigned char data[8] = {0,};
+        void copy(unsigned char* pdata, int size){
+            memcpy(data, pdata, size);
+        };
+    } wpack;
 
     public:
         relay(const char* subport_name, int code, int id):subport(subport_name, id), _code(code){
 
         }
-        virtual ~relay() { }
+        virtual ~relay() {
+
+        }
 
         virtual int read(unsigned char* buffer){
 
@@ -33,22 +42,46 @@ class relay : public subport {
 
         virtual bool write(unsigned char* buffer, int size){
 
-            if(size!=8)
-                return false;
+            // if(size!=8)
+            //     return false;
 
-            vector<unsigned char> tmp;
-            for(int i=0;i<size;i++)
-                tmp.emplace_back(buffer[i]);
+            // vector<unsigned char> tmp;
+            // for(int i=0;i<size;i++)
+            //     tmp.emplace_back(buffer[i]);
 
-            _write_buffer.push(tmp);
-            return true;
+            // _write_buffer.produce(tmp);
+            // return true;
         }
 
 
         virtual void request(boost::asio::serial_port* bus, json& response){
 
-            //read request
-            unsigned char frame[] = { (unsigned char)_code, 0x01, 0x00, (unsigned char)_id, 0x00, 0x01, 0x00, 0x00};
+            //consume to write
+            {
+                std::lock_guard<std::mutex> lock(_mutex);
+                while(1){
+                    if(_write_buffer.empty())
+                        break;
+                        
+                    wpack wdata = _write_buffer.front();
+                    _write_buffer.pop();
+
+                    //write
+                    unsigned short crc = _crc16(wdata.data, 6);
+                    wdata.data[6] = (crc >> 8) & 0xff;
+                    wdata.data[7] = crc & 0xff;
+                    int write_len = bus->write_some(boost::asio::buffer(wdata.data, 9));
+
+                    unsigned char rbuffer[_max_read_buffer_] = {0, };
+                    int read_len = bus->read_some(boost::asio::buffer(rbuffer, _max_read_buffer_));
+                    
+                    boost::this_thread::sleep_for(boost::chrono::milliseconds(250));    //must sleep
+                }
+            }
+            
+
+            //read status request
+            unsigned char frame[] = { 0x01, 0x01, 0x00, (unsigned char)_id, 0x00, 0x01, 0x00, 0x00};
             unsigned short crc = _crc16(frame, 6);
             frame[6] = (crc >> 8) & 0xff;
             frame[7] = crc & 0xff;
@@ -80,10 +113,15 @@ class relay : public subport {
         }
 
         void set_on(){
-            unsigned char frame[] = { 0x01, 0x05, 0x00, (char)_id, 0xff, 0x00, 0x00, 0x00};
+            unsigned char frame[] = { 0x01, 0x05, 0x00, (unsigned char)_id, 0xff, 0x00, 0x00, 0x00};
             unsigned short crc = _crc16(frame, 6);
             frame[6] = (crc >> 8) & 0xff;
             frame[7] = crc & 0xff;
+
+            std::lock_guard<std::mutex> lock(_mutex);
+            wpack data;
+            data.copy(frame, sizeof(frame));
+            _write_buffer.push(std::move(data));
         }
 
         void set_off(){
@@ -91,6 +129,11 @@ class relay : public subport {
             unsigned short crc = _crc16(frame, 6);
             frame[6] = (crc >> 8) & 0xff;
             frame[7] = crc & 0xff;
+
+            std::lock_guard<std::mutex> lock(_mutex);
+            wpack data;
+            data.copy(frame, sizeof(frame));
+            _write_buffer.push(std::move(data));
         }
 
         void get_on(){
@@ -117,7 +160,9 @@ class relay : public subport {
 
     private:
         int _code = 0;
-        queue<vector<unsigned char>> _write_buffer;
+        std::queue<wpack> _write_buffer;
+        std::mutex _mutex;
+
 
 };
 

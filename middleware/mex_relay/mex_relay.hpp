@@ -12,6 +12,7 @@
 #include <deque>
 #include <sys/types.h>
 #include <unistd.h>
+#include <string>
 
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>

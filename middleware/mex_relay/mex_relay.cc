@@ -96,67 +96,31 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                 spdlog::info("Change running status : {}(0=stop, 1=start)", _run);
             }
 
-            if(ctrl_data.contains("port1")){
-                bool _p1 = ctrl_data["port1"].get<int>();
-                if(g_pSerial->is_open()){
-                    subport* sp = g_pSerial->get_subport(1);
-                    relay* r = dynamic_cast<relay*>(sp);
-                    if(_p1){
-                        r->set_on();
-                        spdlog::info("relay port 1 set on");
+
+            // port control on/off
+            map<string, int> ports = {{"p1", 0}, {"p2", 1}, {"p3", 2}, {"p4", 3}};
+
+            for(auto& item : ctrl_data.items()){
+                if(ports.find(item.key())!=ports.end()){
+                    bool _p = ctrl_data[item.key()].get<int>();
+                    
+                    if(g_pSerial->is_open()){
+                        spdlog::info("port id {}", ports[item.key()]);
+                        subport* sp = g_pSerial->get_subport(ports[item.key()]);
+                        if(sp){
+                            relay* r = dynamic_cast<relay*>(sp);
+                            if(r){
+                                if(_p){
+                                    spdlog::info("relay {} set on",item.key());
+                                    r->set_on();
+                                }
+                                else{
+                                    spdlog::info("relay {} set off",item.key());
+                                    r->set_off();
+                                }
+                            }   
+                        }
                     }
-                    else{
-                        r->set_off();
-                        spdlog::info("relay port 1 set off");
-                    }
-                }
-            }
-            else if(ctrl_data.contains("port2")){
-                bool _p2 = ctrl_data["port2"].get<int>();
-                if(g_pSerial->is_open()){
-                    subport* sp = g_pSerial->get_subport(2);
-                    relay* r = dynamic_cast<relay*>(sp);
-                    if(_p2){
-                        r->set_on();
-                        spdlog::info("relay port 2 set on");
-                    }
-                    else{
-                        r->set_off();
-                        spdlog::info("relay port 2 set off");
-                    }
-                        
-                }
-            }
-            else if(ctrl_data.contains("port3")){
-                bool _p3 = ctrl_data["port3"].get<int>();
-                if(g_pSerial->is_open()){
-                    subport* sp = g_pSerial->get_subport(3);
-                    relay* r = dynamic_cast<relay*>(sp);
-                    if(_p3){
-                        r->set_on();
-                        spdlog::info("relay port 3 set on");
-                    }
-                    else{
-                        r->set_off();
-                        spdlog::info("relay port 3 set off");
-                    }
-                        
-                }
-            }
-            else if(ctrl_data.contains("port4")){
-                bool _p4 = ctrl_data["port4"].get<int>();
-                if(g_pSerial->is_open()){
-                    subport* sp = g_pSerial->get_subport(4);
-                    relay* r = dynamic_cast<relay*>(sp);
-                    if(_p4){
-                        r->set_on();
-                        spdlog::info("relay port 4 set on");
-                    }
-                    else{
-                        r->set_off();
-                        spdlog::info("relay port 4 set off");
-                    }
-                        
                 }
             }
         }
@@ -171,7 +135,6 @@ void terminate() {
 
     if(g_pSerial){
         g_pSerial->stop();
-
         delete g_pSerial;
         g_pSerial = nullptr;
     }
@@ -182,7 +145,7 @@ void terminate() {
     mosquitto_destroy(g_mqtt);
     mosquitto_lib_cleanup();
 
-    g_pub_thread->join();
+    //g_pub_thread->join();
 
     spdlog::info("Successfully terminated");
     exit(EXIT_SUCCESS);
@@ -281,8 +244,8 @@ int main(int argc, char* argv[])
             g_pSerial = new serialbus(_device_port.c_str(), _baudrate);
             if(g_pSerial->is_open()){
                 g_pSerial->set_processor(postprocess);
-                g_pSerial->add_subport(1, new relay("relay_sload", 1, 0));
-                g_pSerial->add_subport(2, new relay("relay_zeroset", 1, 3));
+                g_pSerial->add_subport(0, new relay("relay_sload", 1, 0));
+                g_pSerial->add_subport(3, new relay("relay_zeroset", 1, 3));
                 g_pSerial->start();
 
                 //g_pub_thread = new boost::thread(&pub_thread_proc); //mqtt publish periodically

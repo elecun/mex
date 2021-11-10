@@ -73,6 +73,11 @@ class serialbus {
         }
 
         subport* get_subport(const int idx){
+            if(_subport_container.find(idx)==_subport_container.end()){
+                spdlog::warn("Nothing to control for subport id {}", idx);
+                return nullptr;
+            }
+                
             return _subport_container[idx];
         }
 

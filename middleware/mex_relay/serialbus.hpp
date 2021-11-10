@@ -20,7 +20,6 @@
 #include <atomic>
 #include <boost/smart_ptr.hpp>
 #include "subport.hpp"
-#include "safeq.hpp"
 
 using namespace std;
 
@@ -58,14 +57,19 @@ class serialbus {
             _ts.create_thread([&](void){_service.run();});
         }
 
-        void stop(){ /* stop read */
-
+        void stop(){ /* stop read */              
+            
             _operation = false;
             _worker.reset();
             _service.stop();
             _ts.join_all();
             _service.reset();
             _port.close();
+            
+            for(auto& p:_subport_container){
+                delete p.second;
+            }
+            // _subport_container.erase(_subport_container.begin(), _subport_container.end());
         }
 
         void add_subport(int idx, subport* port){
@@ -73,13 +77,15 @@ class serialbus {
         }
 
         subport* get_subport(const int idx){
+            if(_subport_container.find(idx)==_subport_container.end())
+                return nullptr;
             return _subport_container[idx];
         }
 
         /* push the write data */
         void push_write(unsigned char* buffer, int size){
-            vector<unsigned char> data(buffer, buffer+size);
-            _write_buffer.produce(std::move(data));
+            // vector<unsigned char> data(buffer, buffer+size);
+            // _write_buffer.produce(std::move(data));
             //spdlog::info("write buffer size : {}", _write_buffer.size());
         }
         
@@ -94,11 +100,9 @@ class serialbus {
             boost::function<void(void)> read_handler = [&](void) {
                 while(_operation){
                     if(_port.is_open()){
-
                         for(auto& sub: _subport_container){
                             json response;
                             sub.second->request(&_port, response);
-
                             //post process
                             postprocess(response);
                         }
@@ -129,7 +133,7 @@ class serialbus {
         atomic<bool> _operation;
 
         map<int, subport*> _subport_container;
-        safeQueue<vector<unsigned char>> _write_buffer;
+        // safeQueue<vector<unsigned char>> _write_buffer;
 
 };
 
