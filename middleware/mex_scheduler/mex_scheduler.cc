@@ -14,6 +14,9 @@ int _run = 0; //stop
 
 
 json g_steps;
+int g_step_idx = 0;
+bool g_repeat = false;
+
 
 /* publish rpm & temperature data */
 void pub_thread_proc(){
@@ -30,14 +33,30 @@ void pub_thread_proc(){
 
             case 2: { //start
                 if(g_mqtt){
-                    for(auto& step: g_steps["steps"]){
+                    if(g_step_idx<g_steps.size()){
+
+                        json step = g_steps["steps"][g_step_idx++];
                         spdlog::info("{}", step["Step"].get<int>());
                         spdlog::info("{}", step["Command"].get<int>());
                         spdlog::info("{}", step["Time"].get<int>());
                         spdlog::info("{}", step["Speed"].get<int>());
                         spdlog::info("{}", step["Load"].get<int>());
                         spdlog::info("{}", step["Acc/Dec"].get<int>());
+
                     }
+                    
+                    if(g_repeat && g_step_idx>=g_steps.size()){
+                        g_step_idx = 0;
+                    }
+
+                    // for(auto& step: g_steps["steps"]){
+                    //     spdlog::info("{}", step["Step"].get<int>());
+                    //     spdlog::info("{}", step["Command"].get<int>());
+                    //     spdlog::info("{}", step["Time"].get<int>());
+                    //     spdlog::info("{}", step["Speed"].get<int>());
+                    //     spdlog::info("{}", step["Load"].get<int>());
+                    //     spdlog::info("{}", step["Acc/Dec"].get<int>());
+                    // }
                 }
             }
         }
@@ -100,6 +119,7 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
             json ctrl_data = json::parse((char*)message->payload);
 
             spdlog::info("mqtt : {}", ctrl_data.dump());
+            spdlog::info("step size : {}", ctrl_data["steps"].size());
             
             if(ctrl_data.contains("run")){
                 _run = ctrl_data["run"].get<int>();
@@ -110,6 +130,10 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                     case 2: { g_steps = ctrl_data; } break; //start
                 }
                 spdlog::info("Change running status : {} (0=stop, 1=pause, 2=start)", _run);
+            }
+
+            if(ctrl_data.contains("repeat")){
+                g_repeat = ctrl_data["repeat"].get<bool>();
             }
         }
         catch(json::parse_error& e){
