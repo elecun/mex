@@ -61,8 +61,7 @@ class rpm : public subport {
 
             boost::this_thread::sleep_for(boost::chrono::milliseconds(250));    //must sleep
 
-            response["rpm"]["id"] = _id;
-            response["rpm"]["value"] = value;
+            response[_subname] = value;
 
         }
 

@@ -14,34 +14,27 @@ bool _run = true;
 
 bool g_relay_sload = false;
 bool g_relay_zeroset = false;
+bool g_relay_emerency = false;
 
 /* publish rpm & temperature data */
 void pub_thread_proc(){
     while(1){
 
         //continuously transferring data
-        // if(g_mqtt && _run){
+        if(g_mqtt && _run){
 
-        //     //1. rpm data publish
-        //     json _relay_pubdata;
-        //     _rpm_pubdata["value"] = g_rpm;
-        //     string str_rpm_data = _rpm_pubdata.dump();
-        //     if(mosquitto_publish(g_mqtt, nullptr, MEX_RPM_VALUE_TOPIC, str_rpm_data.size(), str_rpm_data.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
-        //         spdlog::error("Data publish error for RPM data");
+            //2. temperature data publish
+            json _relay_pubdata;
+            _relay_pubdata["relay_sload"] = g_relay_sload;
+            _relay_pubdata["relay_zeroset"] = g_relay_zeroset;
+            _relay_pubdata["relay_emergency"] = g_relay_emerency;
 
-        //     spdlog::info("RPM :{}", g_rpm);
+            string str_relay_data = _relay_pubdata.dump();
+            if(mosquitto_publish(g_mqtt, nullptr, MEX_RELAY_VALUE_TOPIC, str_relay_data.size(), str_relay_data.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
+                spdlog::error("Data publish error for Relay data");
 
-        //     //2. temperature data publish
-        //     json _temp_pubdata;
-        //     _temp_pubdata["temperature_1"] = g_temperature_1;
-        //     _temp_pubdata["temperature_2"] = g_temperature_2;
-        //     _temp_pubdata["temperature_3"] = g_temperature_3;
-        //     string str_temp_data = _temp_pubdata.dump();
-        //     if(mosquitto_publish(g_mqtt, nullptr, MEX_TEMPERATURE_VALUE_TOPIC, str_temp_data.size(), str_temp_data.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
-        //         spdlog::error("Data publish error for Temperature data");
-
-        //     spdlog::info("Temperature 1 :{}, Temperature 2 :{}, Temperature 3 :{}", g_temperature_1, g_temperature_2, g_temperature_3);
-        // }
+            spdlog::info("Sload :{}, Zeroset :{}, Emergency :{}", g_relay_sload, g_relay_zeroset, g_relay_emerency);
+        }
 
         boost::this_thread::sleep_for(boost::chrono::seconds(_pub_inteval_sec));
         if(_terminate)
@@ -53,21 +46,17 @@ void pub_thread_proc(){
 /* post process */
 static void postprocess(json& msg){
 
-    // if(msg.contains("temperature1")){
-    //     g_temperature_1 = msg["temperature1"].get<float>();
-    // }
+    if(msg.contains("relay_emergency")){
+        g_relay_emerency = msg["relay_emergency"].get<bool>();
+    }
 
-    // if(msg.contains("temperature2")){
-    //     g_temperature_2 = msg["temperature2"].get<float>();
-    // }
+    if(msg.contains("relay_sload")){
+        g_relay_sload = msg["relay_sload"].get<bool>();
+    }
 
-    // if(msg.contains("temperature3")){
-    //     g_temperature_3 = msg["temperature3"].get<float>();
-    // }
-
-    // if(msg.contains("rpm")){
-    //     g_rpm = msg["rpm"].get<unsigned long>();
-    // }
+    if(msg.contains("relay_zeroset")){
+        g_relay_zeroset = msg["relay_zeroset"].get<bool>();
+    }
 }
 
 
@@ -108,7 +97,7 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                         spdlog::info("port id {}", ports[item.key()]);
                         subport* sp = g_pSerial->get_subport(ports[item.key()]);
                         if(sp){
-                            relay* r = dynamic_cast<relay*>(sp);
+                            relay_out* r = dynamic_cast<relay_out*>(sp);
                             if(r){
                                 if(_p){
                                     spdlog::info("relay {} set on",item.key());
@@ -244,11 +233,12 @@ int main(int argc, char* argv[])
             g_pSerial = new serialbus(_device_port.c_str(), _baudrate);
             if(g_pSerial->is_open()){
                 g_pSerial->set_processor(postprocess);
-                g_pSerial->add_subport(0, new relay("relay_sload", 1, 0));
-                g_pSerial->add_subport(3, new relay("relay_zeroset", 1, 3));
+                g_pSerial->add_subport(0, new relay_out("relay_sload", 1, 0));
+                g_pSerial->add_subport(3, new relay_out("relay_zeroset", 1, 3));
+                g_pSerial->add_subport(1, new relay_in("relay_emergency", 2, 1));
                 g_pSerial->start();
 
-                //g_pub_thread = new boost::thread(&pub_thread_proc); //mqtt publish periodically
+                g_pub_thread = new boost::thread(&pub_thread_proc); //mqtt publish periodically
             }
         }
 

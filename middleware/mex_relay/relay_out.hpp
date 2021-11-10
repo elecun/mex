@@ -4,8 +4,8 @@
  * @author Byunghun<bh.hwang@iae.re.kr>
  */
 
-#ifndef _MEX_RELAY_HPP_
-#define _MEX_RELAY_HPP_
+#ifndef _MEX_RELAY_OUT_HPP_
+#define _MEX_RELAY_OUT_HPP_
 
 #include <string>
 #include <include/spdlog/spdlog.h>
@@ -18,7 +18,7 @@
 using namespace std;
 
 
-class relay : public subport {
+class relay_out : public subport {
 
     const int _max_read_buffer_ = 2048;
     typedef struct _wpacket {
@@ -29,10 +29,10 @@ class relay : public subport {
     } wpack;
 
     public:
-        relay(const char* subport_name, int code, int id):subport(subport_name, id), _code(code){
+        relay_out(const char* subport_name, int code, int id):subport(subport_name, id), _code(code){
 
         }
-        virtual ~relay() {
+        virtual ~relay_out() {
 
         }
 
@@ -62,7 +62,7 @@ class relay : public subport {
                 while(1){
                     if(_write_buffer.empty())
                         break;
-                        
+
                     wpack wdata = _write_buffer.front();
                     _write_buffer.pop();
 
@@ -85,27 +85,28 @@ class relay : public subport {
             unsigned short crc = _crc16(frame, 6);
             frame[6] = (crc >> 8) & 0xff;
             frame[7] = crc & 0xff;
-            int write_len = bus->write_some(boost::asio::buffer(frame, 9));
-            //spdlog::info("requested read realy {}", _id);
+            int write_len = bus->write_some(boost::asio::buffer(frame, 8));
+            //spdlog::info("{}:requested read realy {}",_subname, _id);
 
             //vector<char> wpacket(frame, frame+write_len);
-            //spdlog::info("write data : {:x}", spdlog::to_hex(wpacket));
+            //spdlog::info("{}:write data : {:x}", _subname,spdlog::to_hex(wpacket));
+
+            boost::this_thread::sleep_for(boost::chrono::milliseconds(100));    //waiting for receiving
 
             unsigned char rbuffer[_max_read_buffer_] = {0, };
             int read_len = bus->read_some(boost::asio::buffer(rbuffer, _max_read_buffer_));
-            //spdlog::info("{}bytes read", read_len);
+            //spdlog::info("{}:{}bytes read", _subname,read_len);
 
             //vector<char> rpacket(rbuffer, rbuffer+read_len);
-            //spdlog::info("read data : {:x}", spdlog::to_hex(rpacket));
+            //spdlog::info("{}:read data : {:x}", _subname, spdlog::to_hex(rpacket));
 
             //parse data
             bool value = (rbuffer[3]==0xff)?true:false;
-            spdlog::info("relay {} : {}", _id, value);
+            //spdlog::info("{}:relay {} : {}", _subname, _id, value);
 
-            boost::this_thread::sleep_for(boost::chrono::milliseconds(250));    //must sleep
+            boost::this_thread::sleep_for(boost::chrono::milliseconds(100));    //must sleep
 
-            response["relay"]["id"] = _id;
-            response["relay"]["value"] = value;
+            response[_subname] = value;
         }
 
         virtual void readsome(boost::asio::serial_port* bus, json& data){

@@ -103,6 +103,7 @@ class serialbus {
                         for(auto& sub: _subport_container){
                             json response;
                             sub.second->request(&_port, response);
+                            //post process
                             postprocess(response);
                         }
                     }

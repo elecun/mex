@@ -25,7 +25,8 @@
 
 #include <mosquitto.h>
 #include "serialbus.hpp"
-#include "relay.hpp"
+#include "relay_out.hpp"
+#include "relay_in.hpp"
 
 
 using namespace std;
