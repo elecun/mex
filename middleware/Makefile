@@ -57,8 +57,12 @@ mex_relay:	$(BUILDDIR)mex_relay.o
 $(BUILDDIR)mex_relay.o:	$(SOURCE_FILES)mex_relay/mex_relay.cc
 						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
 
+mex_plc:	$(BUILDDIR)mex_plc.o
+		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
+$(BUILDDIR)mex_plc.o:	$(SOURCE_FILES)mex_plc/mex_plc.cc
+						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
 
-all : mex_load mex_tpm mex_relay
+all : mex_load mex_tpm mex_relay mex_plc
 
 deploy : FORCE
 	cp $(BINDIR)

@@ -72,14 +72,14 @@ class serialbus {
             // _subport_container.erase(_subport_container.begin(), _subport_container.end());
         }
 
-        void add_subport(int idx, subport* port){
-            _subport_container.insert(std::make_pair(idx, port));
+        void add_subport(const char* devname, subport* port){
+            _subport_container.insert(std::make_pair(devname, port));
         }
 
-        subport* get_subport(const int idx){
-            if(_subport_container.find(idx)==_subport_container.end())
+        subport* get_subport(const char* devname){
+            if(_subport_container.find(devname)==_subport_container.end())
                 return nullptr;
-            return _subport_container[idx];
+            return _subport_container[devname];
         }
 
         /* push the write data */
@@ -103,7 +103,6 @@ class serialbus {
                         for(auto& sub: _subport_container){
                             json response;
                             sub.second->request(&_port, response);
-                            //post process
                             postprocess(response);
                         }
                     }
@@ -132,7 +131,7 @@ class serialbus {
         ptrProcess _proc;
         atomic<bool> _operation;
 
-        map<int, subport*> _subport_container;
+        map<string, subport*> _subport_container;
         // safeQueue<vector<unsigned char>> _write_buffer;
 
 };
