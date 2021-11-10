@@ -13,7 +13,7 @@
             <tbody>
                 <tr>
                     <td class="text-right">{{menu_ko.status_manual_control_motor}} :</td>
-                    <td><input type="checkbox" data-toggle="toggle"></td>
+                    <td><input type="checkbox" data-toggle="toggle" id="check_motor_toggle"></td>
                 </tr>
             </tbody>
         </table>
@@ -24,33 +24,58 @@
             <tbody>
                 <tr>
                     <td class="text-right">{{menu_ko.status_manual_control_sideload}} :</td>
-                    <td><input type="checkbox" data-toggle="toggle"></td>
+                    <td><input type="checkbox" data-toggle="toggle" id="check_sload_toggle"></td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
 
+<script type="text/javascript">
 
-<!-- <div class="row mt-4">
-    <div class="col-sm-4 d-flex justify-content-center">
-        <a href="#" class="btn btn-sq-lg bg-secondary pt-4">
-            <i class="fa fa-undo fa-3x"></i><br/>
-            {{menu_ko.status_manual_control_forward}}
-        </a>
-    </div>
+/* motor on*/
+function mqtt_command_motor_on(){
+  if(mqtt_connected){
+    mqtt_client.publish("mex/plc/ctrl", JSON.stringify({"command":"motor_on"}), 2);
+  }
+}
 
-    <div class="col-sm-4 d-flex justify-content-center">
-        <a href="#" class="btn btn-sq-lg bg-secondary">
-            <i class="fa fa-redo fa-3x"></i><br/>
-            {{menu_ko.status_manual_control_reverse}}
-        </a>
-    </div>
+/* motor off*/
+function mqtt_command_motor_off(){
+  if(mqtt_connected){
+    mqtt_client.publish("mex/plc/ctrl", JSON.stringify({"command":"motor_off"}), 2);
+  }
+}
 
-    <div class="col-sm-4 d-flex justify-content-center">
-        <a href="#" class="btn btn-sq-lg bg-secondary">
-            <i class="fa fa-stop fa-3x"></i><br/>
-            {{menu_ko.status_manual_control_stop}}
-        </a>
-    </div>
-</div> -->
+/* sload on*/
+function mqtt_command_sload_on(){
+  if(mqtt_connected){
+    mqtt_client.publish("mex/relay/ctrl", JSON.stringify({"p1":1}), 2);
+  }
+}
+
+/* sload off*/
+function mqtt_command_sload_off(){
+  if(mqtt_connected){
+    mqtt_client.publish("mex/relay/ctrl", JSON.stringify({"p1":0}), 2);
+  }
+}
+
+/* manual motor on & off */
+$('#check_motor_toggle').change(function() {
+    if($(this).prop('checked'))
+        mqtt_command_motor_on();
+    else
+        mqtt_command_motor_off();
+});
+
+/* manual motor on & off */
+$('#check_sload_toggle').change(function() {
+    if($(this).prop('checked'))
+        mqtt_command_sload_on();
+    else
+        mqtt_command_sload_off();
+});
+
+
+</script>

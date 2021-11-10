@@ -52,6 +52,8 @@ class temperature : public subport {
             //vector<char> wpacket(frame, frame+write_len);
             //spdlog::info("write data : {:x}", spdlog::to_hex(wpacket));
 
+            boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
+
             unsigned char rbuffer[_max_read_buffer_] = {0, };
             int read_len = bus->read_some(boost::asio::buffer(rbuffer, _max_read_buffer_));
             //spdlog::info("{}bytes read", read_len);

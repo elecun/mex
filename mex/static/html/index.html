@@ -86,15 +86,24 @@ function mqtt_onMessageArrived(message){
       } break;
 
       case "mex/sensor/rpm":{ //rpm data
-        const rpm = JSON.parse(message.payloadString);
-        document.getElementById('edit_status_rpm').value = rpm.value;
+        const data = JSON.parse(message.payloadString);
+        document.getElementById('edit_status_rpm').value = data.rpm;
         $("#edit_status_rpm").trigger('change');
       } break;
 
       case "mex/sensor/load":{ //loadcell
-        const load = JSON.parse(message.payloadString);
-        document.getElementById('edit_status_load').value = load.value;
+        const data = JSON.parse(message.payloadString);
+        document.getElementById('edit_status_load').value = data.load;
         $("#edit_status_load").trigger('change');
+      } break;
+
+      case "mex/sensor/relay":{
+        // const relay = JSON.parse(message.payloadString);
+        // if(relay.relay_sload)
+        //   $('#check_sload_toggle').prop('checked', true).chagne();
+        // else
+        //   $('#check_sload_toggle').prop('checked', false).change();
+
       } break;
       
     }

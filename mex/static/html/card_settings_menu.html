@@ -26,8 +26,23 @@
 
 <script language="javascript">
 
+    /* page load */
     window.addEventListener('DOMContentLoaded', function(){
         
+    });
+
+    /* start step */
+    document.getElementById('btn_start_step').addEventListener('click', function(){
+        if(confirm("{{menu_ko.message_start_steps}}")){
+            var steps = {};
+            steps["run"] = 2;
+            steps["steps"] = step_db.steps;
+            if(mqtt_connected){
+                mqtt_client.publish("mex/step/ctrl", JSON.stringify(steps), 2);
+            }
+
+            $.notify("Start Steps", {className: "success",position:"bottom left"});
+        }
     });
 
     var update_timer = null;

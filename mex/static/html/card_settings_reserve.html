@@ -30,8 +30,8 @@
       <thead>
         <tr>
           <th>#</th>
-          <th>Start Date/Time</th>
-          <th>Setting Name</th>
+          <th>시작 날짜/시각</th>
+          <th>적용 설정#</th>
           <th></th>
         </tr>
       </thead>
@@ -50,16 +50,16 @@
 var settings_reserve_table = $('#table_reserve_list').DataTable({
   "autoload":true,
   "scrollX":false,
-  "scrollY": "250px",
+  "scrollY": "200px",
   "scrollCollapse":true,
   "paging":false,
   "ordering":true,
   "searching":false
 });
 
-async function request_reserve_new(){
+async function request_reserve_new(target_setting){
   const datetime = document.getElementById('edit_reserve_datetime').value;
-  const req = {"datetime": datetime};
+  const req = {"datetime": datetime, "setting_id":target_setting};
   const response = await REST_POST("{% url 'api_reserve_new' %}", req);
   if(response.ok){
     update_reserve_list();
@@ -68,9 +68,11 @@ async function request_reserve_new(){
 
 /* add job reservation */
 document.getElementById("btn_add_reserve").addEventListener("click", function() {
-  request_reserve_new();
+  const setting_id = document.getElementById('hidden_settings_id').value;
+  request_reserve_new(setting_id);
 });
 
+/* datetime picker */
 $('#settings_reserve_date').datetimepicker({ 
   icons: {
       time: "fas fa-clock",
@@ -85,12 +87,12 @@ $('#settings_reserve_date').datetimepicker({
 });
 
 /* delete by id */
-async function request_settings_delete(id){
-  if(confirm("Delete?")){
+async function request_reserve_delete(id){
+  if(confirm("{{menu_ko.message_delete_reserve_selected}}")){
     const req = {"id":id};
-    const response = await REST_POST("{% url 'api_settings_delete' %}", req);
+    const response = await REST_POST("{% url 'api_reserve_delete' %}", req);
     if(response.ok){
-      update_settings_list();
+      update_reserve_list();
     }
   }
 }
@@ -100,16 +102,17 @@ async function request_settings_delete(id){
 async function update_reserve_list(){
   settings_reserve_table.clear();
 
-  const response = await REST_GET("{% url 'api_settings_list' %}");
+  const response = await REST_GET("{% url 'api_reserve_list' %}");
 
   if(response.ok && response.status==200){
     const listdata = await response.json();
 
     listdata.data.forEach(function(s){
-      var date_created = new Date(s.created_at);
-      const date = date_created.toLocaleDateString() + date_created.toLocaleTimeString();
-      var manage = '<button type="button" class="btn btn-light btn-sm" onclick=javascript:request_settings_delete('+s.id+');><i class="fas fa-trash mr-1 text-danger"></i> Delete</button>';
-      settings_reserve_table.row.add([s.id, s.uid, date, s.name, s.machine_name, manage]);
+      var start_date = new Date(s.start_at);
+      const date = start_date.toLocaleDateString() + start_date.toLocaleTimeString();
+
+      var manage = '<button type="button" class="btn btn-light btn-sm" onclick=javascript:request_reserve_delete('+s.id+');><i class="fas fa-trash mr-1 text-danger"></i> Delete</button>';
+      settings_reserve_table.row.add([s.id, date, s.target_setting_id, manage]);
     });
     settings_reserve_table.draw();
 

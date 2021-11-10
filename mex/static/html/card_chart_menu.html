@@ -79,8 +79,9 @@ document.getElementById("btn_chart_open").addEventListener("click", function() {
 
 /* emergency stop event */
 document.getElementById("btn_chart_image_download").addEventListener("click", function() {
+
    var img = new Image();
-   img.src = myChart.getDataURL({
+   img.src = data_chart.getDataURL({
       pixelRatio: 2,
       backgroundColor: '#fff'
    });
@@ -88,56 +89,58 @@ document.getElementById("btn_chart_image_download").addEventListener("click", fu
    var a = document.createElement('a');
    a.style = 'display: none';
    a.href = img.src;
-   a.download = 'new_file_name.png';
+   a.download = 'image.png';
    document.body.appendChild(a);
    a.click();
-   setTimeout(function () {
-  // 다운로드가 안되는 경우 방지
-  document.body.removeChild(a);
-}, 100);
+
+   setTimeout(function () { document.body.removeChild(a);}, 100); //protection download fail
 });
 
-   /* data csv download */
-   document.getElementById("btn_chart_raw_download").addEventListener("click", function(){
-      var _headers = ['h1', 'h2', 'h3'];
-      var time = ['1','2','3','4','5','6','7','8','9'];
-      var data1 = ['a','a','a','a','a','a','a','a','a'];
-      var data2 = ['b','b','b','b','b','b','b','b','b'];
+/* data csv download */
+document.getElementById("btn_chart_raw_download").addEventListener("click", function(){
+   var _headers = ['time', 'load', 'temperature 1', 'temperature 2', 'temperature 3', 'RPM'];
+   var time = option.xAxis.data;
+   var load = option.series[0].data;
+   var temperature_1 = option.series[1].data;
+   var temperature_2 = option.series[2].data;
+   var temperature_3 = option.series[3].data;
+   var rpm = option.series[4].data;
 
-      // prepare CSV data
-      var csvData = new Array();
-      csvData.push(_headers);
+   // prepare CSV data
+   var csvData = new Array();
+   csvData.push(_headers);
 
-    for (i = 0; i < time.length; i++) {
-        csvData.push(new Array(time[i], data1[i], data2[i]));
-    }
+   for(var i=0;i<time.length;i++) {
+      //csvData.push(new Array(time[i], load[i], temperature_1[i], temperature_2[i], temperature_3[i], rpm[i]));
+      csvData.push(new Array(time[i], load[i], temperature_1[i], temperature_2[i], temperature_3[i], rpm[i]));
+   }
 
-    var lineArray = [];
-    csvData.forEach(function (infoArray, index) {
-        var line = infoArray.join(",");
-        lineArray.push(index == 0 ? "\uFEFF" + line : line); 
-    });
-    var csvContent = lineArray.join("\n");
-
-    // download stuff
-    var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    var link = document.createElement("a");
-
-    if (link.download !== undefined) { // feature detection
-        // Browsers that support HTML5 download attribute
-        link.setAttribute("href", window.URL.createObjectURL(blob));
-        link.setAttribute("download", "data.csv");
-        link.setAttribute("hidden", true);
-    }
-    else {
-        // it needs to implement server side export
-        console.log('error');
-        link.setAttribute("href", "#");
-    }
-    //link.innerHTML = "Export to CSV";
-    //document.body.appendChild(link);
-    link.click();
+   var lineArray = [];
+   csvData.forEach(function (infoArray, index) {
+      var line = infoArray.join(",");
+      lineArray.push(index == 0 ? "\uFEFF" + line : line); 
    });
+   var csvContent = lineArray.join("\n");
+
+   // download stuff
+   var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+   var link = document.createElement("a");
+
+   if (link.download !== undefined) { // feature detection
+      // Browsers that support HTML5 download attribute
+      link.setAttribute("href", window.URL.createObjectURL(blob));
+      link.setAttribute("download", "data.csv");
+      link.setAttribute("hidden", true);
+   }
+   else {
+      // it needs to implement server side export
+      console.log('error');
+      link.setAttribute("href", "#");
+   }
+   //link.innerHTML = "Export to CSV";
+   //document.body.appendChild(link);
+   link.click();
+});
 
 
 </script>

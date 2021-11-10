@@ -62,7 +62,12 @@ mex_plc:	$(BUILDDIR)mex_plc.o
 $(BUILDDIR)mex_plc.o:	$(SOURCE_FILES)mex_plc/mex_plc.cc
 						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
 
-all : mex_load mex_tpm mex_relay mex_plc
+mex_scheduler:	$(BUILDDIR)mex_scheduler.o
+		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
+$(BUILDDIR)mex_scheduler.o:	$(SOURCE_FILES)mex_scheduler/mex_scheduler.cc
+						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
+
+all : mex_load mex_tpm mex_relay mex_plc mex_scheduler
 
 deploy : FORCE
 	cp $(BINDIR)

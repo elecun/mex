@@ -26,7 +26,7 @@ void pub_thread_proc(){
 
             //1. rpm data publish
             json _rpm_pubdata;
-            _rpm_pubdata["value"] = g_rpm;
+            _rpm_pubdata["rpm"] = g_rpm;
             string str_rpm_data = _rpm_pubdata.dump();
             if(mosquitto_publish(g_mqtt, nullptr, MEX_RPM_VALUE_TOPIC, str_rpm_data.size(), str_rpm_data.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
                 spdlog::error("Data publish error for RPM data");

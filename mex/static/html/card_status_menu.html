@@ -30,28 +30,31 @@ window.addEventListener('DOMContentLoaded', function(){
 /* mqtt command for zeroset */
 function mqtt_command_zeroset(){
   if(mqtt_connected){
-    mqtt_client.publish("mex/control", JSON.stringify({"command":"zeroset"}), 2);
+    mqtt_client.publish("mex/relay/ctrl", JSON.stringify({"p4":1}), 2);
+    setTimeout(() => 
+    mqtt_client.publish("mex/relay/ctrl", JSON.stringify({"p4":0}), 2)
+    , 1000);
   }
 }
 
 /* mqtt command for forward */
 function mqtt_command_forward(){
   if(mqtt_connected){
-    mqtt_client.publish("mex/control", JSON.stringify({"command":"mc_forward"}), 2);
+    mqtt_client.publish("mex/plc/ctrl", JSON.stringify({"command":"move_cw"}), 2);
   }
 }
 
 /* mqtt command for reverse */
 function mqtt_command_reverse(){
   if(mqtt_connected){
-    mqtt_client.publish("mex/control", JSON.stringify({"command":"mc_reverse"}), 2);
+    mqtt_client.publish("mex/plc/ctrl", JSON.stringify({"command":"move_ccw"}), 2);
   }
 }
 
 /* mqtt command for stop */
 function mqtt_command_stop(){
   if(mqtt_connected){
-    mqtt_client.publish("mex/control", JSON.stringify({"command":"mc_stop"}), 2);
+    mqtt_client.publish("mex/plc/ctrl", JSON.stringify({"command":"move_stop"}), 2);
   }
 }
 

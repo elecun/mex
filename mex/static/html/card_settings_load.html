@@ -53,7 +53,7 @@ var settings_list_table = $('#table_settings_list').DataTable({
 
 /* delete settings by id */
 async function request_settings_delete(id){
-  if(confirm("Delete?")){
+  if(confirm("{{menu_ko.message_delete_setting_selected}}")){
     const req = {"id":id};
     const response = await REST_POST("{% url 'api_settings_delete' %}", req);
     if(response.ok){
@@ -97,7 +97,7 @@ function apply_settings_data(params){
 
 /* load settings by id*/
 async function request_settings_load(id){
-  if(confirm("Load selected?")){
+  if(confirm("{{menu_ko.message_load_selected}}")){
     let url = "{% url 'api_settings_load' 99 %}".replace('99', id);
     const response = await REST_GET(url);
     const data = await response.json();

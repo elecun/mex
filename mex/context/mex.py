@@ -79,10 +79,15 @@ def context_processors(request):
             'chart_raw_download':"CSV 내보내기",
             'chart_image_download':"이미지 내보내기",
             'settings_reserve_datetime':"실행 날짜/시각",
-            'settings_reserve_add':"예약 추가",
+            'settings_reserve_add':"예약 적용",
             'settings_reserve_list':"예약 리스트",
-            'message_update_success':"정상적으로 설정을 업데이트 하였습니다.",
+            'message_update_success':"정상적으로 설정을 저장 및 업데이트 하였습니다.",
             'message_update_error_no_target':"업데이트할 설정 대상이 지정되지 않았습니다.",
+            'message_load_selected':"선택한 설정을 불러오기 하시겠습니까?",
+            'message_delete_setting_selected':"선택한 설정을 삭제 하시겠습니까?",
+            'message_delete_reserve_selected':"선택한 예약을 삭제 하시겠습니까?",
+            'message_start_steps':"시험을 시작하시겠습니까?",
+            'chart_title':"측정 데이터",
         }
     }
 

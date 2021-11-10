@@ -10,6 +10,7 @@ from api_settings import api_load
 from api_settings import api_update
 from api_settings import api_reserve_list
 from api_settings import api_reserve_new
+from api_settings import api_reserve_delete
 
 # api views
 urlpatterns = [
@@ -22,4 +23,5 @@ urlpatterns = [
 
     path("rlist/", api_reserve_list.API.as_view(), name="api_reserve_list"),
     path("rnew/", api_reserve_new.API.as_view(), name="api_reserve_new"),
+    path("rdelete/", api_reserve_delete.API.as_view(), name="api_reserve_delete"),
 ]

@@ -25,16 +25,23 @@ class API(APIView):
 
     def post(self, request, *args, **kwargs):
         try :
-            if 'datetime' in request.data:
+            if 'datetime' in request.data and 'setting_id' in request.data:
                 # new reservation
                 _new_reserve = Reserve()
                 _new_reserve.uid = uuid.uuid4().hex
-                _new_reserve.start_at = datetime.strptime(request.data["datetime"], '%Y-%m-%d ')
-                print(request.data["datetime"])
+                _new_reserve.start_at = datetime.strptime(request.data["datetime"], '%Y-%m-%d %H:%M')
+                _new_reserve.target_setting_id = request.data["setting_id"]
+
+                _setting = Settings.objects.get(id=request.data["setting_id"])
+                if _setting is not None:
+                    _new_reserve.setting_id = _setting
+
                 _new_reserve.save()
+                
                 print("Registered New Reservation : ", _new_reserve.uid)
-                _new_settings_object = model_to_dict(_new_reserve)
-                return Response({"data":_new_settings_object}, status=status.HTTP_200_OK)
+                _new_reserve_object = model_to_dict(_new_reserve)
+                _new_reserve_object["setting_name"] = _setting.name
+                return Response({"data":_new_reserve_object}, status=status.HTTP_200_OK)
             else:
                 print("Reservation date & time must be required")
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)

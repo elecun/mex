@@ -43,23 +43,25 @@ class rpm : public subport {
             frame[6] = (crc >> 8) & 0xff;
             frame[7] = crc & 0xff;
             int write_len = bus->write_some(boost::asio::buffer(frame, 8));
-            spdlog::info("requested read realy {}", _id);
+            //spdlog::info("requested read realy {}", _id);
 
-            vector<char> wpacket(frame, frame+write_len);
-            spdlog::info("write data : {:x}", spdlog::to_hex(wpacket));
+            //vector<char> wpacket(frame, frame+write_len);
+            //spdlog::info("write data : {:x}", spdlog::to_hex(wpacket));
+
+            boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
 
             unsigned char rbuffer[_max_read_buffer_] = {0, };
             int read_len = bus->read_some(boost::asio::buffer(rbuffer, _max_read_buffer_));
-            spdlog::info("{}bytes read", read_len);
+            //spdlog::info("{}bytes read", read_len);
 
-            vector<char> rpacket(rbuffer, rbuffer+read_len);
-            spdlog::info("read data : {:x}", spdlog::to_hex(rpacket));
+            //vector<char> rpacket(rbuffer, rbuffer+read_len);
+            //spdlog::info("read data : {:x}", spdlog::to_hex(rpacket));
 
             //parse data
             int value = parse_value(rbuffer, read_len);
-            spdlog::info("rpm {} : {}", _id, value);
+            //spdlog::info("rpm {} : {}", _id, value);
 
-            boost::this_thread::sleep_for(boost::chrono::milliseconds(250));    //must sleep
+            boost::this_thread::sleep_for(boost::chrono::milliseconds(500));    //must sleep
 
             response[_subname] = value;
 

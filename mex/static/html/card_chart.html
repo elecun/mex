@@ -25,12 +25,12 @@
 
 
   // Initialize the echarts instance based on the prepared dom
-  var myChart = echarts.init(document.getElementById('main'));
+  var data_chart = echarts.init(document.getElementById('main'));
 
   // Specify the configuration items and data for the chart
   var option = {
     title: {
-      text: 'MEX Data Chart'
+      text: '{{menu_ko.chart_title}}'
     },
 
     legend: {
@@ -40,7 +40,7 @@
     toolbox:{
       show:true, 
       feature:{
-        
+        dataView: { readOnly: true },
       }
     },
 
@@ -51,7 +51,7 @@
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      data: []
     },
   
     yAxis: {
@@ -66,23 +66,59 @@
     containLabel: true
   },
     
-    series: [
-      {
-        name:'test1',
-        type:'line',
-        data: [150, 230, 224, 218, 135, 147, 260]
-      },
-      {
-        name:'test2',
-        type:'line',
-        data: [50, 30, 24, 18, 35, 47, 60]
-      }
-  ]
+    series: []
 };
 
-// Display the chart using the configuration items and data just specified.
-myChart.setOption(option);
+data_chart.setOption(option);
 
+function clear_series(){
+  var option = {series:[], xAxis:{data:[]}};
+  data_chart.setOption(option);
+}
+
+
+/* data load */
+async function request_chart_data(){
+  const response = await REST_GET("{% url 'api_query' %}");
+  if(response.ok && response.status==200){
+    const result = await response.json();
+    clear_series();
+    option.xAxis.data = result.data.datetime;
+    option.series = [
+      {
+        name: "load",
+        type:'line',
+        data: result.data.load
+      },
+      {
+        name: "temperature 1",
+        type:'line',
+        data: result.data.temperature_1
+      },
+      {
+        name: "temperature 2",
+        type:'line',
+        data: result.data.temperature_2
+      },
+      {
+        name: "temperature 3",
+        type:'line',
+        data: result.data.temperature_3
+      },
+      {
+        name: "RPM",
+        type:'line',
+        data: result.data.rpM
+      }
+    ];
+    data_chart.setOption(option);
+  }
+}
+
+/* page load */
+window.addEventListener('DOMContentLoaded', function(){
+  request_chart_data();
+});
 
 
 </script>

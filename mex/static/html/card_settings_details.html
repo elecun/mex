@@ -80,8 +80,8 @@ step_db.commands = [
 step_db.steps = [];
 
 $("#settings_step_table").jsGrid({
-    height: "240px",
-    width: "943px",
+    height: "430px",
+    width:"100%",
 
     editing: true,
     sorting: false,
@@ -97,10 +97,10 @@ $("#settings_step_table").jsGrid({
     fields: [
         { name: "Step", type: "number", width: 50, readOnly:false, align:"right" },
         { name: "Command", type: "select", items: step_db.commands, valueField: "id", textField: "command" },
-        { name: "Time", type: "text", readOnly:false, align:"right"},
-        { name: "Speed", type: "text", readOnly:false, align:"right"},
-        { name: "Load", type: "text", readOnly:false, align:"right" },
-        { name: "Acc/Dec", type: "text", readOnly:false, align:"right" },
+        { name: "Time", type: "number", readOnly:false, align:"right"},
+        { name: "Speed", type: "number", readOnly:false, align:"right"},
+        { name: "Load", type: "number", readOnly:false, align:"right" },
+        { name: "Acc/Dec", type: "number", readOnly:false, align:"right" },
         { type: "control", editButton: false, modeSwitchButton: false, deleteButtonTooltip: "Delete",}
     ]
 });

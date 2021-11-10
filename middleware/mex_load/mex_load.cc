@@ -21,9 +21,9 @@ void pub_thread_proc(){
             if(g_mqtt && _run>0){
                 // data publish to database
                 float value = atof(&receive_buf[1]);
-                spdlog::info("value : {}", value);
+                spdlog::info("load : {}", value);
                 json _pubdata;
-                _pubdata["value"] = value;
+                _pubdata["load"] = value;
                 string strdata = _pubdata.dump();
 
                 int ret = mosquitto_publish(g_mqtt, nullptr, MEX_LOADCELL_VALUE_TOPIC, strdata.size(), strdata.c_str(), 2, false);

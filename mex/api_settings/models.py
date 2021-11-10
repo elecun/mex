@@ -15,17 +15,6 @@ class Command(models.Model):
         return self.command
 
 '''
- Task Reservation model
-'''
-class Reserve(models.Model):
-    uid = models.CharField(max_length=64, blank=False, null=False, default=uuid.uuid4().hex, unique=True)
-    start_at = models.DateTimeField()
-
-    def __str__(self):
-        return self.uid
-
-
-'''
 Settings parameter model
 '''
 class Settings(models.Model):
@@ -59,4 +48,15 @@ class Settings(models.Model):
     def __str__(self):
         return self.name
 
+
+'''
+ Task Reservation model
+'''
+class Reserve(models.Model):
+    uid = models.CharField(max_length=64, blank=False, null=False, default=uuid.uuid4().hex, unique=True)
+    start_at = models.DateTimeField()
+    target_setting = models.ForeignKey("Settings", null=True, on_delete=models.SET_NULL, db_column="setting_id", related_name="setting")
+
+    def __str__(self):
+        return self.uid
 
