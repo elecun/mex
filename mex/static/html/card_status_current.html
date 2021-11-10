@@ -44,10 +44,10 @@
         <td width="20%" class="text-right">{{menu_ko.status_inprogress_step}}</td>
         <td class="pt-3">
           <div class="progress progress-lg" style="height: 20px;">
-            <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width:25%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+            <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width:15%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress_step_current"></div>
           </div>
         </td>
-        <td style="width: 100px;" class="text-bold">0/0</span></td>
+        <td style="width: 100px;" class="text-bold" id="text_step_current">0/0</span></td>
       </tr>
 
       <!-- current in-progress time -->
@@ -55,11 +55,30 @@
         <td width="20%" class="text-right">{{menu_ko.status_inprogress_time}}</td>
         <td class="pt-3">
           <div class="progress progress-lg" style="height: 20px;">
-            <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" style="width:15%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">15%</div>
+            <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" style="width:15%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress_step_elapsed"></div>
           </div>
         </td>
-        <td style="width: 100px;" class="text-bold">Elapsed</span></td>
+        <td style="width: 100px;" class="text-bold" id="text_step_elapsed"></span></td>
       </tr>
 
     </table>
   </div>
+
+  <script type="text/javascript">
+
+  /* current step status */
+  function update_progress_step_current(current, total){
+    const percent = parseInt(current/total*100) +"%";
+    document.getElementById('progress_step_current').style.width = percent;
+    document.getElementById('progress_step_current').innerText = percent;
+    document.getElementById('text_step_current').innerText = current +"/" + total;
+  }
+
+  /* current step elapsed time */
+  function update_progress_step_elapsed(current, total){
+    const percent = parseInt(current/total*100) +"%";
+    document.getElementById('progress_step_elapsed').style.width = percent;
+    document.getElementById('progress_step_elapsed').innerText = percent;
+    document.getElementById('text_step_elapsed').innerText = current +"/" + total;
+  }
+  </script>

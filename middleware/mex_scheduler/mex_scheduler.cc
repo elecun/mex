@@ -10,72 +10,104 @@
 int _pub_inteval_sec = 1;
 vector<char> receive_buf;
 bool _terminate = false;
-int _run = 0; //stop
+int _run = -1; //idle
 
 
 json g_steps;
 int g_step_idx = 0;
 bool g_repeat = false;
-
+long g_step_total_time = 0;
+long g_step_current_time_elapsed = 0;
+long g_next_step_time = 0;
 
 /* publish rpm & temperature data */
 void pub_thread_proc(){
     while(1){
 
         switch(_run){
-            case 0: { //stop
+            case -1: { //idle
 
+            }
+            case 0: { //stop
+                g_step_total_time = 0;
+                g_step_idx = 0;
+                g_step_current_time_elapsed = 0;
+                g_step_total_time = 0;
+                g_next_step_time = 0;
+                g_steps.clear();
+        
+                json step_status;
+                step_status["run"] = _run;
+                string str_step_status = step_status.dump();
+                mosquitto_publish(g_mqtt, nullptr, MEX_STEP_STATUS_TOPIC, str_step_status.size(), str_step_status.c_str(), 2, false);
+
+                _run = -1;
             } break;
 
             case 1: { //pause
+                json step_status;
+                step_status["run"] = _run;
+                string str_step_status = step_status.dump();
+                mosquitto_publish(g_mqtt, nullptr, MEX_STEP_STATUS_TOPIC, str_step_status.size(), str_step_status.c_str(), 2, false);
 
+                _run = -1;
             }
 
             case 2: { //start
-                if(g_mqtt){
-                    if(g_step_idx<g_steps.size()){
+                if(g_mqtt && !g_steps.empty())
+                {
+                    if(g_step_idx<g_steps["steps"].size())
+                    {
 
-                        json step = g_steps["steps"][g_step_idx++];
-                        spdlog::info("{}", step["Step"].get<int>());
-                        spdlog::info("{}", step["Command"].get<int>());
-                        spdlog::info("{}", step["Time"].get<int>());
-                        spdlog::info("{}", step["Speed"].get<int>());
-                        spdlog::info("{}", step["Load"].get<int>());
-                        spdlog::info("{}", step["Acc/Dec"].get<int>());
+                        json step = g_steps["steps"][g_step_idx];
+                        int step_index = step["Step"].get<int>();
+                        int step_command = step["Command"].get<int>();
+                        int step_time = step["Time"].get<int>();
+                        int step_speed = step["Speed"].get<int>();
+                        int step_load = step["Load"].get<int>();
+                        int step_accdec = step["Acc/Dec"].get<int>();
+
+                        if(g_step_current_time_elapsed>=g_next_step_time){
+                            g_next_step_time += step_time;
+                            spdlog::info("nex step time : {}", g_next_step_time);
+
+                            //step control publish
+                            string str_step_data = step.dump();
+                            if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_CONTROL_TOPIC, str_step_data.size(), str_step_data.c_str(), 2, false)==MOSQ_ERR_SUCCESS)
+                                spdlog::info("{} : (command :{}), (time:{}), (speed:{}), (load:{}), (acc/dec:{})", step_index, step_command, step_time, step_time, step_speed, step_load, step_accdec);
+                        }
+
+                        //step running status publish
+                        json step_status;
+                        step_status["step_size"] = g_steps["steps"].size();
+                        step_status["step_current"] = step_index;
+                        step_status["total_time"] = g_step_total_time;
+                        step_status["current_elapsed"] = ++g_step_current_time_elapsed;
+                        step_status["run"] = _run;
+                        string str_step_status = step_status.dump();
+                        if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_STATUS_TOPIC, str_step_status.size(), str_step_status.c_str(), 2, false)==MOSQ_ERR_SUCCESS)
+                            spdlog::info("step status : {}", step_status.dump());
+
+
+                        if(g_step_current_time_elapsed>=g_next_step_time){
+                            g_step_idx++;
+                        }
 
                     }
                     
-                    if(g_repeat && g_step_idx>=g_steps.size()){
-                        g_step_idx = 0;
-                    }
-
-                    // for(auto& step: g_steps["steps"]){
-                    //     spdlog::info("{}", step["Step"].get<int>());
-                    //     spdlog::info("{}", step["Command"].get<int>());
-                    //     spdlog::info("{}", step["Time"].get<int>());
-                    //     spdlog::info("{}", step["Speed"].get<int>());
-                    //     spdlog::info("{}", step["Load"].get<int>());
-                    //     spdlog::info("{}", step["Acc/Dec"].get<int>());
+                    // if(g_repeat && g_step_idx>=g_steps.size()){
+                    //     g_step_idx = 0;
                     // }
+                    if(g_step_current_time_elapsed>=g_step_total_time){
+                        if(g_repeat)
+                            g_step_idx = 0;
+                        else
+                            _run = 0;
+                    }
+                    
                 }
             }
         }
-
-        //continuously transferring data
-        // if(g_mqtt && _run){
-
-        //     //2. temperature data publish
-        //     json _relay_pubdata;
-        //     _relay_pubdata["relay_sload"] = g_relay_sload;
-        //     _relay_pubdata["relay_zeroset"] = g_relay_zeroset;
-        //     _relay_pubdata["relay_emergency"] = g_relay_emerency;
-
-        //     string str_relay_data = _relay_pubdata.dump();
-        //     if(mosquitto_publish(g_mqtt, nullptr, MEX_RELAY_VALUE_TOPIC, str_relay_data.size(), str_relay_data.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
-        //         spdlog::error("Data publish error for Relay data");
-
-        //     spdlog::info("Sload :{}, Zeroset :{}, Emergency :{}", g_relay_sload, g_relay_zeroset, g_relay_emerency);
-        // }
 
         boost::this_thread::sleep_for(boost::chrono::seconds(_pub_inteval_sec));
         if(_terminate)
@@ -112,7 +144,8 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
 {
     //processing for publishing step data
 	bool match_step_topic = false;
-	mosquitto_topic_matches_sub(MEX_STEP_CONTROL_TOPIC, message->topic, &match_step_topic);
+	mosquitto_topic_matches_sub(MEX_STEP_PROGRAM_TOPIC, message->topic, &match_step_topic);
+    spdlog::info("message received");
 
     if(match_step_topic){
         try{
@@ -125,9 +158,17 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                 _run = ctrl_data["run"].get<int>();
 
                 switch(_run){
-                    case 0: { } break; //stop
+                    case 0: {} break; //stop
                     case 1: { } break; //pause
-                    case 2: { g_steps = ctrl_data; } break; //start
+                    case 2: { //start
+                        g_steps = ctrl_data; 
+                        g_step_total_time = 0;
+                        for(auto& step: g_steps["steps"]){
+                            spdlog::info("step : {}", step.dump());
+                            g_step_total_time += step["Time"].get<long>();
+                        }
+                        spdlog::info("Start Steps");
+                    } break;
                 }
                 spdlog::info("Change running status : {} (0=stop, 1=pause, 2=start)", _run);
             }
@@ -236,7 +277,7 @@ int main(int argc, char* argv[])
             int mqtt_rc = mosquitto_connect(g_mqtt, _mqtt_broker.c_str(), 1883, 60);
             if(!mqtt_rc){
                 spdlog::info("MQTT Connected successfully");
-                mosquitto_subscribe(g_mqtt, NULL, MEX_STEP_CONTROL_TOPIC, 2);
+                mosquitto_subscribe(g_mqtt, NULL, MEX_STEP_PROGRAM_TOPIC, 2);
                 mosquitto_loop_start(g_mqtt);
             }
         }

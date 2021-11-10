@@ -105,6 +105,23 @@ function mqtt_onMessageArrived(message){
         //   $('#check_sload_toggle').prop('checked', false).change();
 
       } break;
+
+      case "mex/step/status": {
+        const data = JSON.parse(message.payloadString);
+        if(data.run==2){ //running
+          update_progress_step_current(data.step_current, data.step_size);
+          update_progress_step_elapsed(data.current_elapsed, data.total_time);
+        }
+        else if(data.run==0){
+          document.getElementById('modal_notify_content').innerText = "{{menu_ko.message_stopped_steps}}";
+          $('#modal_notify').modal('show');
+        }
+        else if(data.run==1){ //pause
+          document.getElementById('modal_notify_content').innerText = "{{menu_ko.message_paused_steps}}";
+          $('#modal_notify').modal('show');
+        }
+        
+      } break;
       
     }
 

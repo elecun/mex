@@ -31,6 +31,8 @@ using namespace std;
 using namespace nlohmann;
 
 #define MEX_STEP_CONTROL_TOPIC  "mex/step/ctrl"
+#define MEX_STEP_PROGRAM_TOPIC  "mex/step/program"
+#define MEX_STEP_STATUS_TOPIC  "mex/step/status"
 #define MQTT_CLIENT_ID "jstec_mex_step"
 
 

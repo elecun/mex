@@ -38,10 +38,28 @@
             steps["run"] = 2;
             steps["steps"] = step_db.steps;
             if(mqtt_connected){
-                mqtt_client.publish("mex/step/ctrl", JSON.stringify(steps), 2);
+                mqtt_client.publish("mex/step/program", JSON.stringify(steps), 2);
             }
 
             $.notify("Start Steps", {className: "success",position:"bottom left"});
+        }
+    });
+
+    /* pause step */
+    document.getElementById('btn_pause_step').addEventListener('click', function(){
+        var steps = {};
+        steps["run"] = 1;
+        if(mqtt_connected){
+            mqtt_client.publish("mex/step/program", JSON.stringify(steps), 2);
+        }
+    });
+
+    /* stop step */
+    document.getElementById('btn_stop_step').addEventListener('click', function(){
+        var steps = {};
+        steps["run"] = 0;
+        if(mqtt_connected){
+            mqtt_client.publish("mex/step/program", JSON.stringify(steps), 2);
         }
     });
 
@@ -102,26 +120,6 @@
             data["steps"] = JSON.stringify(step_db.steps);
             request_settings_update(data);
         }
-    });
-
-    /* start program event */
-    document.getElementById('btn_start_step').addEventListener('click', function() {
-        //document.getElementById('btn_program_start').className += ' disabled';
-        //document.getElementById('btn_program_stop').classList.remove('disabled');
-        //document.getElementById('btn_program_pause').classList.remove('disabled');
-    });
-
-    /* pause program event */
-    document.getElementById('btn_pause_step').addEventListener('click', function() {
-        //alert("start program");
-        
-        //document.getElementById('btn_program_start').classList.remove('disabled');
-    });
-
-    /* stop program event */
-    document.getElementById('btn_stop_step').addEventListener('click', function() {
-        alert("stop program");
-        //document.getElementById('btn_program_start').classList.remove('disabled');
     });
 
 
