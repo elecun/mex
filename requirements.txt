@@ -4,8 +4,11 @@ djangorestframework
 paho-mqtt
 psutil
 mysqlclient
-gunicorn
+gunicorn==19.7.1
 influxdb-client
 django-celery-beat
 django-tempus-dominus
 pandas
+sqlparse==0.4.2
+asgiref==3.1.2
+rx

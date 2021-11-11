@@ -43,8 +43,6 @@ class Settings(models.Model):
 
     steps = models.TextField(blank=True, null=True) # 상세설정
 
-    reserve_id = models.ForeignKey("Reserve", null=True, on_delete=models.SET_NULL, db_column="reserve_id", related_name="reserve")
-
     def __str__(self):
         return self.name
 

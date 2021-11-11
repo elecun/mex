@@ -5,7 +5,11 @@ Machine Expert for JinsungTEC
 
 
 ```
-$ sudo apt-get install ssh net-tools build-essential curl libboost-all-dev mosquitto mosquitto-clients mosquitto-dev python3.8 python3.8-venv git libmysqlclient-dev sqlite3 python3-venv libmosquitto-dev
+$ sudo apt-get install ssh net-tools build-essential curl libboost-all-dev mosquitto mosquitto-clients mosquitto-dev
+$ sudo apt-get install python3.8 python3.8-venv git libmysqlclient-dev sqlite3 python3-venv libmosquitto-dev python3-pip gunicorn
+$ pip3 install -r requirements.txt
+$ pip3 install requests
+$ sudo apt-get install g++-8 gcc-8
 $ wget https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.9-amd64.deb
 $ sudo dpkg -i influxdb2-2.0.9-amd64.deb
 $ wget https://dl.influxdata.com/telegraf/releases/telegraf_1.20.3-1_amd64.deb
@@ -70,6 +74,51 @@ mex/$ python3 -m venv venv
 ```
 
 ## register service all applications
+* /etc/init.d/에 mex_server 생성
+```
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          mex_server
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     3 4 5
+# Default-Stop:
+# Short-Description: your description here
+### END INIT INFO
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/home/jstec2/software/mex/mex
+DESC="mex_server daemon"
+NAME=mex_server
+DAEMON=/usr/bin/gunicorn
+PIDFILE=/var/run/mex_serverd.pid
+SCRIPTNAME=/etc/init.d/"$NAME"
+
+
+case "$1" in
+start)  log_daemon_msg "Starting mex_server" "mex_server"
+        start_daemon -p $PIDFILE $DAEMON $EXTRA_OPTS
+        log_end_msg $?
+        ;;
+stop)   log_daemon_msg "Stopping mex_server" "mex_server"
+        killproc -p $PIDFILE $DAEMON
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && [ -e "$PIDFILE" ] && rm -f $PIDFILE
+        log_end_msg $RETVAL
+        ;;
+restart) log_daemon_msg "Restarting mex_server" "mex_server" 
+        $0 stop
+        $0 start
+        ;;
+status)
+        status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+        ;;
+*)      log_action_msg "Usage: /etc/init.d/mex_server {start|stop|status|restart|reload}"
+        exit 2
+        ;;
+esac
+exit 0
+```
+
 * /etc/init.d/에 mex_load 생성
 ```
 #!/bin/sh
@@ -249,6 +298,52 @@ esac
 exit 0
 ```
 
+* /etc/init.d/에 mex_scheduler 생성
+```
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          mex_scheduler
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     3 4 5
+# Default-Stop:
+# Short-Description: your description here
+### END INIT INFO
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/home/jstec1/software/mex/middleware/dist
+DESC="mex_scheduler daemon"
+NAME=mex_scheduler
+DAEMON=/home/jstec1/software/mex/middleware/dist/mex_scheduler
+PIDFILE=/var/run/mex_schedulerd.pid
+SCRIPTNAME=/etc/init.d/"$NAME"
+
+
+case "$1" in
+start)  log_daemon_msg "Starting mex_scheduler" "mex_scheduler"
+        start_daemon -p $PIDFILE $DAEMON $EXTRA_OPTS
+        log_end_msg $?
+        ;;
+stop)   log_daemon_msg "Stopping mex_scheduler" "mex_scheduler"
+        killproc -p $PIDFILE $DAEMON
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && [ -e "$PIDFILE" ] && rm -f $PIDFILE
+        log_end_msg $RETVAL
+        ;;
+restart) log_daemon_msg "Restarting mex_scheduler" "mex_scheduler"
+        $0 stop
+        $0 start
+        ;;
+status)
+        status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+        ;;
+*)      log_action_msg "Usage: /etc/init.d/mex_scheduler {start|stop|status|restart|reload}"
+        exit 2
+        ;;
+esac
+exit 0
+
+```
+
 * 부팅시 실행되도록 설정
 ```
 $ sudo chmod 755 /etc/init.d/mex_load
@@ -273,6 +368,84 @@ After=network-online.target
 [Service]
 ExecStart=/home/jstec2/software/mex/middleware/dist/mex_load -p /dev/ttyS0 -b 9600 -t 127.0.0.1 -i 1
 WorkingDirectory=/home/jstec2/software/mex/middleware/dist
+ 
+[Install]
+WantedBy=default.target
+```
+```
+$ sudo nano /etc/systemd/system/mex_relay.service
+
+[Unit]
+Description=MEX Relay Middleware
+Wants=network-online.target
+After=network-online.target
+ 
+[Service]
+ExecStart=/home/jstec1/software/mex/middleware/dist/mex_relay -p /dev/ttyUSB0 -b 9600 -t 127.0.0.1 -i 1
+WorkingDirectory=/home/jstec1/software/mex/middleware/dist
+ 
+[Install]
+WantedBy=default.target
+```
+
+```
+$ sudo nano /etc/systemd/system/mex_tpm.service
+
+[Unit]
+Description=MEX Temperature and RPM Middleware
+Wants=network-online.target
+After=network-online.target
+ 
+[Service]
+ExecStart=/home/jstec1/software/mex/middleware/dist/mex_tpm -p /dev/ttyAP0 -b 9600 -t 127.0.0.1 -i 1
+WorkingDirectory=/home/jstec1/software/mex/middleware/dist
+ 
+[Install]
+WantedBy=default.target
+```
+
+```
+$ sudo nano /etc/systemd/system/mex_plc.service
+
+[Unit]
+Description=MEX PLC Middleware
+Wants=network-online.target
+After=network-online.target
+ 
+[Service]
+ExecStart=/home/jstec1/software/mex/middleware/dist/mex_plc -p /dev/ttyAP1 -b 38400 -t 127.0.0.1 -i 1
+WorkingDirectory=/home/jstec1/software/mex/middleware/dist
+ 
+[Install]
+WantedBy=default.target
+```
+
+```
+$ sudo nano /etc/systemd/system/mex_scheduler.service
+
+[Unit]
+Description=MEX Scheduler Middleware
+Wants=network-online.target
+After=network-online.target
+ 
+[Service]
+ExecStart=/home/jstec1/software/mex/middleware/dist/mex_scheduler -t 127.0.0.1
+WorkingDirectory=/home/jstec1/software/mex/middleware/dist
+ 
+[Install]
+WantedBy=default.target
+```
+```
+$ sudo nano /etc/systemd/system/mex_server.service
+
+[Unit]
+Description=MEX Server
+Wants=network-online.target
+After=network-online.target
+ 
+[Service]
+ExecStart=gunicorn --bind 0.0.0.0:8000 mex.wsgi
+WorkingDirectory=/home/jstec2/software/mex/mex
  
 [Install]
 WantedBy=default.target
