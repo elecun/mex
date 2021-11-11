@@ -1,0 +1,152 @@
+=============================================================================
+
+    Advantech PCIe Multiport Device Driver Installation Guide for Linux
+            Copyright (C) 2019, Advantech.
+=============================================================================
+
+Changes log:
+Version 1.02.2.0 <2019-10-16>
+    -support CentOS7.6
+
+Version 1.02.1.0 <2018-10-26>
+    - Add Fixed Number;
+	- Support kernel up to 4.12.x;
+
+Version 1.02.0.0 <2017-10-26>
+    - Initial version;
+
+-----------------------------------------------------------------------------
+1. Introduction
+
+    The PCI/PCIe Multiport serial driver, supports the following multiport boards.
+
+        - PCI-1602UP PCI Multiport (2 Channels) Boards
+        - PCI-1604L  PCI Multiport (2 Channels) Boards
+
+    This driver and installation procedure have been tested on various
+    kernel versions.
+
+    All the drivers and utilities are published in form of source code under
+    GNU General Public License in this version. Please refer to GNU General
+    Public License announcement in each source code file for more detail.
+
+    This version of driver can be installed as Loadable Module (Module driver)
+    or built-in into kernel (Static driver). You may refer to following
+    installation procedure for suitable one. Before you install the driver,
+    please refer to hardware installation procedure in the User's Manual.
+
+    We assume the user should be familiar with following documents.
+    - Serial-HOWTO
+    - Kernel-HOWTO
+
+-----------------------------------------------------------------------------
+2. System Requirement
+
+    - Hardware platform: Intel x86
+    - Maximum of 256 ports can be installed in any PCI/PCIe board combination
+    - This driver has been tested on various kernel versions.
+
+      It is tested in follow systems:
+	 ------------------------------------------ -------------- ----------------
+	|             Distribution                 |     Kernel version            |
+	 ------------------------------------------ -------------------------------
+	|  Ubuntu 12.04/14.04/15.10(Desktop)/18.04 |     3.2/3.13/4.2/4.15         |
+	 ------------------------------------------ -------------------------------
+	|  Redhat Enterprise Linux Server 7.2      |         3.10.0                |
+	 ------------------------------------------ -------------------------------
+	|  OpenSUSE 15.0                           |         4.12.14               |
+	 ------------------------------------------ -------------------------------
+	|  Debian 9.5                              |         4.9.0                 |
+	 ------------------------------------------ -------------------------------
+	|  CentOS 7.6                              |         3.10.0                |
+	 ------------------------------------------ -------------------------------
+
+    It is strongly recommended that the user do a complete install of all
+    components to ensure that this driver works correctly.
+
+-----------------------------------------------------------------------------
+3. Installation
+
+    3.1. Login as 'root' before executing the following instructions.
+
+    3.2. Uncompress the driver
+    # tar zxvf seradvptl-VerX.tar.gz
+
+    3.3. Build the driver
+      # cd seradvptl
+      # make
+    Note:
+      To compile the source code, you must install kernel development header
+      file package,"gcc" and "make" command.
+
+    3.4. Install the driver module
+    # make install
+    or
+    #insmod ./advserptl.ko
+    to see whether ttyAPn or ttyBnPn ( n = 1,2,3...) exist in /dev/ folder.
+    Note: in some distributions, due to chip limitations, the driver cannot
+    be automatically mounted at boot time, such as Ubuntu 12.04.
+
+    3.5. Uninstall the driver module and clean
+    # make uninstall
+    # make clean
+    or
+    #rmmod advserptl
+
+    3.6 Verify driver installation
+    You may run command "dmesg" to check the latest status log reported by
+    this driver whenever it's activated.
+
+    This module registers Advantech ports as "/dev/ttyAP0", "/dev/ttyAP1", etc.
+    Use "minicom" or your custom serial application to test the ports.
+
+    Attention! The name of PCI-16XX ports are the same as Old cards which use
+    Oxford/Exar chip, so don't use them at the same time.
+-----------------------------------------------------------------------------
+4. Driver files and device naming convention
+
+    The driver file may be obtained via email. The first step, anyway, is to
+    copy driver file "seradvptl" into specified directory. e.g. /advantech.
+    The execute commands as below.
+
+    # cd /advantech/seradvptl
+
+    You may find the driver source code in /advantech/seradvptl.
+
+    Driver creates traditional serial device names, "/dev/ttyAP0" onwards.
+
+    Device naming when multiple boards are installed
+    -----------------------------------------------
+    assuming 2 boards, one is PCI-1602 board and the other is PCI-1604 board.
+
+    Board Num.              Port Name
+    1st board (1602)        ttyAP0  - ttyAP1
+    2nd board (1604)        ttyAP2  - ttyAP3
+
+    Note: We don't know which card be found first, maybe 1602, or 1604.
+    This depends on the sequence that operating system scanning.
+-----------------------------------------------------------------------------
+5. How to use Fixed Number
+
+    From the latest version (v1.02.1.0) on, we'll add the new feature
+    callled Fixed Number.
+
+    This function enables the user to alternate the PCI/PCIE card slot without
+    changing the name of the device node generated by each port.
+
+    5.1 Using the old naming "ttyAPn"
+    You'll find a switch called "Board ID" on the card. Adjust the switch
+    to "ON".
+
+    5.2 Using Fixed Number "ttyBnPn"
+    Naming: "ttyB" + Board ID + "P" + Index, such as "ttyB03P0", "ttyB15P1", etc.
+    You'll find a switch called "Board ID" on the card. Adjust the switch to
+    the opposite side of "ON", i.e. the non-zero value. For example, if you
+    want to generate a device node for "ttyB03Pn", you need to set "Board ID"
+    to 0x3.
+-----------------------------------------------------------------------------
+6. Troubleshooting
+
+    The boot time error messages and solutions are stated as clearly as
+    possible. If all the possible solutions fail, please contact our technical
+    support team to get more help.
