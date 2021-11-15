@@ -30,8 +30,8 @@ class API(APIView):
 
     def get(self, request, *args, **kwargs):
         try :
-            #client = InfluxDBClient(url=settings.INFLUXDB_V2_URL, token=settings.INFLUXDB_V2_TOEKN, org=settings.INFLUXDB_V2_ORG)
-            client = InfluxDBClient(url="http://192.168.100.96:8086", token="LTF2gC6QFuhbTldZqSRrMwGisyQu1kUtmC2Cwar00ALOTQcULL1gFTuwGpf6zh_yVv18nrE35w7K6XFnO8s0ag==", org="jstec")
+            client = InfluxDBClient(url=settings.INFLUXDB_V2_URL, token=settings.INFLUXDB_V2_TOKEN, org=settings.INFLUXDB_V2_ORG)
+            #client = InfluxDBClient(url="http://192.168.100.96:8086", token="LTF2gC6QFuhbTldZqSRrMwGisyQu1kUtmC2Cwar00ALOTQcULL1gFTuwGpf6zh_yVv18nrE35w7K6XFnO8s0ag==", org="jstec")
             query_api = client.query_api()
 
             q = '''

@@ -3,16 +3,16 @@
       "model": "api_settings.Command",
       "pk": 1,
       "fields": {
-        "command":"FORWARD",
-        "info": "Forward Rotation"
+        "command":"CW",
+        "info": "Forward(CW) Rotation"
       }
     },
     {
         "model": "api_settings.Command",
         "pk": 2,
         "fields": {
-          "command":"REVERSE",
-          "info": "Reverse Rotation"
+          "command":"CCW",
+          "info": "Reverse(CCW) Rotation"
         }
       },
       {

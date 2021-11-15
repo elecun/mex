@@ -57,10 +57,12 @@ var settings_reserve_table = $('#table_reserve_list').DataTable({
   "searching":false
 });
 
+/* new reservation registration */
 async function request_reserve_new(target_setting){
   const datetime = document.getElementById('edit_reserve_datetime').value;
   const req = {"datetime": datetime, "setting_id":target_setting};
   const response = await REST_POST("{% url 'api_reserve_new' %}", req);
+  console.log(response);
   if(response.ok){
     update_reserve_list();
   }
@@ -116,6 +118,10 @@ async function update_reserve_list(){
     });
     settings_reserve_table.draw();
 
+  }
+  else if(response.status==204){ //no contents
+    settings_reserve_table.clear();
+    settings_reserve_table.draw();
   }
 }
       

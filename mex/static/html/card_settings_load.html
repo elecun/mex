@@ -90,9 +90,11 @@ function apply_settings_data(params){
   //parse steps & insert items
   const steps = JSON.parse(params.data.steps);
   $("#settings_step_table").jsGrid("option", "data", []); //clear data
-  steps.forEach(function(element){
-    $("#settings_step_table").jsGrid("insertItem", element).done(function() {});
-  });
+  if(steps){
+    steps.forEach(function(element){
+      $("#settings_step_table").jsGrid("insertItem", element).done(function() {});
+    });
+  }
 }
 
 /* load settings by id*/
@@ -124,6 +126,10 @@ async function update_settings_list(){
                     <button type="button" class="btn btn-light btn-sm" onclick=javascript:request_settings_delete('+s.id+');><i class="fas fa-trash mr-1 text-danger"></i> Delete</button>';
       settings_list_table.row.add([s.id, s.uid, date, s.name, s.machine_name, manage]);
     });
+    settings_list_table.draw();
+  }
+  else if(response.status==204){ //no contents
+    settings_list_table.clear();
     settings_list_table.draw();
   }
 }

@@ -8,6 +8,12 @@ loaddata:
 	@python3 manage.py loaddata command.json
 #	@python3 manage.py loaddata apptype.json
 
+crontab_remove:
+	@python3 manage.py crontab remove
+
+crontab_add:
+	@python3 manage.py crontab add
+
 superuser:
 	@python3 manage.py createsuperuser
 

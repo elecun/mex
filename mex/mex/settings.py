@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_crontab',   # for scheduling
+
     'app_mex',
     'api_control',
     'api_data',
@@ -162,11 +164,19 @@ REST_FRAMEWORK = {
 # LOGOUT_REDIRECT_URL = '/' #url redirection after logged in
 
 #MQTT_BROKER_ADDRESS = "168.126.66.23"
-MQTT_BROKER_ADDRESS = "192.168.100.96"
+MQTT_BROKER_ADDRESS = "127.0.0.1"
 MQTT_BROKER_PORT = 1883
 MQTT_BROKER_WEBSCOKET = 8083
 
-INFLUXDB_V2_TOKEN = "LTF2gC6QFuhbTldZqSRrMwGisyQu1kUtmC2Cwar00ALOTQcULL1gFTuwGpf6zh_yVv18nrE35w7K6XFnO8s0ag=="
+INFLUXDB_V2_TOKEN = "kysHumbwaK_P9_04VH9XHZGbixPkNP6yfUoYIY9f1kjZFzL3cJ7itV6pPMeAYQo_O1GOjT_mVX-YC9OJXA_M1w=="
 INFLUXDB_V2_ORG = "jstec"
-INFLUXDB_V2_URL = "http://192.168.100.96:8086"
+INFLUXDB_V2_URL = "http://127.0.0.1:8086"
 INFLUXDB_V2_BUCKET = "jstec"
+
+
+'''
+Settings for Crontab
+'''
+CRONJOBS = [
+    ('* * * * *', 'app_mex.cron.scheduled'),
+]
