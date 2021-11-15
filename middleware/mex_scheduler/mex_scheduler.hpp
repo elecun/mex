@@ -10,9 +10,14 @@
 #include <csignal>
 #include <array>
 #include <deque>
+#include <map>
+#include <string>
 #include <sys/types.h>
 #include <unistd.h>
 #include <string>
+#include <cctype>
+#include <algorithm>
+#include <vector>
 
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
@@ -25,15 +30,12 @@
 
 #include <mosquitto.h>
 #include "scheduler.hpp"
+#include "step_mqtt.hpp"
+#include "def.hpp"
 
 
 using namespace std;
 using namespace nlohmann;
-
-#define MEX_STEP_CONTROL_TOPIC  "mex/step/ctrl"
-#define MEX_STEP_PROGRAM_TOPIC  "mex/step/program"
-#define MEX_STEP_STATUS_TOPIC  "mex/step/status"
-#define MQTT_CLIENT_ID "jstec_mex_step"
 
 
 //global variables

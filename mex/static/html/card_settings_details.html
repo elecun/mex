@@ -96,13 +96,13 @@ $("#settings_step_table").jsGrid({
     deleteConfirm: "Do you really want to delete?",
     controller: step_db,
     fields: [
-        { name: "Step", type: "number", width: 50, readOnly:false, align:"right" },
-        { name: "Command", type: "select", items: step_db.commands, valueField: "id", textField: "command" },
-        { name: "Time", type: "number", readOnly:false, align:"right"},
-        { name: "Speed", type: "number", readOnly:false, align:"right"},
-        { name: "Load", type: "number", readOnly:false, align:"right" },
-        { name: "Acc/Dec", type: "number", readOnly:false, align:"right" },
-        { type: "control", editButton: false, modeSwitchButton: false, deleteButtonTooltip: "Delete",}
+        { name: "step", type: "number", width: 50, readOnly:false, align:"right", title:"Step"},
+        { name: "command", type: "select", items: step_db.commands, valueField: "id", textField: "command" , title:"Command"},
+        { name: "time", type: "number", readOnly:false, align:"right", title:"시간(sec)"},
+        { name: "speed", type: "number", readOnly:false, align:"right", title:"속도(RPM)"},
+        { name: "sload", type: "checkbox", readOnly:false, align:"center", title:"측면하중(ON/OFF)" },
+        { name: "accdec", type: "number", readOnly:false, align:"right", title:"가감속시간(rpm/sec)"},
+        { type: "control", editButton: false, modeSwitchButton: false, deleteButtonTooltip: "Delete"}
     ]
 });
 

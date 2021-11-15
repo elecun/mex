@@ -68,6 +68,7 @@ $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
             $('#btn_pause_step').addClass("d-none");
             $('#btn_settings_save').removeClass("d-none");
             $('#btn_settings_new').removeClass("d-none");
+            $('#btn_settings_apply').removeClass("d-none");
         } break;
         /* settings details tab activated */
         case "#tab_settings_details": {
@@ -76,6 +77,7 @@ $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
             $('#btn_pause_step').removeClass("d-none");
             $('#btn_settings_save').removeClass("d-none");
             $('#btn_settings_new').removeClass("d-none");
+            $('#btn_settings_apply').addClass("d-none");
         } break;
 
         /* settings load tab activated */
@@ -85,6 +87,7 @@ $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
             $('#btn_pause_step').addClass("d-none");
             $('#btn_settings_save').addClass("d-none");
             $('#btn_settings_new').addClass("d-none");
+            $('#btn_settings_apply').addClass("d-none");
         } break;
 
         /* settings reserve tab activated */
@@ -94,6 +97,7 @@ $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
             $('#btn_pause_step').addClass("d-none");
             $('#btn_settings_save').addClass("d-none");
             $('#btn_settings_new').addClass("d-none");
+            $('#btn_settings_apply').addClass("d-none");
         }
     }
 });

@@ -1,6 +1,6 @@
 /**
  * @file    plc.hpp
- * @brief   plc control with modbus RTU
+ * @brief   MEX PLC
  * @author Byunghun<bh.hwang@iae.re.kr>
  */
 
@@ -13,6 +13,7 @@
 #include <queue>
 #include <vector>
 #include <mutex>
+#include <thread>
 
 using namespace std;
 
@@ -34,10 +35,12 @@ class plc : public subport {
 
     public:
         plc(const char* subport_name, int id):subport(subport_name, 1){
-
+            _cylinder_thread = new std::thread(&plc::cylinder_loop, this);
         }
         virtual ~plc() {
-
+            spdlog::info("closing PLC");
+            _cylinder_loop = false;
+            _cylinder_thread->join();
         }
 
         virtual int read(unsigned char* buffer){
@@ -103,8 +106,24 @@ class plc : public subport {
         /* PLC interface function */
         void motor_off(){ write_buffer("00WSS0107%MX004601"); }
         void motor_on(){ write_buffer("00WSS0107%MX004600");}
-        void load_up(){ write_buffer("00WSS0207%MX00440007%MX004500");}
-        void load_down(){ write_buffer("00WSS0207%MX00440007%MX004500");}
+        void cylinder_up(){
+            std::unique_lock<std::mutex> lock(_m);
+            _cylinder_move = 1;
+            lock.unlock();
+        }
+
+        void cylinder_down(){ 
+            std::unique_lock<std::mutex> lock(_m);
+            _cylinder_move = 2; 
+            lock.unlock();
+        }
+
+        void cylinder_stop(){ 
+            std::unique_lock<std::mutex> lock(_m);
+            _cylinder_move = 0; 
+            lock.unlock();
+        }
+
         void move_cw(){ write_buffer("00WSS0307%MX00420107%MX00430007%MX011E00"); }
         void move_ccw(){ write_buffer("00WSS0307%MX00420007%MX00430107%MX011E00");}
         void move_stop(){ write_buffer("00WSS0307%MX00420007%MX00430007%MX011E01");}
@@ -115,10 +134,26 @@ class plc : public subport {
         void program_connect(){ write_buffer("00RSB07%MW000001");}
         void program_verify(){ write_buffer("00WSS0107%MX000301");}
 
+        void cylinder_loop(){
+            while(_cylinder_loop){
+                switch(_cylinder_move){
+                    case 0: { } break;
+                    case 1: { write_buffer("00WSS0207%MX00440007%MX004400"); } break; //up
+                    case 2: { write_buffer("00WSS0207%MX00440007%MX004500"); } break; //down
+                }
+                boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
+            }
+        }
+
     private:
         std::queue<wpack> _write_buffer;
         std::mutex _mutex;
 
+        bool _cylinder_loop = true;
+        std::thread* _cylinder_thread = nullptr;
+        int _cylinder_move = 0;
+
+        std::mutex _m;
 
 };
 

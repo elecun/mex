@@ -88,8 +88,8 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
             map<string, int> commandset = {
                 {"motor_off", 0},
                 {"motor_on", 1},
-                {"load_up", 2},
-                {"load_down", 3},
+                {"cylinder_up", 2},
+                {"cylinder_down", 3},
                 {"move_cw", 4},
                 {"move_ccw", 5},
                 {"move_stop", 6},
@@ -98,7 +98,8 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                 {"test_pause", 9},
                 {"test_stop", 10},
                 {"program_connect", 11},
-                {"program_verify", 12}
+                {"program_verify", 12},
+                {"cylinder_stop", 13},
             };
 
             if(ctrl_data.contains("command")){
@@ -114,8 +115,8 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                             switch(commandset[_command]){
                                 case 0: {  r->motor_off();  } break;
                                 case 1: {  r->motor_on(); } break;
-                                case 2: {  r->load_up(); } break;
-                                case 3: {  r->load_down(); } break;
+                                case 2: {  r->cylinder_up(); } break;
+                                case 3: {  r->cylinder_down(); } break;
                                 case 4: {  r->move_cw(); } break;
                                 case 5: {  r->move_ccw(); } break;
                                 case 6: {  r->move_stop(); } break;
@@ -125,6 +126,7 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                                 case 10: {  r->test_stop(); } break;
                                 case 11: {  r->program_connect(); } break;
                                 case 12: {  r->program_verify(); } break;
+                                case 13: {  r->cylinder_stop(); } break;
                                 default:
                                     spdlog::warn("Unknown PLC Command : {}", _command);
                             }
@@ -254,9 +256,7 @@ int main(int argc, char* argv[])
             if(g_pSerial->is_open()){
                 g_pSerial->set_processor(postprocess);
                 g_pSerial->add_subport("plc", new plc("plc", 1));
-                g_pSerial->start();
-
-                // g_pub_thread = new boost::thread(&pub_thread_proc); //mqtt publish periodically
+                g_pSerial->start(); // start PLC
             }
         }
 

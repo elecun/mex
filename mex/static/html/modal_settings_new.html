@@ -2,11 +2,11 @@
 
 {% load static %}
 
-<div class="modal fade" id="modal_settings_new" tabindex="-1" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="modal_settings_new" tabindex="-1" aria-labelledby="modal_settings_new_title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalCenterTitle">{{menu_ko.settings_new}}</h5>
+        <h5 class="modal-title" id="modal_settings_new_title">{{menu_ko.settings_new}}</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -61,6 +61,7 @@
     $('#modal_settings_new').modal('hide');
     request_create_new_settings();
   });
+
 
   /* after window is shown, do request uid */
   $('#modal_settings_new').on('show.bs.modal', function (event) {

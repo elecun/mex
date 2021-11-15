@@ -35,9 +35,6 @@ using namespace nlohmann;
 
 #define MQTT_CLIENT_ID "jstec_mex_plc"
 
-const char _start_bytes[2] = {0x0d, 0x0a};
-const char _end_bytes[2] = {0x0d, 0x0a};
-
 //global variables
 serialbus* g_pSerial = nullptr;
 struct mosquitto* g_mqtt = nullptr; //global mqtt instance

@@ -42,6 +42,8 @@ class Settings(models.Model):
     limit_load_max_count = models.PositiveIntegerField(blank=True, null=True, default=3)
 
     steps = models.TextField(blank=True, null=True) # 상세설정
+    steps_start_at = models.DateTimeField(auto_now=False, blank=True, null=True) # STEP 시작
+    steps_stop_at = models.DateTimeField(auto_now=False, blank=True, null=True) # STEP 종료
 
     def __str__(self):
         return self.name

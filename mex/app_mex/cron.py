@@ -41,9 +41,6 @@ def scheduled():
         _setting = Settings.objects.get(id=_setting_id)
 
         if _setting is not None:
-            print(model_to_dict(_setting))
-
-
             # publish scheduled job
             client = mqtt.Client()
             client.connect('localhost', 1883)

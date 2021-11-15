@@ -11,6 +11,10 @@
     <i class="fas fa-save"></i> {{menu_ko.settings_save}}
 </a>
 
+<a class="btn btn-app btn-app-side bg-primary shadow" id="btn_settings_apply">
+    <i class="fas fa-check"></i> {{menu_ko.settings_apply}}
+</a>
+
 <a class="btn btn-app btn-app-side bg-dark shadow" id="btn_start_step">
     <i class="fas fa-play"></i> {{menu_ko.start_step}}
 </a>
@@ -31,24 +35,33 @@
         
     });
 
+    /* getting info from database */
+    async function start_step(id){
+        let url = "{% url 'api_settings_load' 99 %}".replace('99', id);
+        const response = await REST_GET(url);
+        if(response.ok && response.status==200) {
+            var data = await response.json();
+            data.command = "start";
+
+            if(mqtt_connected){
+                mqtt_client.publish("mex/step/program", JSON.stringify(data), 2);
+                $.notify("Start Steps", {className: "success",position:"bottom left"});
+            }
+        }
+    }
+
     /* start step */
     document.getElementById('btn_start_step').addEventListener('click', function(){
         if(confirm("{{menu_ko.message_start_steps}}")){
-            var steps = {};
-            steps["run"] = 2;
-            steps["steps"] = step_db.steps;
-            if(mqtt_connected){
-                mqtt_client.publish("mex/step/program", JSON.stringify(steps), 2);
-            }
-
-            $.notify("Start Steps", {className: "success",position:"bottom left"});
+            const id = document.getElementById('hidden_settings_id').value;
+            start_step(id);
         }
     });
 
     /* pause step */
     document.getElementById('btn_pause_step').addEventListener('click', function(){
         var steps = {};
-        steps["run"] = 1;
+        steps["command"] = "pause";
         if(mqtt_connected){
             mqtt_client.publish("mex/step/program", JSON.stringify(steps), 2);
         }
@@ -57,7 +70,7 @@
     /* stop step */
     document.getElementById('btn_stop_step').addEventListener('click', function(){
         var steps = {};
-        steps["run"] = 0;
+        steps["command"] = "stop";
         if(mqtt_connected){
             mqtt_client.publish("mex/step/program", JSON.stringify(steps), 2);
         }
@@ -87,8 +100,6 @@
 
     /* save & update settings */
     document.getElementById('btn_settings_save').addEventListener('click', function(){
-
-        console.log(step_db.steps);
 
         if(!document.getElementById('hidden_settings_id').value || !document.getElementById('edit_settings_name').value){
             document.getElementById('modal_error_content').innerText = "{{menu_ko.message_update_error_no_target}}";
@@ -122,5 +133,14 @@
         }
     });
 
+    /* apply parameters to PLc*/
+    document.getElementById('btn_settings_apply').addEventListener('click', function(){
+        paramset = {};
+        paramset["command"] = "param_set";
+        if(mqtt_connected){
+            mqtt_client.publish("mex/plc/ctrl", JSON.stringify(paramset), 2);
+        }
+
+    });
 
 </script>

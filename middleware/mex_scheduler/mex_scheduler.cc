@@ -5,108 +5,171 @@
  */
 
 #include "mex_scheduler.hpp"
+#include "step_mqtt.hpp"
+
+using namespace std;
 
 
 int _pub_inteval_sec = 1;
 vector<char> receive_buf;
 bool _terminate = false;
 int _run = -1; //idle
-
+string _command = "ready"; //default
+static int _state = _STATE_::READY;
 
 json g_steps;
 int g_step_idx = 0;
-bool g_repeat = false;
+bool g_option_repeat = false;
 long g_step_total_time = 0;
 long g_step_current_time_elapsed = 0;
 long g_next_step_time = 0;
 
-/* publish rpm & temperature data */
+
+typedef struct _step_tag {
+    long current_step = 0;
+    long total_time_sec = 0;
+    long time_elapsed_sec = 0;
+    long total_steps = 0;
+    long current_rpm = 0;
+    long max_rpm = 0;
+    long accdec = 0;
+    deque<json> step_list;
+    json raw;
+    void clear(){
+        this->current_step = 0;
+        this->total_time_sec = 0; //total time (user set the value in hours)
+        this->time_elapsed_sec = 0;
+        this->current_rpm = 0;
+        this->max_rpm = 0;
+        this->accdec = 0;
+        raw.clear();
+        step_list.clear();
+    }
+};
+
+static _step_tag g_step_info;
+
+/* publish working state */
 void pub_thread_proc(){
     while(1){
+        switch(_state){
+            case _STATE_::READY: {
+                //no work, only waiting for command changing..
+                publish_step_state(g_mqtt, _STATE_::READY);    //notify the stop state
+            } break;
 
-        switch(_run){
-            case -1: { //idle
-
-            }
-            case 0: { //stop
+            /* step program stop */
+            case _STATE_::STOP: { //stop
                 g_step_total_time = 0;
                 g_step_idx = 0;
                 g_step_current_time_elapsed = 0;
                 g_step_total_time = 0;
                 g_next_step_time = 0;
                 g_steps.clear();
-        
-                json step_status;
-                step_status["run"] = _run;
-                string str_step_status = step_status.dump();
-                mosquitto_publish(g_mqtt, nullptr, MEX_STEP_STATUS_TOPIC, str_step_status.size(), str_step_status.c_str(), 2, false);
+                g_step_info.clear();
 
-                _run = -1;
+                publish_step_state(g_mqtt, _STATE_::STOP);    //notify the stop state
+                _state = _STATE_::READY;
             } break;
 
-            case 1: { //pause
-                json step_status;
-                step_status["run"] = _run;
-                string str_step_status = step_status.dump();
-                mosquitto_publish(g_mqtt, nullptr, MEX_STEP_STATUS_TOPIC, str_step_status.size(), str_step_status.c_str(), 2, false);
-
-                _run = -1;
+            /* step program pause */
+            case _STATE_::PAUSE: {
+                publish_step_state(g_mqtt, _STATE_::PAUSE);    //notify the stop state
             }
 
-            case 2: { //start
-                if(g_mqtt && !g_steps.empty())
-                {
-                    if(g_step_idx<g_steps["steps"].size())
-                    {
+            /* step program start */
+            case _STATE_::START: { //set parameters
 
-                        json step = g_steps["steps"][g_step_idx];
-                        int step_index = step["Step"].get<int>();
-                        int step_command = step["Command"].get<int>();
-                        int step_time = step["Time"].get<int>();
-                        int step_speed = step["Speed"].get<int>();
-                        int step_load = step["Load"].get<int>();
-                        int step_accdec = step["Acc/Dec"].get<int>();
-
-                        if(g_step_current_time_elapsed>=g_next_step_time){
-                            g_next_step_time += step_time;
-                            spdlog::info("nex step time : {}", g_next_step_time);
-
-                            //step control publish
-                            string str_step_data = step.dump();
-                            if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_CONTROL_TOPIC, str_step_data.size(), str_step_data.c_str(), 2, false)==MOSQ_ERR_SUCCESS)
-                                spdlog::info("{} : (command :{}), (time:{}), (speed:{}), (load:{}), (acc/dec:{})", step_index, step_command, step_time, step_time, step_speed, step_load, step_accdec);
-                        }
-
-                        //step running status publish
-                        json step_status;
-                        step_status["step_size"] = g_steps["steps"].size();
-                        step_status["step_current"] = step_index;
-                        step_status["total_time"] = g_step_total_time;
-                        step_status["current_elapsed"] = ++g_step_current_time_elapsed;
-                        step_status["run"] = _run;
-                        string str_step_status = step_status.dump();
-                        if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_STATUS_TOPIC, str_step_status.size(), str_step_status.c_str(), 2, false)==MOSQ_ERR_SUCCESS)
-                            spdlog::info("step status : {}", step_status.dump());
-
-
-                        if(g_step_current_time_elapsed>=g_next_step_time){
-                            g_step_idx++;
-                        }
-
-                    }
+                //do start with status
+                if(g_mqtt && !g_step_info.step_list.empty()){
                     
-                    // if(g_repeat && g_step_idx>=g_steps.size()){
-                    //     g_step_idx = 0;
-                    // }
-                    if(g_step_current_time_elapsed>=g_step_total_time){
-                        if(g_repeat)
-                            g_step_idx = 0;
-                        else
-                            _run = 0;
+                    json cur_step = g_step_info.step_list[g_step_info.current_step]; //get current step
+
+                    spdlog::info("Current Step : {}", cur_step.dump());
+                    //set RPM to PLC
+                    if(cur_step.contains("accdec")){
+                        g_step_info.current_rpm += cur_step["accdec"].get<long>();
+                        //rpm saturation
+                        if(g_step_info.current_rpm>=g_step_info.max_rpm)
+                            g_step_info.current_rpm = g_step_info.max_rpm;
+                        spdlog::info("Set PLC RPM parameter : {}",g_step_info.current_rpm);
                     }
-                    
+                    else {
+                        _state = _STATE_::STOP;
+                        spdlog::error("Could not find ACCDEC value");
+                        break;
+                    }
+
+                    //write motor rpm by accdec
+                    json param = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm}};
+                    string str_param = param.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_param.size(), str_param.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while parameter set");
+                    }
+                    _state++;
                 }
-            }
+                else {
+                    _state = _STATE_::STOP;
+                }
+            } break;
+            case _STATE_::START+1: {
+                _state = _STATE_::STOP;
+            } break;
+
+
+                // if(g_mqtt && !g_steps.empty())
+                // {
+                //     // if(g_step_idx<g_steps["steps"].size())
+                //     // {
+
+                //     //     json step = g_steps["steps"][g_step_idx];
+                //     //     int step_index = step["Step"].get<int>();
+                //     //     int step_command = step["Command"].get<int>();
+                //     //     int step_time = step["Time"].get<int>();
+                //     //     int step_speed = step["Speed"].get<int>();
+                //     //     int step_load = step["Load"].get<int>();
+                //     //     int step_accdec = step["Acc/Dec"].get<int>();
+
+                //     //     if(g_step_current_time_elapsed>=g_next_step_time){
+                //     //         g_next_step_time += step_time;
+                //     //         spdlog::info("nex step time : {}", g_next_step_time);
+
+                //     //         //step control publish
+                //     //         string str_step_data = step.dump();
+                //     //         if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_CONTROL_TOPIC, str_step_data.size(), str_step_data.c_str(), 2, false)==MOSQ_ERR_SUCCESS)
+                //     //             spdlog::info("{} : (command :{}), (time:{}), (speed:{}), (load:{}), (acc/dec:{})", step_index, step_command, step_time, step_time, step_speed, step_load, step_accdec);
+                //     //     }
+
+                //     //     //step running status publish
+                //     //     json step_status;
+                //     //     step_status["step_size"] = g_steps["steps"].size();
+                //     //     step_status["step_current"] = step_index;
+                //     //     step_status["total_time"] = g_step_total_time;
+                //     //     step_status["current_elapsed"] = ++g_step_current_time_elapsed;
+                //     //     step_status["run"] = _run;
+                //     //     string str_step_status = step_status.dump();
+                //     //     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_STATUS_TOPIC, str_step_status.size(), str_step_status.c_str(), 2, false)==MOSQ_ERR_SUCCESS)
+                //     //         spdlog::info("step status : {}", step_status.dump());
+
+
+                //     //     if(g_step_current_time_elapsed>=g_next_step_time){
+                //     //         g_step_idx++;
+                //     //     }
+
+                //     // }
+                    
+                //     // if(g_repeat && g_step_idx>=g_steps.size()){
+                //     //     g_step_idx = 0;
+                //     // }
+                //     // if(g_step_current_time_elapsed>=g_step_total_time){
+                //     //     if(g_repeat)
+                //     //         g_step_idx = 0;
+                //     //     else
+                //     //         _run = 0;
+                //     // }
+                    
+                // }
+            //}
         }
 
         boost::this_thread::sleep_for(boost::chrono::seconds(_pub_inteval_sec));
@@ -116,27 +179,36 @@ void pub_thread_proc(){
 }
 
 
-/* post process */
-static void postprocess(json& msg){
-
-    // if(msg.contains("relay_emergency")){
-    //     g_relay_emerency = msg["relay_emergency"].get<bool>();
-    // }
-
-    // if(msg.contains("relay_sload")){
-    //     g_relay_sload = msg["relay_sload"].get<bool>();
-    // }
-
-    // if(msg.contains("relay_zeroset")){
-    //     g_relay_zeroset = msg["relay_zeroset"].get<bool>();
-    // }
-}
-
-
 /* MQTT Connection callback */
 void connect_callback(struct mosquitto* mosq, void *obj, int result)
 {
     spdlog::info("Connected to broker = {}", result);
+}
+
+/* parse step program */
+void parse_steps(json& data){
+    g_step_info.clear();
+
+    g_step_info.raw = data; //raw steps
+    if(data.find("wtime")!=data.end()) { 
+        g_step_info.total_time_sec = (long)(data["wtime"].get<double>()*60*60); 
+        spdlog::info("Total Time : {}", g_step_info.total_time_sec);
+    } //total testing time
+
+    json steps = data["steps"];
+    spdlog::info("parsed : {}", steps);
+    spdlog::info("size : {}", steps.size());
+
+    for(auto& step: steps){ 
+    //     g_step_info.step_list.emplace_back(step); 
+        spdlog::info("> STEP : {}", step.dump());
+    } //parse steps
+
+    g_step_info.total_steps = (long)g_step_info.step_list.size(); //step size
+    if(steps.find("limit_rpm_max")!=steps.end()){ 
+        g_step_info.max_rpm = (long)(steps["limit_rpm_max"].get<long>()); 
+    } //max rpm
+
 }
 
 /* MQTT message subscription callback */
@@ -145,7 +217,6 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
     //processing for publishing step data
 	bool match_step_topic = false;
 	mosquitto_topic_matches_sub(MEX_STEP_PROGRAM_TOPIC, message->topic, &match_step_topic);
-    spdlog::info("message received");
 
     if(match_step_topic){
         try{
@@ -154,28 +225,35 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
             spdlog::info("mqtt : {}", ctrl_data.dump());
             spdlog::info("step size : {}", ctrl_data["steps"].size());
             
-            if(ctrl_data.contains("run")){
-                _run = ctrl_data["run"].get<int>();
+            if(ctrl_data.contains("command")){
+                string cmd = ctrl_data["command"].get<string>();
+                if(g_commandset.find(cmd)!=g_commandset.end()){
+                    int icmd = g_commandset[cmd];
+                    switch(icmd){
+                        case _STATE_::READY: {
+                            spdlog::info("Waiting Step program...");
+                        } break; //ready(= idle)
+                        case _STATE_::STOP: {
+                            g_step_info.clear();
+                            spdlog::info("Stop Step program...");
+                        } break; //stop
+                        case _STATE_::PAUSE: {
+                            spdlog::info("Pause Step program...");
+                        } break; //pause
+                        case _STATE_::START: {
+                            spdlog::info("Start Step program...");
+                            parse_steps(ctrl_data["data"]);
+                        } break; //start
+                    }
 
-                switch(_run){
-                    case 0: {} break; //stop
-                    case 1: { } break; //pause
-                    case 2: { //start
-                        g_steps = ctrl_data; 
-                        g_step_total_time = 0;
-                        for(auto& step: g_steps["steps"]){
-                            spdlog::info("step : {}", step.dump());
-                            g_step_total_time += step["Time"].get<long>();
-                        }
-                        spdlog::info("Start Steps");
-                    } break;
+                    _state = icmd;
+                    spdlog::info("Change running state : {}", _state);
                 }
-                spdlog::info("Change running status : {} (0=stop, 1=pause, 2=start)", _run);
             }
 
-            if(ctrl_data.contains("repeat")){
-                g_repeat = ctrl_data["repeat"].get<bool>();
-            }
+            // if(ctrl_data.contains("repeat")){
+            //     g_repeat = ctrl_data["repeat"].get<bool>();
+            // }
         }
         catch(json::parse_error& e){
             spdlog::error("Control set parse error : {}", e.what());
@@ -286,7 +364,7 @@ int main(int argc, char* argv[])
             g_scheduler = new scheduler();
             g_scheduler->start();
 
-            g_pub_thread = new boost::thread(&pub_thread_proc); //mqtt publish periodically
+            g_pub_thread = new boost::thread(&pub_thread_proc); //mqtt publish periodically (status)
         }
         ::pause();
 
