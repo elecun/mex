@@ -105,11 +105,13 @@ function mqtt_onMessageArrived(message){
       } break;
 
       case "mex/sensor/relay":{
-        // const relay = JSON.parse(message.payloadString);
-        // if(relay.relay_sload)
-        //   $('#check_sload_toggle').prop('checked', true).chagne();
-        // else
-        //   $('#check_sload_toggle').prop('checked', false).change();
+        const relay = JSON.parse(message.payloadString);
+        if(relay.relay_emergency){
+          $('#btn_emergency_stop').click(function(){
+            document.getElementById('modal_error_content').innerText = "{{menu_ko.message_emergency}}";
+            $('#modal_error').modal('show');
+          });
+        }
 
       } break;
 

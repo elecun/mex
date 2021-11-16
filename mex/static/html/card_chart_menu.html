@@ -59,6 +59,8 @@ document.getElementById("btn_emergency_stop").addEventListener("click", function
       mqtt_client.publish("mex/plc/ctrl", JSON.stringify({"command":"move_stop"}), 2);
       mqtt_client.publish("mex/plc/ctrl", JSON.stringify({"command":"motor_off"}), 2);
       mqtt_client.publish("mex/relay/ctrl", JSON.stringify({"p1":0}), 2);
+      document.getElementById('modal_error_content').innerText = "{{menu_ko.message_emergency}}";
+      $('#modal_error').modal('show');
    }
 });
 

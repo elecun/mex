@@ -59,13 +59,17 @@ class serialbus {
         }
 
         void stop(){ /* stop read */
-
+            
             _operation = false;
             _worker.reset();
             _service.stop();
             _ts.join_all();
             _service.reset();
             _port.close();
+
+            for(auto& p:_subport_container){
+                delete p.second;
+            }
         }
 
         void add_subport(int idx, subport* port){
@@ -76,8 +80,7 @@ class serialbus {
             if(_subport_container.find(idx)==_subport_container.end()){
                 spdlog::warn("Nothing to control for subport id {}", idx);
                 return nullptr;
-            }
-                
+            }   
             return _subport_container[idx];
         }
 
@@ -98,14 +101,14 @@ class serialbus {
         void thread_assign(){
             boost::function<void(void)> read_handler = [&](void) {
                 while(_operation){
+                    spdlog::info("1");
                     if(_port.is_open()){
-
+                        spdlog::info("2");
                         for(auto& sub: _subport_container){
                             json response;
                             sub.second->request(&_port, response);
-
-                            //post process
                             postprocess(response);
+                            spdlog::info("operation in thread : {}", _operation);
                         }
                     }
                     else

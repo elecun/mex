@@ -112,7 +112,6 @@ void terminate() {
 
     if(g_pSerial){
         g_pSerial->stop();
-
         delete g_pSerial;
         g_pSerial = nullptr;
     }
@@ -123,7 +122,7 @@ void terminate() {
     mosquitto_destroy(g_mqtt);
     mosquitto_lib_cleanup();
 
-    g_pub_thread->join();
+    //g_pub_thread->join();
 
     spdlog::info("Successfully terminated");
     exit(EXIT_SUCCESS);
@@ -223,9 +222,9 @@ int main(int argc, char* argv[])
             g_pSerial = new serialbus(_device_port.c_str(), _baudrate);
             if(g_pSerial->is_open()){
                 g_pSerial->set_processor(postprocess);
-                g_pSerial->add_subport(1, new temperature("temperature1", 1));
-                g_pSerial->add_subport(2, new temperature("temperature2", 2));
-                g_pSerial->add_subport(3, new temperature("temperature3", 3));
+                //g_pSerial->add_subport(1, new temperature("temperature1", 1));
+                //g_pSerial->add_subport(2, new temperature("temperature2", 2));
+                //g_pSerial->add_subport(3, new temperature("temperature3", 3));
                 g_pSerial->add_subport(4, new rpm("rpm", 4));
                 g_pSerial->start();
 

@@ -95,6 +95,7 @@ def context_processors(request):
             'message_start_steps':"시험을 시작하시겠습니까?",
             'message_stopped_steps':"시험이 종료되었습니다.",
             'message_paused_steps':"시험이 일시 정지 되었습니다.",
+            'message_emergency':"응급 상황이 감지되었습니다.",
             'chart_title':"측정 데이터",
         }
     }
