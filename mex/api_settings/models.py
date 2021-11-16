@@ -60,3 +60,25 @@ class Reserve(models.Model):
     def __str__(self):
         return self.uid
 
+
+'''
+ Step program snap
+'''
+# class Testsnap(models.Model):
+
+#     steps_start_at = models.DateTimeField(auto_now=False, blank=True, null=True) # STEP 시작
+#     steps_stop_at = models.DateTimeField(auto_now=False, blank=True, null=True) # STEP 종료
+#     target_setting = models.ForeignKey("Settings", null=True, on_delete=models.SET_NULL, db_column="setting_id", related_name="setting")
+
+#     def __str__(self):
+#         return self.pk
+
+
+'''
+Common Chart Parameter
+'''
+# class Chart(models.Model):
+#     start_at = models.DateTimeField(auto_now=True, blank=True, null=True) # STEP 시작
+
+#     def __str__(self):
+#         return self.pk

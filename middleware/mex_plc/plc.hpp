@@ -14,6 +14,7 @@
 #include <vector>
 #include <mutex>
 #include <thread>
+#include<iostream>
 
 using namespace std;
 
@@ -44,11 +45,11 @@ class plc : public subport {
         }
 
         virtual int read(unsigned char* buffer){
-
-        }
+            return 0;
+        }   
 
         virtual bool write(unsigned char* buffer, int size){
-
+            return false;
         }
 
 
@@ -66,7 +67,6 @@ class plc : public subport {
 
                     //write
                     int write_len = bus->write_some(boost::asio::buffer(wdata.data, wdata.length));
-                    spdlog::info("write {}bytes", write_len);
 
                     // unsigned char rbuffer[_max_read_buffer_] = {0, };
                     // int read_len = bus->read_some(boost::asio::buffer(rbuffer, _max_read_buffer_));
@@ -127,7 +127,15 @@ class plc : public subport {
         void move_cw(){ write_buffer("00WSS0307%MX00420107%MX00430007%MX011E00"); }
         void move_ccw(){ write_buffer("00WSS0307%MX00420007%MX00430107%MX011E00");}
         void move_stop(){ write_buffer("00WSS0307%MX00420007%MX00430007%MX011E01");}
-        void param_set(){ write_buffer("00WSB07%DW350303012C003C06C5");}
+        void param_set(long rpm, double roller_size, double product_size){ 
+            //rpm is real rpm
+            stringstream stream;
+            stream << std::setfill ('0') << std::setw(sizeof(unsigned short)*2) << std::hex << (unsigned short)rpm;
+            string rpm_hex = stream.str();
+            
+            write_buffer(fmt::format("00WSB07%DW350303012C003C{}", rpm_hex));
+        }
+
         void test_start(){ write_buffer("00WSS0107%MX008001");}
         void test_pause(){ write_buffer("00WSS0207%MX011F0107%MX008000");}
         void test_stop(){ write_buffer("00WSS0207%MX011F0107%MX008000");}
@@ -137,9 +145,11 @@ class plc : public subport {
         void cylinder_loop(){
             while(_cylinder_loop){
                 switch(_cylinder_move){
-                    case 0: { } break;
-                    case 1: { write_buffer("00WSS0207%MX00440007%MX004400"); } break; //up
-                    case 2: { write_buffer("00WSS0207%MX00440007%MX004500"); } break; //down
+                    case 0: { write_buffer("00WSS0207%MX00440007%MX004500"); _cylinder_move = -1; } break; //stop
+                    case 1: { write_buffer("00WSS0207%MX00440107%MX004400"); } break; //up
+                    case 2: { write_buffer("00WSS0207%MX00450107%MX004500"); } break; //down
+                    default:
+                    break;
                 }
                 boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
             }
@@ -151,7 +161,7 @@ class plc : public subport {
 
         bool _cylinder_loop = true;
         std::thread* _cylinder_thread = nullptr;
-        int _cylinder_move = 0;
+        int _cylinder_move = -1;
 
         std::mutex _m;
 

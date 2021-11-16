@@ -28,7 +28,6 @@ class API(APIView):
             _setting = Settings.objects.get(id=_id)
 
             if _setting is not None:
-                print(request.data)
                 _setting.machine_name = request.data["machine_name"]
                 _setting.jsno = request.data["jsno"]
                 _setting.product_size = float(request.data["product_size"])

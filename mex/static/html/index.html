@@ -44,6 +44,8 @@ window.addEventListener('DOMContentLoaded', function(){
   
 });
 
+var _chart_update_timer_id = null;
+
 let mqtt_client_id = "mex-client-"+parseInt(Math.random()*10000, 10);
 var mqtt_client = new Paho.Client("{{system.mqtt_broker_ip}}", Number({{system.mqtt_broker_port}}), mqtt_client_id);
 var mqtt_connected = false;
@@ -67,6 +69,11 @@ function mqtt_onFailure(){
 function mqtt_onConnectionLost(responseObject){
     mqtt_connected = false;
     $.notify("System connection is lost", {className: "error",position:"bottom left"});
+}
+
+/* chart update function */
+async function chart_update(ref_id){
+  request_chart_data_ref(ref_id);
 }
 
 /* MQTT message arrived event callback */
@@ -106,58 +113,48 @@ function mqtt_onMessageArrived(message){
 
       } break;
 
+      case "mex/step/program":{
+        const program = JSON.parse(message.payloadString);
+        switch(program.command){
+          case "start": { //program start
+            if(_chart_update_timer_id==null){
+              const ref_id = program.data.id;
+              _chart_update_timer_id = setInterval(chart_update, program.data.update_interval*1000, ref_id);
+            }
+          } break;
+          case "stop": { //program stop
+            if(_chart_update_timer_id!=null){
+              clearInterval(_chart_update_timer_id);
+              _chart_update_timer_id = null;
+              console.log("Stopped chart update");
+            }
+          } break;
+        }
+        
+        
+      } break;
+
       case "mex/step/status": {
         const data = JSON.parse(message.payloadString);
-        if(data.command=="start"){ //running
+        if(data.state=="start"){ //running
           update_progress_step_current(data.step_current, data.step_size);
           update_progress_step_elapsed(data.current_elapsed, data.total_time);
         }
-        else if(data.command=="stop"){ //stop
+        else if(data.state=="stop"){ //stop
           document.getElementById('modal_notify_content').innerText = "{{menu_ko.message_stopped_steps}}";
           $('#modal_notify').modal('show');
         }
-        else if(data.command=="pause"){ //pause
+        else if(data.state=="pause"){ //pause
           document.getElementById('modal_notify_content').innerText = "{{menu_ko.message_paused_steps}}";
           $('#modal_notify').modal('show');
         }
-        
       } break;
+
+      
       
     }
 
 }
-
-
-//   /* MQTT commands */
-//   window.addEventListener("command", function(event){
-//         switch(event.data.function){
-//             case "program_start": { 
-//                 // on_device_manual_control(url, event.data.args);
-//             } break; 
-//             case "program_pause" : {
-//             } break;
-//             case "program_stop" : { 
-//             } break; 
-//             case "set_zero" : { 
-//             } break; 
-//             case "rotate_forward" : { 
-//             } break;
-//             case "rotate_reverse" : { 
-//             } break;
-//             case "rotate_stop" : { 
-//             } break;
-//             case "motor_on":{
-//             } break;
-//             case "motor_off":{
-//             } break;
-//             case "side_load_on":{
-//             } break;
-//             case "side_load_off":{
-//             } break;
-//         }
-//     });
-
-
 
 
 </script>

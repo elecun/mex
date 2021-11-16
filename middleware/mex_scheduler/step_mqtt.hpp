@@ -39,15 +39,19 @@ void publish_step_state(struct mosquitto* mqtt, int state){
     switch(state){
         case _STATE_::READY: {
             status["state"] = "ready";
+            spdlog::info("STATE : READY");
         } break;
         case _STATE_::STOP: {
             status["state"] = "stop";
+            spdlog::info("STATE : STOP");
         } break;
         case _STATE_::PAUSE: {
             status["state"] = "pause";
+            spdlog::info("STATE : PAUSE");
         } break;
         case _STATE_::START: {
             status["state"] = "start";
+            spdlog::info("STATE : START");
         } break;
     }
     

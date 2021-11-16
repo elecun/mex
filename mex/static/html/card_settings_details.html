@@ -73,9 +73,10 @@ var step_db = {
 
 /* Steps Commandset ! important */
 step_db.commands = [
-    { command: "CW", id:0 },
-    { command: "CCW", id:1 },
-    { command: "STOP", id:2 }
+    { command: "CW", id:1 },
+    { command: "CCW", id:2 },
+    { command: "STOP", id:0 },
+    { command: "GOTO", id:3 }
 ];
 
 step_db.steps = [];
@@ -96,12 +97,13 @@ $("#settings_step_table").jsGrid({
     deleteConfirm: "Do you really want to delete?",
     controller: step_db,
     fields: [
-        { name: "step", type: "number", width: 50, readOnly:false, align:"right", title:"Step"},
+        { name: "step", type: "number", width: 80, readOnly:false, align:"center", title:"Step"},
         { name: "command", type: "select", items: step_db.commands, valueField: "id", textField: "command" , title:"Command"},
-        { name: "time", type: "number", readOnly:false, align:"right", title:"시간(sec)"},
-        { name: "speed", type: "number", readOnly:false, align:"right", title:"속도(RPM)"},
+        { name: "time", type: "number", readOnly:false, align:"center", title:"시간(sec)"},
+        { name: "speed", type: "number", readOnly:false, align:"center", title:"속도(RPM)"},
         { name: "sload", type: "checkbox", readOnly:false, align:"center", title:"측면하중(ON/OFF)" },
-        { name: "accdec", type: "number", readOnly:false, align:"right", title:"가감속시간(rpm/sec)"},
+        { name: "accdec", type: "number", readOnly:false, align:"center", title:"가감속시간(rpm/sec)"},
+        { name: "goto", type: "number", readOnly:false, align:"center", title:"이동 Step"},
         { type: "control", editButton: false, modeSwitchButton: false, deleteButtonTooltip: "Delete"}
     ]
 });

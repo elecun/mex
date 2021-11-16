@@ -4,6 +4,7 @@
     <h3 class="card-title">Data View</h3>
 
     <div class="card-tools">
+      <button type="button" class="btn btn-tool" id="btn_chart_reload"><i class="fas fa-sync"></i></button>
       <button type="button" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand"></i></button>
       <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
     </div>
@@ -76,6 +77,50 @@ function clear_series(){
   data_chart.setOption(option);
 }
 
+/* request chart udpate with reference id */
+async function request_chart_data_ref(ref_id){
+  let url = "{% url 'api_query_date' 99 %}".replace('99', ref_id);
+  const response = await REST_GET(url);
+
+  if(response.ok && response.status==200){
+    const result = await response.json();
+
+    clear_series();
+    option.xAxis.data = result.data.datetime;
+    option.series = [
+      {
+        name: "load",
+        type:'line',
+        data: result.data.load
+      },
+      {
+        name: "temperature 1",
+        type:'line',
+        data: result.data.temperature_1
+      },
+      {
+        name: "temperature 2",
+        type:'line',
+        data: result.data.temperature_2
+      },
+      {
+        name: "temperature 3",
+        type:'line',
+        data: result.data.temperature_3
+      },
+      {
+        name: "RPM",
+        type:'line',
+        data: result.data.rpM
+      }
+    ];
+    data_chart.setOption(option);
+  }
+  else if(response.status==204){
+    console.log("No contents");
+  }
+  
+}
 
 /* data load */
 async function request_chart_data(){
@@ -115,9 +160,19 @@ async function request_chart_data(){
   }
 }
 
+/* char manually update */
+document.getElementById('btn_chart_reload').addEventListener('click', function(){
+  const ref_id = document.getElementById('hidden_settings_id').value;
+  if(ref_id){
+    request_chart_data_ref(ref_id);
+  }
+  else
+    console.log("No Setting Id");
+});
+
 /* page load */
 window.addEventListener('DOMContentLoaded', function(){
-  request_chart_data();
+  
 });
 
 

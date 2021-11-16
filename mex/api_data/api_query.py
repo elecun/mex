@@ -31,17 +31,16 @@ class API(APIView):
     def get(self, request, *args, **kwargs):
         try :
             client = InfluxDBClient(url=settings.INFLUXDB_V2_URL, token=settings.INFLUXDB_V2_TOKEN, org=settings.INFLUXDB_V2_ORG)
-            #client = InfluxDBClient(url="http://192.168.100.96:8086", token="LTF2gC6QFuhbTldZqSRrMwGisyQu1kUtmC2Cwar00ALOTQcULL1gFTuwGpf6zh_yVv18nrE35w7K6XFnO8s0ag==", org="jstec")
             query_api = client.query_api()
 
             q = '''
             from(bucket: "jstec")
-            |> range(start: -5m)
+            |> range(start: -{}m)
             |> filter(fn: (r) => r["_measurement"] == "mqtt_consumer")
             |> filter(fn: (r) => r["_field"] == "rpm" or r["_field"] == "temperature_1" or r["_field"] == "temperature_2" or r["_field"] == "temperature_3" or r["_field"] == "load")
             |> aggregateWindow(every: 5s, fn: mean, createEmpty: false)
             |> yield(name: "mean")
-            '''
+            '''.format(50)
 
             tables = query_api.query(q)
             

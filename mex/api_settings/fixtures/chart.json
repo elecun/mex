@@ -1,0 +1,9 @@
+[
+    {
+      "model": "api_settings.Chart",
+      "pk": 1,
+      "fields": {
+        "start_at":"2021-01-01T00:00:00"
+      }
+    }
+]

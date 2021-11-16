@@ -11,21 +11,19 @@ using namespace std;
 
 
 int _pub_inteval_sec = 1;
-vector<char> receive_buf;
 bool _terminate = false;
-int _run = -1; //idle
-string _command = "ready"; //default
 static int _state = _STATE_::READY;
+static bool _on_paused = false;
 
-json g_steps;
-int g_step_idx = 0;
-bool g_option_repeat = false;
-long g_step_total_time = 0;
-long g_step_current_time_elapsed = 0;
-long g_next_step_time = 0;
+// json g_steps;
+// int g_step_idx = 0;
+// bool g_option_repeat = false;
+// long g_step_total_time = 0;
+// long g_step_current_time_elapsed = 0;
+// long g_next_step_time = 0;
 
 
-typedef struct _step_tag {
+struct _step_tag {
     long current_step = 0;
     long total_time_sec = 0;
     long time_elapsed_sec = 0;
@@ -33,7 +31,11 @@ typedef struct _step_tag {
     long current_rpm = 0;
     long max_rpm = 0;
     long accdec = 0;
-    deque<json> step_list;
+
+    double product_size = 0.0;
+    double roller_size = 0.0;
+
+    deque<json> step_container;
     json raw;
     void clear(){
         this->current_step = 0;
@@ -42,8 +44,10 @@ typedef struct _step_tag {
         this->current_rpm = 0;
         this->max_rpm = 0;
         this->accdec = 0;
+        this->product_size = 0.0;
+        this->roller_size = 0.0;
         raw.clear();
-        step_list.clear();
+        step_container.clear();
     }
 };
 
@@ -60,13 +64,21 @@ void pub_thread_proc(){
 
             /* step program stop */
             case _STATE_::STOP: { //stop
-                g_step_total_time = 0;
-                g_step_idx = 0;
-                g_step_current_time_elapsed = 0;
-                g_step_total_time = 0;
-                g_next_step_time = 0;
-                g_steps.clear();
                 g_step_info.clear();
+
+                //motor off
+                if(g_mqtt){
+                    json motorset = {{"command", "motor_off"}};
+                    string str_motorset = motorset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_motorset.size(), str_motorset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while motor on");
+                    }
+                    spdlog::info("Set PLC Motor OFF : {}", str_motorset);
+                    _state++;
+                }
+                else {
+                    spdlog::error("STEP perform failed while motor turning off..");
+                }
 
                 publish_step_state(g_mqtt, _STATE_::STOP);    //notify the stop state
                 _state = _STATE_::READY;
@@ -74,104 +86,239 @@ void pub_thread_proc(){
 
             /* step program pause */
             case _STATE_::PAUSE: {
+                _on_paused = true;
                 publish_step_state(g_mqtt, _STATE_::PAUSE);    //notify the stop state
-            }
+                _state++;
+            } break;
+            case _STATE_::PAUSE+1: {
+                //waiting
+                spdlog::info("holding pause state.. waiting for start(=resume) command");
+            } break;
+
+            case _STATE_::START: { //start init
+
+                if(_on_paused){
+                    _state = _STATE_::START+1;
+                    _on_paused = false;
+                    break;
+                }
+
+                if(g_mqtt){
+                    //motor on
+                    json motorset = {{"command", "motor_on"}};
+                    string str_motorset = motorset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_motorset.size(), str_motorset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while motor on");
+                    }
+                    spdlog::info("Set PLC Motor ON : {}", str_motorset);
+                    _state++;
+                }
+                else {
+                    spdlog::error("STEP perform failed while initializing..");
+                    _state = _STATE_::STOP;
+                }
+                
+            } break;
 
             /* step program start */
-            case _STATE_::START: { //set parameters
+            case _STATE_::START+1: { //set rpm parameters responding to acc/dec (increase mode)
 
-                //do start with status
-                if(g_mqtt && !g_step_info.step_list.empty()){
+                // reach the end of steps
+                if(g_step_info.current_step>=(long)g_step_info.step_container.size()){
+                    _state = _STATE_::STOP;
+                    break;
+                }
                     
-                    json cur_step = g_step_info.step_list[g_step_info.current_step]; //get current step
+                //do start with status
+                if(g_mqtt && !g_step_info.step_container.empty()){
+                    
+                    // getting current step data
+                    json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
+
+                    // if meet 'goto' step, read target id then moves
+                    int command_id = cur_step["command"].get<int>();
+                    if(command_id==3){
+                        if(cur_step.contains("goto")){
+                            const long goto_step = cur_step["goto"].get<long>();
+                            g_step_info.current_step = goto_step-1; //0 indexing
+                        }
+                        else {
+                            spdlog::error("Nothing to jump to step index");
+                            _state = _STATE_::STOP;
+                        }
+                        break;
+                    }
+
+                    //else do sequence
+                    const long target_accdec = cur_step["accdec"].get<long>();
+                    const long target_speed = cur_step["speed"].get<long>();
+
+                    const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size;
+                    const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
+                    const double cur_step_rpm = ratio*(double)target_speed; //real speed
 
                     spdlog::info("Current Step : {}", cur_step.dump());
                     //set RPM to PLC
                     if(cur_step.contains("accdec")){
-                        g_step_info.current_rpm += cur_step["accdec"].get<long>();
+                        g_step_info.current_rpm += cur_step_accdec;
                         //rpm saturation
-                        if(g_step_info.current_rpm>=g_step_info.max_rpm)
-                            g_step_info.current_rpm = g_step_info.max_rpm;
+                        if(g_step_info.current_rpm>=cur_step_rpm)
+                            g_step_info.current_rpm = cur_step_rpm;
                         spdlog::info("Set PLC RPM parameter : {}",g_step_info.current_rpm);
                     }
                     else {
                         _state = _STATE_::STOP;
-                        spdlog::error("Could not find ACCDEC value");
+                        spdlog::error("Could not find ACC/DEC value");
                         break;
                     }
 
-                    //write motor rpm by accdec
-                    json param = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm}};
-                    string str_param = param.dump();
+                    //write motor rpm
+                    json paramset = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm},{"product_size",g_step_info.product_size}, {"roller_size", g_step_info.roller_size}, {"ratio", ratio}};
+                    string str_param = paramset.dump();
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_param.size(), str_param.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
                         spdlog::error("STEP perform error while parameter set");
                     }
-                    _state++;
+                    spdlog::info("Set PLC RPM Parameter : {}", str_param);
+
+                    //write motor control
+                    json plc_controlset;
+                    switch(command_id){
+                        case 0: { //stop
+                            plc_controlset["command"] = "move_stop";
+                        } break;
+                        case 1: { //cw
+                            plc_controlset["command"] = "move_cw";
+                        } break;
+                        case 2: { //ccw
+                            plc_controlset["command"] = "move_ccw";
+                        } break;
+                    }
+                    string str_plc_controlset = plc_controlset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_plc_controlset.size(), str_plc_controlset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while PLC control set");
+                    }
+
+                    //write sload control
+                    bool sload  = cur_step["sload"].get<bool>();
+                    json relay_controlset;
+                    if(sload)
+                        relay_controlset["p1"] = 1; //on
+                    else
+                        relay_controlset["p1"] = 0; //off
+                    string str_relay_controlset = relay_controlset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_RELAY_CONTROL_TOPIC, str_relay_controlset.size(), str_relay_controlset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while PLC control set");
+                    }
+                    
+                    // reach the target speed, then moves next step
+                    if(g_step_info.current_rpm>=(long)(ratio*target_speed)){
+                        _state++;
+                    }
                 }
                 else {
-                    _state = _STATE_::STOP;
+                    spdlog::error("STEP perform failed while starting..");
+                    _state = _STATE_::STOP; //abnormally occurred
                 }
             } break;
-            case _STATE_::START+1: {
-                _state = _STATE_::STOP;
+
+            case _STATE_::START+2: { //waiting until time reach, do 
+                static long elapsed = 0;
+                elapsed++;
+                
+                json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
+                const long required_time_sec = cur_step["time"].get<long>();
+                spdlog::info("Starting Time Elapsed : {}/{}", elapsed, required_time_sec);
+
+                if(elapsed>=required_time_sec){
+                    _state++; //move next step
+                    elapsed = 0;
+                }
+    
             } break;
 
-
-                // if(g_mqtt && !g_steps.empty())
-                // {
-                //     // if(g_step_idx<g_steps["steps"].size())
-                //     // {
-
-                //     //     json step = g_steps["steps"][g_step_idx];
-                //     //     int step_index = step["Step"].get<int>();
-                //     //     int step_command = step["Command"].get<int>();
-                //     //     int step_time = step["Time"].get<int>();
-                //     //     int step_speed = step["Speed"].get<int>();
-                //     //     int step_load = step["Load"].get<int>();
-                //     //     int step_accdec = step["Acc/Dec"].get<int>();
-
-                //     //     if(g_step_current_time_elapsed>=g_next_step_time){
-                //     //         g_next_step_time += step_time;
-                //     //         spdlog::info("nex step time : {}", g_next_step_time);
-
-                //     //         //step control publish
-                //     //         string str_step_data = step.dump();
-                //     //         if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_CONTROL_TOPIC, str_step_data.size(), str_step_data.c_str(), 2, false)==MOSQ_ERR_SUCCESS)
-                //     //             spdlog::info("{} : (command :{}), (time:{}), (speed:{}), (load:{}), (acc/dec:{})", step_index, step_command, step_time, step_time, step_speed, step_load, step_accdec);
-                //     //     }
-
-                //     //     //step running status publish
-                //     //     json step_status;
-                //     //     step_status["step_size"] = g_steps["steps"].size();
-                //     //     step_status["step_current"] = step_index;
-                //     //     step_status["total_time"] = g_step_total_time;
-                //     //     step_status["current_elapsed"] = ++g_step_current_time_elapsed;
-                //     //     step_status["run"] = _run;
-                //     //     string str_step_status = step_status.dump();
-                //     //     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_STATUS_TOPIC, str_step_status.size(), str_step_status.c_str(), 2, false)==MOSQ_ERR_SUCCESS)
-                //     //         spdlog::info("step status : {}", step_status.dump());
-
-
-                //     //     if(g_step_current_time_elapsed>=g_next_step_time){
-                //     //         g_step_idx++;
-                //     //     }
-
-                //     // }
+            case _STATE_::START+3:{ //decrease mode
+                if(g_mqtt && !g_step_info.step_container.empty()){
                     
-                //     // if(g_repeat && g_step_idx>=g_steps.size()){
-                //     //     g_step_idx = 0;
-                //     // }
-                //     // if(g_step_current_time_elapsed>=g_step_total_time){
-                //     //     if(g_repeat)
-                //     //         g_step_idx = 0;
-                //     //     else
-                //     //         _run = 0;
-                //     // }
-                    
-                // }
-            //}
+                    json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
+                    const long target_accdec = cur_step["accdec"].get<long>();
+                    const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size;
+                    const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
+
+                    spdlog::info("Current Step : {}", cur_step.dump());
+                    //set RPM to PLC
+                    if(cur_step.contains("accdec")){
+                        g_step_info.current_rpm -= cur_step_accdec;
+                        //rpm saturation
+                        if(g_step_info.current_rpm<=0)
+                            g_step_info.current_rpm = 0;
+                    }
+                    else {
+                        _state = _STATE_::STOP;
+                        spdlog::error("Could not find ACC/DEC value");
+                        break;
+                    }
+
+                    //write motor rpm
+                    json paramset = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm},{"product_size",g_step_info.product_size}, {"roller_size", g_step_info.roller_size}, {"ratio", ratio}};
+                    string str_param = paramset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_param.size(), str_param.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while parameter set");
+                    }
+
+                    //write motor control
+                    int command_id = cur_step["command"].get<int>();
+                    json plc_controlset;
+                    switch(command_id){
+                        case 0: { //stop
+                            plc_controlset["command"] = "move_stop";
+                        } break;
+                        case 1: { //cw
+                            plc_controlset["command"] = "move_cw";
+                        } break;
+                        case 2: { //ccw
+                            plc_controlset["command"] = "move_ccw";
+                        } break;
+                    }
+                    string str_plc_controlset = plc_controlset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_plc_controlset.size(), str_plc_controlset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while PLC control set");
+                    }
+
+                    // reach the 0 speed, then moves next step
+                    if(g_step_info.current_rpm<=0){
+                        g_step_info.current_step++;
+                        _state = _STATE_::START+1;
+                    }
+                }
+                else {
+                    spdlog::error("STEP perform failed while starting(decelerating)");
+                    _state = _STATE_::STOP;
+                }
+
+            } break;
         }
 
+        //status update & publish
+        if(_state>=_STATE_::START && _state<=_STATE_::START+9){
+            json step_status = {
+                {"step_size", g_step_info.step_container.size()},
+                {"step_current", g_step_info.current_step+1},
+                {"total_time", g_step_info.total_time_sec},
+                {"current_elapsed", g_step_info.time_elapsed_sec},
+                {"state", "start"}
+            };
+            string str_step_status = step_status.dump();
+            if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_STATUS_TOPIC, str_step_status.size(), str_step_status.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
+                spdlog::error("Step Status Update failed");
+
+            //working time check
+            if(g_step_info.time_elapsed_sec>=g_step_info.total_time_sec){
+                _state = _STATE_::STOP;
+            }
+        }
+
+        // increase the time elapsed
+        g_step_info.time_elapsed_sec++;
         boost::this_thread::sleep_for(boost::chrono::seconds(_pub_inteval_sec));
         if(_terminate)
             break;
@@ -187,27 +334,33 @@ void connect_callback(struct mosquitto* mosq, void *obj, int result)
 
 /* parse step program */
 void parse_steps(json& data){
+
+    //1. clear step information
     g_step_info.clear();
 
+    //2. copy raw data & calc total working time
     g_step_info.raw = data; //raw steps
     if(data.find("wtime")!=data.end()) { 
         g_step_info.total_time_sec = (long)(data["wtime"].get<double>()*60*60); 
-        spdlog::info("Total Time : {}", g_step_info.total_time_sec);
+        spdlog::info("Set STEP Program name : {}", data["name"]);
+        spdlog::info("Total Time : {}sec", g_step_info.total_time_sec);
     } //total testing time
 
     json steps = data["steps"];
-    spdlog::info("parsed : {}", steps);
-    spdlog::info("size : {}", steps.size());
+    spdlog::info("Number of Steps : {}", steps.size());
 
     for(auto& step: steps){ 
-    //     g_step_info.step_list.emplace_back(step); 
-        spdlog::info("> STEP : {}", step.dump());
+        g_step_info.step_container.emplace_back(step); 
     } //parse steps
 
-    g_step_info.total_steps = (long)g_step_info.step_list.size(); //step size
+    g_step_info.total_steps = (long)g_step_info.step_container.size(); //step size
     if(steps.find("limit_rpm_max")!=steps.end()){ 
         g_step_info.max_rpm = (long)(steps["limit_rpm_max"].get<long>()); 
     } //max rpm
+
+    //general setting info.
+    g_step_info.product_size = (double)(data["product_size"].get<double>());
+    g_step_info.roller_size = (double)(data["roller_size"].get<double>());
 
 }
 
@@ -223,7 +376,6 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
             json ctrl_data = json::parse((char*)message->payload);
 
             spdlog::info("mqtt : {}", ctrl_data.dump());
-            spdlog::info("step size : {}", ctrl_data["steps"].size());
             
             if(ctrl_data.contains("command")){
                 string cmd = ctrl_data["command"].get<string>();
@@ -234,26 +386,30 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                             spdlog::info("Waiting Step program...");
                         } break; //ready(= idle)
                         case _STATE_::STOP: {
-                            g_step_info.clear();
+                            _state = _STATE_::STOP;
                             spdlog::info("Stop Step program...");
                         } break; //stop
                         case _STATE_::PAUSE: {
-                            spdlog::info("Pause Step program...");
+                            if(_state!=_STATE_::PAUSE){
+                                spdlog::info("Pause Step program...");
+                            }
+                            else
+                                spdlog::warn("Already opn start state...");
                         } break; //pause
                         case _STATE_::START: {
-                            spdlog::info("Start Step program...");
-                            parse_steps(ctrl_data["data"]);
+                            if(_state!=_STATE_::START){
+                                spdlog::info("Start Step program...");
+                                if(!_on_paused)
+                                    parse_steps(ctrl_data["data"]);
+                            }
+                            else
+                                spdlog::warn("Already on start state..");
                         } break; //start
                     }
 
                     _state = icmd;
-                    spdlog::info("Change running state : {}", _state);
                 }
             }
-
-            // if(ctrl_data.contains("repeat")){
-            //     g_repeat = ctrl_data["repeat"].get<bool>();
-            // }
         }
         catch(json::parse_error& e){
             spdlog::error("Control set parse error : {}", e.what());

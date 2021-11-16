@@ -37,15 +37,22 @@
 
     /* getting info from database */
     async function start_step(id){
-        let url = "{% url 'api_settings_load' 99 %}".replace('99', id);
-        const response = await REST_GET(url);
-        if(response.ok && response.status==200) {
-            var data = await response.json();
-            data.command = "start";
+        
+        let step_update_url = "{% url 'api_step_date_update' 99 %}".replace('99', id);
+        const resp = await REST_POST(step_update_url);
+        if(resp.ok){
+            console.log("date updated");
+            let url = "{% url 'api_settings_load' 99 %}".replace('99', id);
+            const response = await REST_GET(url);
+            if(response.ok && response.status==200) {
+                var info = await response.json();
+                info.command = "start";
+                info.data.steps = JSON.parse(info.data.steps); //converting string to json list
 
-            if(mqtt_connected){
-                mqtt_client.publish("mex/step/program", JSON.stringify(data), 2);
-                $.notify("Start Steps", {className: "success",position:"bottom left"});
+                if(mqtt_connected){
+                    mqtt_client.publish("mex/step/program", JSON.stringify(info), 2);
+                    $.notify("Start Steps", {className: "success",position:"bottom left"});
+                }
             }
         }
     }
@@ -75,12 +82,6 @@
             mqtt_client.publish("mex/step/program", JSON.stringify(steps), 2);
         }
     });
-
-    var update_timer = null;
-    /* chart update with time interval */
-    function chart_update(){
-        alert("chart update");
-    }
 
     /* open new settings */
     document.getElementById("btn_settings_new").addEventListener("click", function() {

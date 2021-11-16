@@ -178,5 +178,6 @@ INFLUXDB_V2_BUCKET = "jstec"
 Settings for Crontab
 '''
 CRONJOBS = [
-    ('* * * * *', 'app_mex.cron.scheduled'),
+    ('* * * * *', 'app_mex.cron.step_schedule')
 ]
+CRONTAB_LOCK_JOBS = True

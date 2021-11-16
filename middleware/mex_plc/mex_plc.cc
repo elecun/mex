@@ -120,7 +120,12 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                                 case 4: {  r->move_cw(); } break;
                                 case 5: {  r->move_ccw(); } break;
                                 case 6: {  r->move_stop(); } break;
-                                case 7: {  r->param_set(); } break;
+                                case 7: {  
+                                    long rpm = ctrl_data["rpm"].get<long>();
+                                    double roller_size = ctrl_data["roller_size"].get<double>();
+                                    double product_size = ctrl_data["product_size"].get<double>();
+                                    r->param_set(rpm, roller_size, product_size); 
+                                } break;
                                 case 8: {  r->test_start(); } break;
                                 case 9: {  r->test_pause(); } break;
                                 case 10: {  r->test_stop(); } break;
