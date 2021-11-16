@@ -101,9 +101,7 @@ class serialbus {
         void thread_assign(){
             boost::function<void(void)> read_handler = [&](void) {
                 while(_operation){
-                    spdlog::info("1");
                     if(_port.is_open()){
-                        spdlog::info("2");
                         for(auto& sub: _subport_container){
                             json response;
                             sub.second->request(&_port, response);
