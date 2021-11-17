@@ -76,6 +76,8 @@ async function chart_update(ref_id){
   request_chart_data_ref(ref_id);
 }
 
+var prev_emergency = false;
+
 /* MQTT message arrived event callback */
 function mqtt_onMessageArrived(message){
     const payload = JSON.parse(message.payloadString);
@@ -106,14 +108,11 @@ function mqtt_onMessageArrived(message){
 
       case "mex/sensor/relay":{
         const relay = JSON.parse(message.payloadString);
-        console.log(relay);
-        if(relay.relay_emergency){
+        if(relay.relay_emergency && prev_emergency==false){
           $('#btn_emergency_stop').click();
-          // $('#btn_emergency_stop').click(function(){
-          //   document.getElementById('modal_error_content').innerText = "{{menu_ko.message_emergency}}";
-          //   $('#modal_error').modal('show');
-          // });
+          prev_emergency = true;
         }
+        prev_emergency = relay.relay_emergency;
 
       } break;
 
