@@ -139,6 +139,8 @@ class plc : public subport {
             const double ratio = product_size/roller_size;
             //const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
             double rpm_ratio = ratio*(double)rpm;
+
+            spdlog::info("Target RPM : {}, Real RPM : {}", rpm. rpm_ratio);
             if(rpm_ratio>40){ //minimum rpm = 40
                 const double cur_step_rpm = (((rpm_ratio-40.0)*5.3)+1030); //real speed
 
