@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
             g_pSerial = new serialbus(_device_port.c_str(), _baudrate);
             if(g_pSerial->is_open()){
                 g_pSerial->set_processor(postprocess);
-                g_pSerial->add_subport("plc", new plc("plc", 1));
+                //g_pSerial->add_subport("plc", new plc("plc", 1));
                 g_pSerial->start(); // start PLC
             }
         }

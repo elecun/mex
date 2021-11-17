@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
         if(!g_pSerial){
             g_pSerial = new serialbus(_device_port.c_str(), _baudrate);
             g_pSerial->set_processor(process);
-            g_pSerial->add_subport(1, new loadcell());
+            //g_pSerial->add_subport(1, new loadcell());
             g_pSerial->start();
             g_pub_thread = new boost::thread(&pub_thread_proc);
         }

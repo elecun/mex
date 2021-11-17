@@ -68,11 +68,19 @@ void pub_thread_proc(){
 
                 //motor off
                 if(g_mqtt){
+
+                    json moveset = {{"command", "move_stop"}};
+                    string str_moveset = moveset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_moveset.size(), str_moveset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while move stop");
+                    }
+
                     json motorset = {{"command", "motor_off"}};
                     string str_motorset = motorset.dump();
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_motorset.size(), str_motorset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
-                        spdlog::error("STEP perform error while motor on");
+                        spdlog::error("STEP perform error while motor ff");
                     }
+                    
                     spdlog::info("Set PLC Motor OFF : {}", str_motorset);
                     _state++;
                 }

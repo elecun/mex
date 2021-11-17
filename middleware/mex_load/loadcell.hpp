@@ -14,6 +14,10 @@
 #include <include/json.hpp>
 #include <deque>
 
+#define STX 0x02
+#define ETX 0x03
+#define ACK 0x06
+
 
 using namespace std;
 using namespace nlohmann;
@@ -22,12 +26,11 @@ using namespace nlohmann;
 class loadcell : public subport {
 
     public:
-        sensor(){
-        }
-        virtual ~sensor() { }
+        loadcell() { }
+        virtual ~loadcell() { }
 
         virtual int read(unsigned char* buffer){
-
+            return 0;
         }
 
         virtual bool write(unsigned char* buffer, int size){
