@@ -135,10 +135,12 @@ class plc : public subport {
         void move_stop(){ write_buffer("00WSS0307%MX00420007%MX00430007%MX011E01");}
         void param_set(long rpm, double roller_size, double product_size){ 
             //rpm is real rpm
+            spdlog::info("Real number RPM : {}", rpm);
             stringstream stream;
-            stream << std::setfill ('0') << std::setw(sizeof(unsigned short)*2) << std::hex << (unsigned short)rpm;
+            double frpm = (double)rpm*(product_size/roller_size)*product_size;
+            stream << std::setfill ('0') << std::setw(sizeof(unsigned short)*2) << std::hex << (unsigned short)frpm;
             string rpm_hex = stream.str();
-            
+            spdlog::info("Set PLC RPM Parameter(Hex): {}", rpm_hex);
             write_buffer(fmt::format("00WSB07%DW350303012C003C{}", rpm_hex));
         }
 
