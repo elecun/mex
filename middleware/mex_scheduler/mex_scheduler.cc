@@ -154,17 +154,17 @@ void pub_thread_proc(){
                     const long target_speed = cur_step["speed"].get<long>();
 
                     const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size;
-                    const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
-                    const double cur_step_rpm = ratio*(double)target_speed; //real speed
+                    // const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
+                    // const double cur_step_rpm = ratio*(((double)target_speed-40)*5.3)+1030); //real speed
 
                     spdlog::info("Current Step : {}", cur_step.dump());
                     //set RPM to PLC
                     if(cur_step.contains("accdec")){
-                        g_step_info.current_rpm += cur_step_accdec;
+                        g_step_info.current_rpm += target_accdec;
                         //rpm saturation
-                        if(g_step_info.current_rpm>=cur_step_rpm)
-                            g_step_info.current_rpm = cur_step_rpm;
-                        spdlog::info("Set PLC RPM parameter : {}",g_step_info.current_rpm);
+                        if(g_step_info.current_rpm>=target_speed)
+                            g_step_info.current_rpm = target_speed;
+                        spdlog::info("Set PLC Target RPM parameter : {}",g_step_info.current_rpm);
                     }
                     else {
                         _state = _STATE_::STOP;

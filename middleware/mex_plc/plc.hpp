@@ -134,14 +134,20 @@ class plc : public subport {
         void move_ccw(){ write_buffer("00WSS0307%MX00420007%MX00430107%MX011E00");}
         void move_stop(){ write_buffer("00WSS0307%MX00420007%MX00430007%MX011E01");}
         void param_set(long rpm, double roller_size, double product_size){ 
-            //rpm is real rpm
-            spdlog::info("Real number RPM : {}", rpm);
             stringstream stream;
-            double frpm = (double)rpm*(product_size/roller_size)*product_size;
-            stream << std::setfill ('0') << std::setw(sizeof(unsigned short)*2) << std::hex << (unsigned short)frpm;
-            string rpm_hex = stream.str();
-            spdlog::info("Set PLC RPM Parameter(Hex): {}", rpm_hex);
-            write_buffer(fmt::format("00WSB07%DW350303012C003C{}", rpm_hex));
+            //double frpm = (double)rpm*(product_size/roller_size)*product_size;
+            //const double ratio = product_size/roller_size;
+            //const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
+            if(rpm>40){ //minimum rpm = 40
+                const double ratio = product_size/roller_size;
+                const double cur_step_rpm = ((((double)rpm*ratio)-40.0)*5.3)+1030); //real speed
+
+                stream << std::setfill ('0') << std::setw(sizeof(unsigned short)*2) << std::hex << (unsigned short)rpm;
+                string rpm_hex = stream.str();
+                spdlog::info("Set PLC RPM Parameter(Hex): {}", rpm_hex);
+                write_buffer(fmt::format("00WSB07%DW350303012C003C{}", rpm_hex));
+            } 
+            
         }
 
         void test_start(){ write_buffer("00WSS0107%MX008001");}
