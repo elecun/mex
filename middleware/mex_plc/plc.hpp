@@ -104,8 +104,12 @@ class plc : public subport {
         }
 
         /* PLC interface function */
-        void motor_off(){ write_buffer("00WSS0107%MX004601"); }
-        void motor_on(){ write_buffer("00WSS0107%MX004600");}
+        void motor_off(){ 
+            write_buffer("00WSS0107%MX004600"); 
+        }
+        void motor_on(){ 
+            write_buffer("00WSS0107%MX004601");
+            }
         void cylinder_up(){
             std::unique_lock<std::mutex> lock(_m);
             _cylinder_move = 1;
@@ -124,7 +128,9 @@ class plc : public subport {
             lock.unlock();
         }
 
-        void move_cw(){ write_buffer("00WSS0307%MX00420107%MX00430007%MX011E00"); }
+        void move_cw(){ 
+            write_buffer("00WSS0307%MX00420107%MX00430007%MX011E00"); 
+        }
         void move_ccw(){ write_buffer("00WSS0307%MX00420007%MX00430107%MX011E00");}
         void move_stop(){ write_buffer("00WSS0307%MX00420007%MX00430007%MX011E01");}
         void param_set(long rpm, double roller_size, double product_size){ 
@@ -145,9 +151,18 @@ class plc : public subport {
         void cylinder_loop(){
             while(_cylinder_loop){
                 switch(_cylinder_move){
-                    case 0: { write_buffer("00WSS0207%MX00440007%MX004500"); _cylinder_move = -1; } break; //stop
-                    case 1: { write_buffer("00WSS0207%MX00440107%MX004400"); } break; //up
-                    case 2: { write_buffer("00WSS0207%MX00450107%MX004500"); } break; //down
+                    case 0: {
+                        spdlog::info("PLC Cylinder Stop");
+                        write_buffer("00WSS0207%MX00440007%MX004500"); _cylinder_move = -1; 
+                        } break; //stop
+                    case 1: { 
+                        spdlog::info("PLC Cylinder is going up...");
+                        write_buffer("00WSS0207%MX00440107%MX004400"); 
+                    } break; //up
+                    case 2: { 
+                        spdlog::info("PLC Cylinder is going down...");
+                        write_buffer("00WSS0207%MX00450107%MX004500"); 
+                    } break; //down
                     default:
                     break;
                 }

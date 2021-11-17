@@ -112,6 +112,7 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                     if(sp){
                         plc* r = dynamic_cast<plc*>(sp);
                         if(r){
+                            spdlog::info("PLC Act : {}", _command);
                             switch(commandset[_command]){
                                 case 0: {  r->motor_off();  } break;
                                 case 1: {  r->motor_on(); } break;
