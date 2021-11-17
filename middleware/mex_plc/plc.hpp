@@ -157,11 +157,11 @@ class plc : public subport {
                         } break; //stop
                     case 1: { 
                         spdlog::info("PLC Cylinder is going up...");
-                        write_buffer("00WSS0207%MX00440107%MX004400"); 
+                        write_buffer("00WSS0207%MX00440107%MX004500"); 
                     } break; //up
                     case 2: { 
                         spdlog::info("PLC Cylinder is going down...");
-                        write_buffer("00WSS0207%MX00450107%MX004500"); 
+                        write_buffer("00WSS0207%MX00450107%MX004400"); 
                     } break; //down
                     default:
                     break;
