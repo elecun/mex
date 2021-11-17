@@ -136,12 +136,11 @@ class plc : public subport {
         void param_set(long rpm, double roller_size, double product_size){ 
             stringstream stream;
             //double frpm = (double)rpm*(product_size/roller_size)*product_size;
-            //const double ratio = product_size/roller_size;
+            const double ratio = product_size/roller_size;
             //const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
             double rpm_ratio = ratio*(double)rpm;
             if(rpm_ratio>40){ //minimum rpm = 40
-                const double ratio = product_size/roller_size;
-                const double cur_step_rpm = ((((rpm_ratio-40.0)*5.3)+1030); //real speed
+                const double cur_step_rpm = (((rpm_ratio-40.0)*5.3)+1030); //real speed
 
                 stream << std::setfill ('0') << std::setw(sizeof(unsigned short)*2) << std::hex << (unsigned short)rpm;
                 string rpm_hex = stream.str();
