@@ -141,14 +141,19 @@ class plc : public subport {
             double rpm_ratio = ratio*(double)rpm;
 
             spdlog::info("Target RPM : {}, Real RPM : {}", rpm, rpm_ratio);
+            double cur_step_rpm = 0.0;
             if(rpm_ratio>40){ //minimum rpm = 40
-                const double cur_step_rpm = (((rpm_ratio-40.0)*5.3)+1030); //real speed
+                cur_step_rpm = (((rpm_ratio-40.0)*5.3)+1030); //real speed
+            }
+            else {
+                spdlog::info("Ratio RPM is lower than 40");
+                cur_step_rpm = 0;
+            }
 
-                stream << std::setfill ('0') << std::setw(sizeof(unsigned short)*2) << std::hex << (unsigned short)rpm;
-                string rpm_hex = stream.str();
-                spdlog::info("Set PLC RPM Parameter(Hex): {}", rpm_hex);
-                write_buffer(fmt::format("00WSB07%DW350303012C003C{}", rpm_hex));
-            } 
+            stream << std::setfill ('0') << std::setw(sizeof(unsigned short)*2) << std::hex << (unsigned short)cur_step_rpm;
+            string rpm_hex = stream.str();
+            spdlog::info("Set PLC RPM Parameter(Hex): {}", rpm_hex);
+            write_buffer(fmt::format("00WSB07%DW350303012C003C{}", rpm_hex));
             
         }
 

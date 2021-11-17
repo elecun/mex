@@ -153,7 +153,7 @@ void pub_thread_proc(){
                     const long target_accdec = cur_step["accdec"].get<long>();
                     const long target_speed = cur_step["speed"].get<long>();
 
-                    const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size;
+                    //const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size;
                     // const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
                     // const double cur_step_rpm = ratio*(((double)target_speed-40)*5.3)+1030); //real speed
 
@@ -173,7 +173,7 @@ void pub_thread_proc(){
                     }
 
                     //write motor rpm
-                    json paramset = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm},{"product_size",g_step_info.product_size}, {"roller_size", g_step_info.roller_size}, {"ratio", ratio}};
+                    json paramset = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm},{"product_size",g_step_info.product_size}, {"roller_size", g_step_info.roller_size}};
                     string str_param = paramset.dump();
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_param.size(), str_param.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
                         spdlog::error("STEP perform error while parameter set");
@@ -211,7 +211,7 @@ void pub_thread_proc(){
                     }
                     
                     // reach the target speed, then moves next step
-                    if(g_step_info.current_rpm>=(long)(ratio*target_speed)){
+                    if(g_step_info.current_rpm>=(long)(target_speed)){
                         _state++;
                     }
                 }
