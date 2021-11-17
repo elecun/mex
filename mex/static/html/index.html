@@ -106,6 +106,7 @@ function mqtt_onMessageArrived(message){
 
       case "mex/sensor/relay":{
         const relay = JSON.parse(message.payloadString);
+        console.log(relay);
         if(relay.relay_emergency){
           $('#btn_emergency_stop').click(function(){
             document.getElementById('modal_error_content').innerText = "{{menu_ko.message_emergency}}";
