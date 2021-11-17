@@ -54,8 +54,8 @@ class rpm : public subport {
             int read_len = bus->read_some(boost::asio::buffer(rbuffer, _max_read_buffer_));
             //spdlog::info("{}bytes read", read_len);
 
-            //vector<char> rpacket(rbuffer, rbuffer+read_len);
-            //spdlog::info("read data : {:x}", spdlog::to_hex(rpacket));
+            // vector<char> rpacket(rbuffer, rbuffer+read_len);
+            // spdlog::info("RPM read data : {:x}", spdlog::to_hex(rpacket));
 
             //parse data
             int value = parse_value(rbuffer, read_len);
@@ -155,16 +155,15 @@ class rpm : public subport {
             }
 
             //parse data
-            int rpm = 0;
+            unsigned short rpm = 0;
             if(frame[0]==(unsigned char)_id){
-                char tmp[2] = {0x00, };
-                memcpy(tmp, &frame[4], 2);
-                rpm = atoi(tmp);
+                unsigned char tmp[2] = {frame[4], frame[3]};
+                std::memcpy(&rpm, tmp, sizeof(unsigned short)); //set reversed from memory
             }
 
             delete []frame;
 
-            return rpm;
+            return (int)rpm;
         }
 
         unsigned short _crc16(unsigned char* buffer, unsigned short buffer_len){

@@ -132,7 +132,7 @@ void terminate() {
 void cleanup(int sig) {
   switch(sig){
     case SIGSEGV: { spdlog::warn("Segmentation violation"); } break;
-    case SIGABRT: { spdlog::warn("Abnormal termination"); } break;
+    case SIGABRT: { /*spdlog::warn("Abnormal termination");*/ } break;
     case SIGKILL: { spdlog::warn("Process killed"); } break;
     case SIGBUS: { spdlog::warn("Bus Error"); } break;
     case SIGTERM: { spdlog::warn("Termination requested"); } break;

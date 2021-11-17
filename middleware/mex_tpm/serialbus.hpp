@@ -104,14 +104,14 @@ class serialbus {
                     if(_port.is_open()){
                         for(auto& sub: _subport_container){
                             json response;
+                            spdlog::info("requesting to {}", sub.first);
                             sub.second->request(&_port, response);
                             postprocess(response);
-                            spdlog::info("operation in thread : {}", _operation);
+                            boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
                         }
                     }
                     else
                         spdlog::error("port is not opened");
-
                     boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
                 }
             };
