@@ -140,7 +140,7 @@ class plc : public subport {
             //const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
             if(rpm>40){ //minimum rpm = 40
                 const double ratio = product_size/roller_size;
-                const double cur_step_rpm = ((((double)rpm*ratio)-40.0)*5.3)+1030); //real speed
+                const double cur_step_rpm = (((((double)rpm*ratio)-40.0)*5.3)+1030); //real speed
 
                 stream << std::setfill ('0') << std::setw(sizeof(unsigned short)*2) << std::hex << (unsigned short)rpm;
                 string rpm_hex = stream.str();
