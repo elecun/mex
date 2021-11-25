@@ -52,6 +52,16 @@ mex_tpm:	$(BUILDDIR)mex_tpm.o
 $(BUILDDIR)mex_tpm.o:	$(SOURCE_FILES)mex_tpm/mex_tpm.cc
 						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
 
+mex_rpm:	$(BUILDDIR)mex_rpm.o
+		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
+$(BUILDDIR)mex_rpm.o:	$(SOURCE_FILES)mex_rpm/mex_rpm.cc
+						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
+
+mex_temperature:	$(BUILDDIR)mex_temperature.o
+		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
+$(BUILDDIR)mex_temperature.o:	$(SOURCE_FILES)mex_temperature/mex_temperature.cc
+						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
+
 mex_relay:	$(BUILDDIR)mex_relay.o
 		$(CC) $(LDFLAGS) $(LD_LIBRARY_PATH) -o $(BUILDDIR)$@ $^ $(LDLIBS)
 $(BUILDDIR)mex_relay.o:	$(SOURCE_FILES)mex_relay/mex_relay.cc
@@ -67,7 +77,7 @@ mex_scheduler:	$(BUILDDIR)mex_scheduler.o
 $(BUILDDIR)mex_scheduler.o:	$(SOURCE_FILES)mex_scheduler/mex_scheduler.cc
 						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
 
-all : mex_load mex_tpm mex_relay mex_plc mex_scheduler
+all : mex_load mex_tpm mex_relay mex_plc mex_scheduler mex_rpm mex_temperature
 
 deploy : FORCE
 	cp $(BINDIR)

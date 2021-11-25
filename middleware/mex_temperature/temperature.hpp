@@ -4,14 +4,16 @@
  * @author Byunghun<bh.hwang@iae.re.kr>
  */
 
-#ifndef _MEX_AP0_TEMPERATURE_HPP_
-#define _MEX_AP0_TEMPERATURE_HPP_
+#ifndef _MEX_TEMPERATURE_SENSOR_HPP_
+#define _MEX_TEMPERATURE_SENSOR_HPP_
 
 #include <string>
-#include "spdlog/spdlog.h"
+#include <include/spdlog/spdlog.h>
 #include "subport.hpp"
-#include "spdlog/fmt/bin_to_hex.h"
-#include "json.hpp"
+#include <include/spdlog/fmt/bin_to_hex.h>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <include/json.hpp>
+#include <deque>
 
 
 using namespace std;
@@ -23,14 +25,16 @@ using namespace nlohmann;
 
 class temperature : public subport {
 
+    const int _max_read_buffer_ = 2048;
+
     public:
-        temperature(int id):_id(id){
+        temperature(const char* subport_name, int id):subport(subport_name, id){
 
         }
         virtual ~temperature() { }
 
         virtual int read(unsigned char* buffer){
-
+            return 0;
         }
 
         virtual bool write(unsigned char* buffer, int size){
@@ -39,30 +43,35 @@ class temperature : public subport {
 
         virtual void request(boost::asio::serial_port* bus, json& response){
             //read request
-            unsigned char frame[] = { STX, 0x30, 0x30+(unsigned char)_id, 0x52, 0x58, 0x50, 0x30, ETX, 0x00};
+            unsigned char idc = static_cast<unsigned char>(_id)+0x30;
+            unsigned char frame[] = { STX, 0x30, idc, 0x52, 0x58, 0x50, 0x30, ETX, 0x00};
             frame[8] = _checksum(frame, 8);
             int write_len = bus->write_some(boost::asio::buffer(frame, 9));
-            spdlog::info("requested read temperature {}", _id);
+            //spdlog::info("requested read temperature {}", _id);
 
-            vector<char> wpacket(frame, frame+write_len);
+            //vector<char> wpacket(frame, frame+write_len);
             //spdlog::info("write data : {:x}", spdlog::to_hex(wpacket));
 
-            #define MAX_READ_BUFFER 1024
-            unsigned char rbuffer[MAX_READ_BUFFER] = {0, };
-            int read_len = bus->read_some(boost::asio::buffer(rbuffer, MAX_READ_BUFFER));
+            boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
+
+            unsigned char rbuffer[_max_read_buffer_] = {0, };
+            int read_len = bus->read_some(boost::asio::buffer(rbuffer, _max_read_buffer_));
             //spdlog::info("{}bytes read", read_len);
 
-            vector<char> rpacket(rbuffer, rbuffer+read_len);
+            //vector<char> rpacket(rbuffer, rbuffer+read_len);
             //spdlog::info("read data : {:x}", spdlog::to_hex(rpacket));
 
             //parse data
             float value = parse_value(rbuffer, read_len);
-            //spdlog::info("temperature {} : {}", _id, value);
+            //spdlog::info("{} value : {}", _subname, value);
 
             boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));    //must sleep
 
-            response["temperature"]["id"] = _id;
-            response["temperature"]["value"] = value;
+            response[_subname] = value;
+        }
+
+        virtual void readsome(boost::asio::serial_port* bus, json& data){
+            //no required
         }
 
     private:
@@ -109,7 +118,7 @@ class temperature : public subport {
 
 
     private:
-        int _id = 0;
+        //std::deque<unsigned char> _qbuffer;
 };
 
 #endif
