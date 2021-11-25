@@ -11,7 +11,8 @@ fi
 echo "copying files to target machine"
 sshpass -p 'qwer1234' scp -p -r ./dist/mex_load $2@"$1":$3
 sshpass -p 'qwer1234' scp -p -r ./dist/mex_relay $2@"$1":$3
-sshpass -p 'qwer1234' scp -p -r ./dist/mex_tpm $2@"$1":$3
+sshpass -p 'qwer1234' scp -p -r ./dist/mex_rpm $2@"$1":$3
+sshpass -p 'qwer1234' scp -p -r ./dist/mex_temperature $2@"$1":$3
 sshpass -p 'qwer1234' scp -p -r ./dist/mex_plc $2@"$1":$3
 sshpass -p 'qwer1234' scp -p -r ./dist/mex_scheduler $2@"$1":$3
 echo "copied"

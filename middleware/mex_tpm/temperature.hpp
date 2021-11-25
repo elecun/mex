@@ -4,8 +4,8 @@
  * @author Byunghun<bh.hwang@iae.re.kr>
  */
 
-#ifndef _MEX_TPM_TEMPERATURE_HPP_
-#define _MEX_TPM_TEMPERATURE_HPP_
+#ifndef _MEX_TEMPERATURE_SENSOR_HPP_
+#define _MEX_TEMPERATURE_SENSOR_HPP_
 
 #include <string>
 #include <include/spdlog/spdlog.h>

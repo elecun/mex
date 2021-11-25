@@ -229,8 +229,8 @@ int main(int argc, char* argv[])
             case 'i' : { _pub_inteval_sec = atoi(optarg); } break; /* mqtt publish interval */
             case 'h':
             default:
-                cout << fmt::format("MEX Temperatures & RPM (built {}/{})", __DATE__, __TIME__) << endl;
-                cout << "Usage: mex_tpm [-p port] [-b baudrate] [-t broker ip] [-i interval]" << endl;
+                cout << fmt::format("MEX PLC (built {}/{})", __DATE__, __TIME__) << endl;
+                cout << "Usage: mex_plc [-p port] [-b baudrate] [-t broker ip] [-i interval]" << endl;
                 exit(EXIT_FAILURE);
             break;
         }
