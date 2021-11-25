@@ -58,6 +58,8 @@ var step_db = {
     },
 
     insertItem: function(insertingStep) {
+        if(!insertingStep.step)
+            insertingStep.step = this.steps.length+1;
         this.steps.push(insertingStep);
     },
 
@@ -97,7 +99,7 @@ $("#settings_step_table").jsGrid({
     deleteConfirm: "Do you really want to delete?",
     controller: step_db,
     fields: [
-        { name: "step", type: "number", width: 80, readOnly:false, align:"center", title:"Step"},
+        { name: "step", type: "number", width: 80, readOnly:false, align:"center", title:"Step", readOnly:false},
         { name: "command", type: "select", items: step_db.commands, valueField: "id", textField: "command" , title:"Command"},
         { name: "time", type: "number", readOnly:false, align:"center", title:"시간(sec)"},
         { name: "speed", type: "number", readOnly:false, align:"center", title:"속도(RPM)"},

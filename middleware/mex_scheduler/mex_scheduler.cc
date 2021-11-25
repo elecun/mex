@@ -187,6 +187,7 @@ void pub_thread_proc(){
                     switch(command_id){
                         case 0: { //stop
                             plc_controlset["command"] = "move_stop";
+                            _state++;
                         } break;
                         case 1: { //cw
                             plc_controlset["command"] = "move_cw";
@@ -212,7 +213,7 @@ void pub_thread_proc(){
                         spdlog::error("STEP perform error while PLC control set");
                     }
                     
-                    // reach the target speed, then moves next step
+                    // reach the target speed, then moves next step (if not move_stop)
                     if(g_step_info.current_rpm>=(long)(target_speed)){
                         _state++;
                     }
@@ -287,10 +288,11 @@ void pub_thread_proc(){
                     }
 
                     // reach the 0 speed, then moves next step
-                    if(g_step_info.current_rpm<=0){
+                    if(g_step_info.current_rpm<=0 || command_id==0){
                         g_step_info.current_step++;
                         _state = _STATE_::START+1;
                     }
+
                 }
                 else {
                     spdlog::error("STEP perform failed while starting(decelerating)");

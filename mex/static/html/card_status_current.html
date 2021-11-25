@@ -58,13 +58,24 @@
             <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress_step_elapsed"></div>
           </div>
         </td>
-        <td style="width: 100px;" class="text-bold" id="text_step_elapsed">Elapsed</span></td>
+        <td style="width: 100px;" class="text-bold" id="text_step_elapsed">00:00:00</span></td>
       </tr>
 
     </table>
   </div>
 
   <script type="text/javascript">
+
+/* convert seconds to H::M::S */
+function secondsToHms(d) {
+    d = Number(d);
+
+    var h = Math.floor(d / 3600);
+    var m = Math.floor(d % 3600 / 60);
+    var s = Math.floor(d % 3600 % 60);
+
+    return ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2);
+}
 
   /* current step status */
   function update_progress_step_current(current, total){
@@ -79,6 +90,6 @@
     const percent = parseInt(current/total*100) +"%";
     document.getElementById('progress_step_elapsed').style.width = percent;
     document.getElementById('progress_step_elapsed').innerText = percent;
-    document.getElementById('text_step_elapsed').innerText = current +"/" + total;
+    document.getElementById('text_step_elapsed').innerText = secondsToHms(current);
   }
   </script>
