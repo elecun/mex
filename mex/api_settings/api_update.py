@@ -35,6 +35,7 @@ class API(APIView):
                 _setting.roller_size = float(request.data["roller_size"])
                 _setting.wtime = float(request.data["wtime"])
                 _setting.update_interval = int(request.data["update_interval"])
+                _setting.ratio = float(request.data["ratio"])
                 _setting.limit_temperature_min = int(request.data["limit_temperature_min"])
                 _setting.limit_temperature_max = int(request.data["limit_temperature_max"])
                 _setting.limit_temperature_min_count = int(request.data["limit_temperature_min_count"])
