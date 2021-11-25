@@ -30,6 +30,7 @@ class Settings(models.Model):
     roller_size = models.FloatField(blank=True, null=True, default=0.0) #구동롤러 사이즈
     wtime = models.FloatField(blank=True, null=True, default=0.0) #시험시간
     update_interval = models.PositiveIntegerField(blank=True, null=True, default=10) # 측정주기
+    ratio = models.FloatField(blank=True, null=True, default=1.0) # roller/idler와 구동부 ratio
     limit_temperature_min = models.IntegerField(blank=True, null=True, default=0) #제한온도
     limit_temperature_max = models.IntegerField(blank=True, null=True, default=100)
     limit_temperature_min_count = models.PositiveIntegerField(blank=True, null=True, default=3)

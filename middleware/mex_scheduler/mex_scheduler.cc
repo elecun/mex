@@ -15,14 +15,6 @@ bool _terminate = false;
 static int _state = _STATE_::READY;
 static bool _on_paused = false;
 
-// json g_steps;
-// int g_step_idx = 0;
-// bool g_option_repeat = false;
-// long g_step_total_time = 0;
-// long g_step_current_time_elapsed = 0;
-// long g_next_step_time = 0;
-
-
 struct _step_tag {
     long current_step = 0;
     long total_time_sec = 0;
@@ -34,6 +26,7 @@ struct _step_tag {
 
     double product_size = 0.0;
     double roller_size = 0.0;
+    double ratio = 1.0;
 
     deque<json> step_container;
     json raw;
@@ -46,6 +39,7 @@ struct _step_tag {
         this->accdec = 0;
         this->product_size = 0.0;
         this->roller_size = 0.0;
+        this->ratio = 1.0
         raw.clear();
         step_container.clear();
     }
@@ -181,7 +175,7 @@ void pub_thread_proc(){
                     }
 
                     //write motor rpm
-                    json paramset = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm},{"product_size",g_step_info.product_size}, {"roller_size", g_step_info.roller_size}};
+                    json paramset = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm},{"product_size",g_step_info.product_size}, {"roller_size", g_step_info.roller_size}, {"ratio", g_step_info.ratio}};
                     string str_param = paramset.dump();
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_param.size(), str_param.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
                         spdlog::error("STEP perform error while parameter set");
@@ -249,7 +243,7 @@ void pub_thread_proc(){
                     
                     json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
                     const long target_accdec = cur_step["accdec"].get<long>();
-                    const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size;
+                    const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size*g_step_info.ratio;
                     const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
 
                     spdlog::info("Current Step : {}", cur_step.dump());
@@ -267,7 +261,7 @@ void pub_thread_proc(){
                     }
 
                     //write motor rpm
-                    json paramset = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm},{"product_size",g_step_info.product_size}, {"roller_size", g_step_info.roller_size}, {"ratio", ratio}};
+                    json paramset = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm},{"product_size",g_step_info.product_size}, {"roller_size", g_step_info.roller_size}, {"ratio", g_step_info.ratio}};
                     string str_param = paramset.dump();
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_param.size(), str_param.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
                         spdlog::error("STEP perform error while parameter set");
@@ -369,6 +363,7 @@ void parse_steps(json& data){
     //general setting info.
     g_step_info.product_size = (double)(data["product_size"].get<double>());
     g_step_info.roller_size = (double)(data["roller_size"].get<double>());
+    g_step_info.ratio = (double)(data["ratio"].get<double>());
 
 }
 

@@ -133,12 +133,10 @@ class plc : public subport {
         }
         void move_ccw(){ write_buffer("00WSS0307%MX00420007%MX00430107%MX011E00");}
         void move_stop(){ write_buffer("00WSS0307%MX00420007%MX00430007%MX011E01");}
-        void param_set(long rpm, double roller_size, double product_size){ 
+        void param_set(long rpm, double roller_size, double product_size, double c_ratio){ 
             stringstream stream;
-            //double frpm = (double)rpm*(product_size/roller_size)*product_size;
             const double ratio = product_size/roller_size;
-            //const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
-            double rpm_ratio = ratio*(double)rpm;
+            double rpm_ratio = ratio*(double)rpm*c_ratio;
 
             spdlog::info("Target RPM : {}, Real RPM : {}", rpm, rpm_ratio);
             double cur_step_rpm = 0.0;

@@ -125,8 +125,9 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                                     long rpm = ctrl_data["rpm"].get<long>();
                                     double roller_size = ctrl_data["roller_size"].get<double>();
                                     double product_size = ctrl_data["product_size"].get<double>();
-                                    spdlog::info("Receive PLC Parameter : RPM({}), Roller size({}), Product size({})", rpm, roller_size, product_size);
-                                    r->param_set(rpm, roller_size, product_size); 
+                                    double ratio = ctrl_data["ratio"].get<double>();
+                                    spdlog::info("Receive PLC Parameter : RPM({}), Roller size({}), Product size({}), Ratio({})", rpm, roller_size, product_size, ratio);
+                                    r->param_set(rpm, roller_size, product_size, ratio);
                                 } break;
                                 case 8: {  r->test_start(); } break;
                                 case 9: {  r->test_pause(); } break;

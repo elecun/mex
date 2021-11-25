@@ -41,6 +41,7 @@ def context_processors(request):
             'stop_step' : "시험중지",
             'zeroset' : "영점설정",
             'settings_name':"설정명",
+            'settings_general_ratio' : "Ratio조정",
             'settings_general_machinename':"장비명",
             'settings_general_jsno':"JS No.",
             'settings_general_productsize':"제품 사이즈(ø)",
