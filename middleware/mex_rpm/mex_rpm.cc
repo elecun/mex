@@ -9,6 +9,7 @@
 
 int _pub_inteval_sec = 1;
 vector<char> receive_buf;
+bool _terminate = false;
 bool _run = true;
 unsigned long g_rpm = 0;
 
