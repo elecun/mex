@@ -24,7 +24,6 @@
 
 #include <mosquitto.h>
 #include "serialbus.hpp"
-#include "temperature.hpp"
 #include "rpm.hpp"
 
 
