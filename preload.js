@@ -1,3 +1,7 @@
+
+const mqtt = require('mqtt')
+window.mqtt = mqtt
+
 window.addEventListener('DOMContentLoaded', () => {
     const replacetext = (selector, text) => {
         const element = document.getElementById(selector)
@@ -7,4 +11,4 @@ window.addEventListener('DOMContentLoaded', () => {
     for (const type of ['chrome', 'node', 'electron']){
         replacetext('$(type)-version, process.versions[type]')
     }
-})
+});

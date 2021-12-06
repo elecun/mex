@@ -1,4 +1,31 @@
 
+<style>
+    .fat {
+       width: 50px;
+       height: 50px;
+       border-radius: 10%;
+       transition: all 0.1s ease-in-out;
+       padding: 0;
+       color: white;
+     
+       font-size: 20px;
+       color: black;
+       text-align: center;
+       line-height: 0px;
+     
+       position: fixed;
+       right: 20px;
+       top: 10px;
+    }
+     
+    .fat:hover {
+       transform: scale(1.05);
+    }
+    
+</style>
+
+{% load static %}
+<a class="btn fat" id="btn_window_close"><i class="fas fa-times-circle fa-2x"></i></a>
 
 <a class="btn btn-app btn-app-side invisible mb-0" id="btn_empty">
 </a>
@@ -11,6 +38,11 @@ window.addEventListener('DOMContentLoaded', function(){
     
 });
 
+
+const {ipcRenderer} = require('electron');
+const app_close = document.getElementById('btn_window_close').addEventListener('click', function(e){
+    
+});
 
 
 </script>

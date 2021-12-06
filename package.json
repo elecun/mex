@@ -1,6 +1,6 @@
 {
   "name": "mex",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Machine Expert for JinsungTEC",
   "main": "main.js",
   "scripts": {
@@ -90,6 +90,7 @@
     }
   },
   "dependencies": {
-    "electron-is-dev": "latest"
+    "electron-is-dev": "latest",
+    "mqtt": "^4.2.8"
   }
 }
