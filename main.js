@@ -54,5 +54,10 @@ const options = {
   })
 
   client.on('message', (topic, message, packet) => {
-    console.log('Received Message: ' + message.toString() + '\nOn topic: ' + topic)
+    if(topic=="mex/viewer"){
+      const data = JSON.parse(message.toString);
+      switch(data["command"]){
+        case "close": { app.quit(); } break;
+      }
+    }
   })

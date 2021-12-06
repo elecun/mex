@@ -39,9 +39,10 @@ window.addEventListener('DOMContentLoaded', function(){
 });
 
 
-const {ipcRenderer} = require('electron');
-const app_close = document.getElementById('btn_window_close').addEventListener('click', function(e){
-    
+document.getElementById('btn_window_close').addEventListener('click', function(e){
+   if(mqtt_client){
+      mqtt_client.publish("mex/viewer", JSON.stringify({"command":"close"}), 2);
+   }
 });
 
 
