@@ -28,6 +28,7 @@ app.on('window-all-closed', function(){
 
 
 // for mqtt client
+const mqtt = require('mqtt')
 const client_id = 'mex_viewer_'+Math.random().toString(16).substr(2,8)
 const mqtt_host = 'mqtt://127.0.0.1:1883'
 const options = {
@@ -54,6 +55,7 @@ const options = {
   })
 
   client.on('message', (topic, message, packet) => {
+    console.log("on message : " + message.toString())
     if(topic=="mex/viewer"){
       const data = JSON.parse(message.toString);
       switch(data["command"]){

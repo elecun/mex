@@ -1,6 +1,4 @@
 
-const mqtt = require('mqtt')
-window.mqtt = mqtt
 
 window.addEventListener('DOMContentLoaded', () => {
     const replacetext = (selector, text) => {
