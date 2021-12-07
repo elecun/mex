@@ -55,10 +55,26 @@
       data: []
     },
   
-    yAxis: {
-      type: 'value',
-      boundaryGap: [0, '100%']
-    },
+    yAxis: [
+      {
+        type: 'value',
+        name:"temperature",
+        axisLabel:{formatter:'{value}℃'},
+        boundaryGap: [0, '100%']
+      },
+      {
+        type: 'value',
+        name:"rpm",
+        axisLabel:{formatter:'{value} rpm/s'},
+        boundaryGap: [0, '100%']
+      },
+      {
+        type: 'value',
+        name:"load",
+        axisLabel:{formatter:'{value} kgf'},
+        boundaryGap: [0, '100%']
+      }
+    ],
 
     grid: {
     left: '0%',
@@ -72,6 +88,47 @@
 
 data_chart.setOption(option);
 
+/* sample data */
+function sample_series(){
+  result = {};
+  result["data"]["datetime"] = ['2020-3-4T11:11:11Z','2020-3-4T11:11:11Z','2020-3-4T11:11:11Z'];
+  result["data"]["load"]=[1,2,3];
+  result["data"]["temperature_1"]=[3,3,3];
+  result["data"]["temperature_2"]=[4,4,4];
+  result["data"]["temperature_3"]=[5,5,5];
+  result["data"]["rpm"]=[6,6,6];
+  //option.xAxis.data = result.data.datetime;
+  option.series = [
+      {
+        name: "load",
+        type:'line',
+        data: result.data.load
+      },
+      {
+        name: "temperature 1",
+        type:'line',
+        data: result.data.temperature_1
+      },
+      {
+        name: "temperature 2",
+        type:'line',
+        data: result.data.temperature_2
+      },
+      {
+        name: "temperature 3",
+        type:'line',
+        data: result.data.temperature_3
+      },
+      {
+        name: "RPM",
+        type:'line',
+        data: result.data.rpm
+      }
+    ];
+    data_chart.setOption(option);
+}
+
+/* clear series data */
 function clear_series(){
   var option = {series:[], xAxis:{data:[]}};
   data_chart.setOption(option);
@@ -162,12 +219,14 @@ async function request_chart_data(){
 
 /* char manually update */
 document.getElementById('btn_chart_reload').addEventListener('click', function(){
-  const ref_id = document.getElementById('hidden_settings_id').value;
-  if(ref_id){
-    request_chart_data_ref(ref_id);
-  }
-  else
-    console.log("No Setting Id");
+  sample_series();
+
+  // const ref_id = document.getElementById('hidden_settings_id').value;
+  // if(ref_id){
+  //   request_chart_data_ref(ref_id);
+  // }
+  // else
+  //   console.log("No Setting Id");
 });
 
 /* page load */
