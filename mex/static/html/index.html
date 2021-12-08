@@ -146,6 +146,7 @@ function mqtt_onMessageArrived(message){
           update_progress_step_elapsed(data.current_elapsed, data.total_time);
         }
         else if(data.state=="stop"){ //stop
+          row_deactive_all();
           document.getElementById('modal_notify_content').innerText = "{{menu_ko.message_stopped_steps}}";
           $('#modal_notify').modal('show');
         }
