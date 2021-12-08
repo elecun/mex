@@ -13,11 +13,17 @@ tr.jsgrid-row {
   height: 2rem;
 }
 
+.jsgrid-active-row {
+    background-color: yellow !important;
+}
+
+
 </style>
 
 {% load static %}
 
 <div id="settings_step_table"></div>
+
 
 <script type="text/javascript">
 
@@ -71,7 +77,7 @@ var step_db = {
     }
 };
 
-//window.db = step_db;
+
 
 /* Steps Commandset ! important */
 step_db.commands = [
@@ -99,7 +105,7 @@ $("#settings_step_table").jsGrid({
     deleteConfirm: "Do you really want to delete?",
     controller: step_db,
     fields: [
-        { name: "step", type: "number", width: 80, readOnly:false, align:"center", title:"Step", readOnly:false},
+        { name: "step", type: "number", width: 80, readOnly:false, align:"center", title:"Step"},
         { name: "command", type: "select", items: step_db.commands, valueField: "id", textField: "command" , title:"Command"},
         { name: "time", type: "number", readOnly:false, align:"center", title:"시간(sec)"},
         { name: "speed", type: "number", readOnly:false, align:"center", title:"속도(RPM)"},
@@ -110,6 +116,39 @@ $("#settings_step_table").jsGrid({
     ]
 });
 
+/* row active(color change) */
+function row_active(row_index){
+    let trlist = document.querySelectorAll(".jsgrid-row, .jsgrid-alt-row");
+    if(!row_index%2){ //odd
+        trlist[row_index].classList.remove('jsgrid-row');
+    }
+    else { //even
+        trlist[row_index].classList.remove('jsgrid-alt-row');
+    }
+    trlist[row_index].classList.add('jsgrid-active-row');
+}
+
+/* row deactive(color change) */
+function row_deactive(row_index){
+    let trlist = document.querySelectorAll(".jsgrid-row, .jsgrid-alt-row");
+    trlist[row_index].classList.remove('jsgrid-active-row');
+
+    if(!row_index%2){ //odd
+        trlist[row_index].classList.add('jsgrid-row');    
+    }
+    else { //even
+        trlist[row_index].classList.add('jsgrid-alt-row');
+    }
+}
+
+/* row deactive all */
+function row_deactive_all(){
+    let trlist = document.querySelectorAll(".jsgrid-row, .jsgrid-alt-row");
+    for(var i=0;i<trlist.length;i++){
+        row_deactive(i);
+    }
+}
+
   
 /* page load */
 window.addEventListener('DOMContentLoaded', function(){
@@ -118,5 +157,6 @@ window.addEventListener('DOMContentLoaded', function(){
     $('#btn_stop_step').addClass("d-none");
     $('#btn_pause_step').addClass("d-none");
 });
+
 
 </script>

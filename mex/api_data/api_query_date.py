@@ -35,9 +35,12 @@ class API(APIView):
 
             if _settings is not None:
 
+                # stores in Asia/Seoul timezone
                 start_datetime = _settings.steps_start_at
                 end_datetime = _settings.steps_stop_at
+                interval = _settings.update_interval
 
+                # influxdb stores data in UTC
                 start_datetime_utc = start_datetime.astimezone(utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                 end_datetime_utc = end_datetime.astimezone(utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                 
@@ -49,9 +52,9 @@ class API(APIView):
                 |> range(start: {s}, stop: {e})
                 |> filter(fn: (r) => r["_measurement"] == "mqtt_consumer")
                 |> filter(fn: (r) => r["_field"] == "rpm" or r["_field"] == "temperature_1" or r["_field"] == "temperature_2" or r["_field"] == "temperature_3" or r["_field"] == "load")
-                |> aggregateWindow(every: 5s, fn: mean, createEmpty: false)
+                |> aggregateWindow(every: {i}s, fn: mean, createEmpty: false)
                 |> yield(name: "mean")
-                '''.format(s=start_datetime_utc, e=end_datetime_utc)
+                '''.format(s=start_datetime_utc, e=end_datetime_utc, i=interval)
                 
                 tables = query_api.query(q)
                 results = []
@@ -59,7 +62,10 @@ class API(APIView):
                 for table in tables:
                     for record in table.records:
                         if single_datetime==True:
-                            timestring = record.get_time().astimezone(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S")
+                            record_time = record.get_time().astimezone(timezone('Asia/Seoul'))
+                            time_diff = (record_time.replace(tzinfo=None)-start_datetime)
+                            #timestring = record.get_time().astimezone(timezone('Asia/Seoul')).strftime("%Y-%m-%d %H:%M:%S") #iso formatted
+                            timestring = time_diff.total_seconds() # in seconds from start time
                             results.append(("datetime", timestring))
                         results.append((record.get_field(), record.get_value()))
                     single_datetime = False

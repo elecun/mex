@@ -81,7 +81,7 @@ var prev_emergency = false;
 /* MQTT message arrived event callback */
 function mqtt_onMessageArrived(message){
     const payload = JSON.parse(message.payloadString);
-
+    console.log(payload);
     /* status data update */
     switch(message.topic){
       case "mex/sensor/temperature": { //temperature data
@@ -141,6 +141,8 @@ function mqtt_onMessageArrived(message){
         const data = JSON.parse(message.payloadString);
         if(data.state=="start"){ //running
           update_progress_step_current(data.step_current, data.step_size);
+          row_deactive_all();
+          row_active(data.step_current-1); //from 0
           update_progress_step_elapsed(data.current_elapsed, data.total_time);
         }
         else if(data.state=="stop"){ //stop
