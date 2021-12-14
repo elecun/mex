@@ -1,11 +1,11 @@
 /**
- * @file    plc.hpp
- * @brief   MEX PLC
+ * @file    plc_roller.hpp
+ * @brief   MEX PLC for Roller
  * @author Byunghun<bh.hwang@iae.re.kr>
  */
 
-#ifndef _MEX_PLC_HPP_
-#define _MEX_PLC_HPP_
+#ifndef _MEX_PLC_ROLLER_HPP_
+#define _MEX_PLC_ROLLER_HPP_
 
 #include <string>
 #include <include/spdlog/spdlog.h>
@@ -21,7 +21,7 @@ using namespace std;
 #define STX 0x05
 #define ETX 0x04
 
-class plc : public subport {
+class plc_roller : public subport {
 
     const int _max_read_buffer_ = 2048;
     typedef struct _wpacket {
@@ -35,10 +35,10 @@ class plc : public subport {
     } wpack;
 
     public:
-        plc(const char* subport_name, int id):subport(subport_name, 1){
+        plc_roller(const char* subport_name, int id):subport(subport_name, 1){
             _cylinder_thread = new std::thread(&plc::cylinder_loop, this);
         }
-        virtual ~plc() {
+        virtual ~plc_roller() {
             spdlog::info("closing PLC");
             _cylinder_loop = false;
             _cylinder_thread->join();

@@ -11,8 +11,8 @@ OS := $(shell uname)
 ARCH := x86_64
 
 #Compilers
-CC := g++-8
-GCC := gcc-8
+CC := g++
+GCC := gcc
 LD_LIBRARY_PATH += -L./lib/x86_64
 BUILDDIR		= ./dist/
 INCLUDE_DIR = -I./

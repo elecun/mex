@@ -25,7 +25,8 @@
 
 #include <mosquitto.h>
 #include "serialbus.hpp"
-#include "plc.hpp"
+#include "plc_roller.hpp"
+#include "plc_idler.hpp"
 
 
 using namespace std;

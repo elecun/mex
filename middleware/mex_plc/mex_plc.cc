@@ -12,36 +12,6 @@ vector<char> receive_buf;
 bool _terminate = false;
 bool _run = true;
 
-// bool g_relay_sload = false;
-// bool g_relay_zeroset = false;
-// bool g_relay_emerency = false;
-
-/* publish rpm & temperature data */
-// void pub_thread_proc(){
-//     while(1){
-
-//         //continuously transferring data
-//         if(g_mqtt && _run){
-
-//             //2. temperature data publish
-//             json _relay_pubdata;
-//             _relay_pubdata["relay_sload"] = g_relay_sload;
-//             _relay_pubdata["relay_zeroset"] = g_relay_zeroset;
-//             _relay_pubdata["relay_emergency"] = g_relay_emerency;
-
-//             string str_relay_data = _relay_pubdata.dump();
-//             if(mosquitto_publish(g_mqtt, nullptr, MEX_RELAY_VALUE_TOPIC, str_relay_data.size(), str_relay_data.c_str(), 2, false)!=MOSQ_ERR_SUCCESS)
-//                 spdlog::error("Data publish error for Relay data");
-
-//             spdlog::info("Sload :{}, Zeroset :{}, Emergency :{}", g_relay_sload, g_relay_zeroset, g_relay_emerency);
-//         }
-
-//         boost::this_thread::sleep_for(boost::chrono::seconds(_pub_inteval_sec));
-//         if(_terminate)
-//             break;
-//     }
-// }
-
 
 /* post process */
 static void postprocess(json& msg){
@@ -217,17 +187,19 @@ int main(int argc, char* argv[])
 
     int optc = 0;
     string _device_port = "/dev/ttyAP1"; //defualt port
+    string _device = "roller"; // or idler
     int _baudrate = 9600;   //default baudrate
 
     string _mqtt_broker = "0.0.0.0";
 
-    while((optc=getopt(argc, argv, "p:b:t:i:h"))!=-1)
+    while((optc=getopt(argc, argv, "p:b:t:i:d:h"))!=-1)
     {
         switch(optc){
             case 'p': { _device_port = optarg; } break; /* device port */
             case 'b': { _baudrate = atoi(optarg); } break; /* baudrate */
             case 't': { _mqtt_broker = optarg; } break; /* target ip to pub */
             case 'i' : { _pub_inteval_sec = atoi(optarg); } break; /* mqtt publish interval */
+            case 'd' : { _device = optarg; }
             case 'h':
             default:
                 cout << fmt::format("MEX PLC (built {}/{})", __DATE__, __TIME__) << endl;
