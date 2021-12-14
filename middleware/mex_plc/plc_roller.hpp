@@ -36,7 +36,7 @@ class plc_roller : public subport {
 
     public:
         plc_roller(const char* subport_name, int id):subport(subport_name, 1){
-            _cylinder_thread = new std::thread(&plc::cylinder_loop, this);
+            _cylinder_thread = new std::thread(&plc_roller::cylinder_loop, this);
         }
         virtual ~plc_roller() {
             spdlog::info("closing PLC");

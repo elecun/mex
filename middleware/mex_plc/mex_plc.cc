@@ -11,22 +11,13 @@ int _pub_inteval_sec = 1;
 vector<char> receive_buf;
 bool _terminate = false;
 bool _run = true;
+string _target_device = "roller";
 
 
 /* post process */
 static void postprocess(json& msg){
 
-    // if(msg.contains("relay_emergency")){
-    //     g_relay_emerency = msg["relay_emergency"].get<bool>();
-    // }
 
-    // if(msg.contains("relay_sload")){
-    //     g_relay_sload = msg["relay_sload"].get<bool>();
-    // }
-
-    // if(msg.contains("relay_zeroset")){
-    //     g_relay_zeroset = msg["relay_zeroset"].get<bool>();
-    // }
 }
 
 
@@ -80,34 +71,70 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
                 if(g_pSerial->is_open()){
                     subport* sp = g_pSerial->get_subport("plc");
                     if(sp){
-                        plc* r = dynamic_cast<plc*>(sp);
-                        if(r){
-                            spdlog::info("PLC Act : {}", _command);
-                            switch(commandset[_command]){
-                                case 0: {  r->motor_off();  } break;
-                                case 1: {  r->motor_on(); } break;
-                                case 2: {  r->cylinder_up(); } break;
-                                case 3: {  r->cylinder_down(); } break;
-                                case 4: {  r->move_cw(); } break;
-                                case 5: {  r->move_ccw(); } break;
-                                case 6: {  r->move_stop(); } break;
-                                case 7: {  
-                                    long rpm = ctrl_data["rpm"].get<long>();
-                                    double roller_size = ctrl_data["roller_size"].get<double>();
-                                    double product_size = ctrl_data["product_size"].get<double>();
-                                    double ratio = ctrl_data["ratio"].get<double>();
-                                    spdlog::info("Receive PLC Parameter : RPM({}), Roller size({}), Product size({}), Ratio({})", rpm, roller_size, product_size, ratio);
-                                    r->param_set(rpm, roller_size, product_size, ratio);
-                                } break;
-                                case 8: {  r->test_start(); } break;
-                                case 9: {  r->test_pause(); } break;
-                                case 10: {  r->test_stop(); } break;
-                                case 11: {  r->program_connect(); } break;
-                                case 12: {  r->program_verify(); } break;
-                                case 13: {  r->cylinder_stop(); } break;
-                                default:
-                                    spdlog::warn("Unknown PLC Command : {}", _command);
+                        //for idler
+                        if(!_target_device.compare("idler")){
+                            plc_idler* r = dynamic_cast<plc_idler*>(sp);
+                            if(r){
+                                spdlog::info("PLC Act : {}", _command);
+                                switch(commandset[_command]){
+                                    case 0: {  r->motor_off();  } break;
+                                    case 1: {  r->motor_on(); } break;
+                                    case 2: {  r->cylinder_up(); } break;
+                                    case 3: {  r->cylinder_down(); } break;
+                                    case 4: {  r->move_cw(); } break;
+                                    case 5: {  r->move_ccw(); } break;
+                                    case 6: {  r->move_stop(); } break;
+                                    case 7: {  
+                                        long rpm = ctrl_data["rpm"].get<long>();
+                                        double roller_size = ctrl_data["roller_size"].get<double>();
+                                        double product_size = ctrl_data["product_size"].get<double>();
+                                        double ratio = ctrl_data["ratio"].get<double>();
+                                        spdlog::info("Receive PLC Parameter : RPM({}), Idler size({}), Product size({}), Ratio({})", rpm, roller_size, product_size, ratio);
+                                        r->param_set(rpm, roller_size, product_size, ratio);
+                                    } break;
+                                    case 8: {  r->test_start(); } break;
+                                    case 9: {  r->test_pause(); } break;
+                                    case 10: {  r->test_stop(); } break;
+                                    case 11: {  r->program_connect(); } break;
+                                    case 12: {  r->program_verify(); } break;
+                                    case 13: {  r->cylinder_stop(); } break;
+                                    default:
+                                        spdlog::warn("Unknown PLC Command : {}", _command);
+                                }
                             }
+                        }
+                        //for roller
+                        else {
+                            plc_roller* r = dynamic_cast<plc_roller*>(sp);
+                            if(r){
+                                spdlog::info("PLC Act : {}", _command);
+                                switch(commandset[_command]){
+                                    case 0: {  r->motor_off();  } break;
+                                    case 1: {  r->motor_on(); } break;
+                                    case 2: {  r->cylinder_up(); } break;
+                                    case 3: {  r->cylinder_down(); } break;
+                                    case 4: {  r->move_cw(); } break;
+                                    case 5: {  r->move_ccw(); } break;
+                                    case 6: {  r->move_stop(); } break;
+                                    case 7: {  
+                                        long rpm = ctrl_data["rpm"].get<long>();
+                                        double roller_size = ctrl_data["roller_size"].get<double>();
+                                        double product_size = ctrl_data["product_size"].get<double>();
+                                        double ratio = ctrl_data["ratio"].get<double>();
+                                        spdlog::info("Receive PLC Parameter : RPM({}), Roller size({}), Product size({}), Ratio({})", rpm, roller_size, product_size, ratio);
+                                        r->param_set(rpm, roller_size, product_size, ratio);
+                                    } break;
+                                    case 8: {  r->test_start(); } break;
+                                    case 9: {  r->test_pause(); } break;
+                                    case 10: {  r->test_stop(); } break;
+                                    case 11: {  r->program_connect(); } break;
+                                    case 12: {  r->program_verify(); } break;
+                                    case 13: {  r->cylinder_stop(); } break;
+                                    default:
+                                        spdlog::warn("Unknown PLC Command : {}", _command);
+                                }
+                            }
+
                         }
                     }
                 }
@@ -187,7 +214,6 @@ int main(int argc, char* argv[])
 
     int optc = 0;
     string _device_port = "/dev/ttyAP1"; //defualt port
-    string _device = "roller"; // or idler
     int _baudrate = 9600;   //default baudrate
 
     string _mqtt_broker = "0.0.0.0";
@@ -199,11 +225,11 @@ int main(int argc, char* argv[])
             case 'b': { _baudrate = atoi(optarg); } break; /* baudrate */
             case 't': { _mqtt_broker = optarg; } break; /* target ip to pub */
             case 'i' : { _pub_inteval_sec = atoi(optarg); } break; /* mqtt publish interval */
-            case 'd' : { _device = optarg; }
+            case 'd' : { _target_device = optarg; }
             case 'h':
             default:
                 cout << fmt::format("MEX PLC (built {}/{})", __DATE__, __TIME__) << endl;
-                cout << "Usage: mex_plc [-p port] [-b baudrate] [-t broker ip] [-i interval]" << endl;
+                cout << "Usage: mex_plc [-p port] [-b baudrate] [-t broker ip] [-d target device] [-i interval]" << endl;
                 exit(EXIT_FAILURE);
             break;
         }
@@ -235,7 +261,11 @@ int main(int argc, char* argv[])
             g_pSerial = new serialbus(_device_port.c_str(), _baudrate);
             if(g_pSerial->is_open()){
                 g_pSerial->set_processor(postprocess);
-                //g_pSerial->add_subport("plc", new plc("plc", 1));
+                        
+                if(!_target_device.compare("idler"))
+                    g_pSerial->add_subport("plc", new plc_idler("plc", 1));
+                else
+                    g_pSerial->add_subport("plc", new plc_roller("plc", 1));
                 g_pSerial->start(); // start PLC
             }
         }

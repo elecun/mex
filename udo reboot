@@ -1,0 +1,20 @@
+[0;1;32m●[0m telegraf.service - The plugin-driven server agent for reporting metrics into InfluxDB
+     Loaded: loaded (/lib/systemd/system/telegraf.service; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Tue 2021-12-14 10:35:21 KST; 28s ago
+       Docs: https://github.com/influxdata/telegraf
+   Main PID: 8579 (telegraf)
+      Tasks: 13 (limit: 38374)
+     Memory: 40.7M
+     CGroup: /system.slice/telegraf.service
+             └─8579 /usr/bin/telegraf -config /etc/telegraf/telegraf.conf -config-directory /etc/telegraf/telegraf.d
+
+12월 14 10:35:21 aopmon telegraf[8579]: 2021-12-14T01:35:21Z I! [agent] Config: Interval:10s, Quiet:false, Hostname:"aopmon", Flush Interval:10s
+12월 14 10:35:21 aopmon telegraf[8579]: 2021-12-14T01:35:21Z W! [outputs.influxdb] When writing to [http://localhost:8086]: database "telegraf" creation failed: Post "http://localhost:8086/query": dial tcp 127.0.0.1:8086: connect: connection refused
+12월 14 10:35:21 aopmon telegraf[8579]: 2021-12-14T01:35:21Z I! [inputs.mqtt_consumer] Connected [tcp://127.0.0.1:1883]
+12월 14 10:35:31 aopmon telegraf[8579]: 2021-12-14T01:35:31Z E! [outputs.influxdb_v2] When writing to [http://127.0.0.1:8086]: Post "http://127.0.0.1:8086/api/v2/write?bucket=jstec&org=jstec": dial tcp 127.0.0.1:8086: connect: connection refused
+12월 14 10:35:31 aopmon telegraf[8579]: 2021-12-14T01:35:31Z E! [agent] Error writing to outputs.influxdb_v2: Post "http://127.0.0.1:8086/api/v2/write?bucket=jstec&org=jstec": dial tcp 127.0.0.1:8086: connect: connection refused
+12월 14 10:35:31 aopmon telegraf[8579]: 2021-12-14T01:35:31Z E! [outputs.influxdb] When writing to [http://localhost:8086]: failed doing req: Post "http://localhost:8086/write?db=telegraf": dial tcp 127.0.0.1:8086: connect: connection refused
+12월 14 10:35:31 aopmon telegraf[8579]: 2021-12-14T01:35:31Z E! [agent] Error writing to outputs.influxdb: could not write any address
+12월 14 10:35:41 aopmon telegraf[8579]: 2021-12-14T01:35:41Z E! [outputs.influxdb] E! [outputs.influxdb] Failed to write metric (will be dropped: 401 Unauthorized):
+12월 14 10:35:41 aopmon telegraf[8579]: 2021-12-14T01:35:41Z E! [outputs.influxdb_v2] When writing to [http://127.0.0.1:8086]: failed to write metric (401 Unauthorized): unauthorized: unauthorized access
+12월 14 10:35:41 aopmon telegraf[8579]: 2021-12-14T01:35:41Z E! [agent] Error writing to outputs.influxdb_v2: failed to write metric (401 Unauthorized): unauthorized: unauthorized access
