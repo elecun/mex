@@ -163,21 +163,23 @@ void pub_thread_proc(){
 
                     spdlog::info("Current Step : {}", cur_step.dump());
                     //set RPM to PLC
-                    if(cur_step.contains("accdec") && cur_step.contains("speed")){
-                        const long target_accdec = cur_step["accdec"].get<long>();
-                        const long target_speed = cur_step["speed"].get<long>();
+                    if(command_id!=0){
+                        if(cur_step.contains("accdec") && cur_step.contains("speed")){
+                            const long target_accdec = cur_step["accdec"].get<long>();
+                            const long target_speed = cur_step["speed"].get<long>();
 
-                        g_step_info.current_rpm += target_accdec;
-                        //rpm saturation
-                        if(g_step_info.current_rpm>=target_speed)
-                            g_step_info.current_rpm = target_speed;
+                            g_step_info.current_rpm += target_accdec;
+                            //rpm saturation
+                            if(g_step_info.current_rpm>=target_speed)
+                                g_step_info.current_rpm = target_speed;
 
-                        spdlog::info("Set PLC Target RPM parameter : {}",g_step_info.current_rpm);
-                    }
-                    else {
-                        _state = _STATE_::STOP;
-                        spdlog::error("Could not find ACC/DEC value");
-                        break;
+                            spdlog::info("Set PLC Target RPM parameter : {}",g_step_info.current_rpm);
+                        }
+                        else {
+                            _state = _STATE_::STOP;
+                            spdlog::error("Could not find ACC/DEC value");
+                            break;
+                        }
                     }
 
                     //write motor rpm
@@ -254,19 +256,22 @@ void pub_thread_proc(){
                     const long target_accdec = cur_step["accdec"].get<long>();
                     const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size*g_step_info.ratio;
                     const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
+                    int command_id = cur_step["command"].get<int>();
 
                     spdlog::info("Current Step : {}", cur_step.dump());
                     //set RPM to PLC
-                    if(cur_step.contains("accdec")){
-                        g_step_info.current_rpm -= cur_step_accdec;
-                        //rpm saturation
-                        if(g_step_info.current_rpm<=0)
-                            g_step_info.current_rpm = 0;
-                    }
-                    else {
-                        _state = _STATE_::STOP;
-                        spdlog::error("Could not find ACC/DEC value");
-                        break;
+                    if(command_id!=0){
+                        if(cur_step.contains("accdec")){
+                            g_step_info.current_rpm -= cur_step_accdec;
+                            //rpm saturation
+                            if(g_step_info.current_rpm<=0)
+                                g_step_info.current_rpm = 0;
+                        }
+                        else {
+                            _state = _STATE_::STOP;
+                            spdlog::error("Could not find ACC/DEC value");
+                            break;
+                        }
                     }
 
                     //write motor rpm
@@ -277,7 +282,6 @@ void pub_thread_proc(){
                     }
 
                     //write motor control
-                    int command_id = cur_step["command"].get<int>();
                     json plc_controlset;
                     switch(command_id){
                         case 0: { //stop
