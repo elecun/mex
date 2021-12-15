@@ -476,7 +476,7 @@ $ source ./venv/bin/activate
 (venv)$ npm init (create only, do not type this command!!)
 (venv)$ npm install --save-dev electron electron-builder electron-packager electron-installer-squirrel-windows
 (venv)$ npm install --save python-shell
-(venv)$ npm install --save mqtt
+(venv)$ npm install --save mqtt (/opt/mex/resources/ 디렉토리에서 설치해야 함 $ sudo npm install --save mqtt)
 (venv)$ npm install electron-prebuilt
 ```
 
