@@ -253,7 +253,6 @@ void pub_thread_proc(){
             case _STATE_::START+3:{ //decrease mode
                 if(g_mqtt && !g_step_info.step_container.empty()){
                     json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
-                    spdlog::info("start-3 : {}", cur_step.dump());
                     const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size*g_step_info.ratio;
                     int command_id = cur_step["command"].get<int>();
 
