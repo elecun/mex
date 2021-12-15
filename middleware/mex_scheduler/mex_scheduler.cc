@@ -253,15 +253,16 @@ void pub_thread_proc(){
             case _STATE_::START+3:{ //decrease mode
                 if(g_mqtt && !g_step_info.step_container.empty()){
                     json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
-                    const long target_accdec = cur_step["accdec"].get<long>();
+                    spdlog::info("start-3 : {}", cur_step.dump());
                     const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size*g_step_info.ratio;
-                    const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
                     int command_id = cur_step["command"].get<int>();
 
                     spdlog::info("Current Step : {}", cur_step.dump());
                     //set RPM to PLC
                     if(command_id!=0){
                         if(cur_step.contains("accdec")){
+                            const long target_accdec = cur_step["accdec"].get<long>();
+                            const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
                             g_step_info.current_rpm -= cur_step_accdec;
                             //rpm saturation
                             if(g_step_info.current_rpm<=0)
@@ -272,13 +273,13 @@ void pub_thread_proc(){
                             spdlog::error("Could not find ACC/DEC value");
                             break;
                         }
-                    }
 
-                    //write motor rpm
-                    json paramset = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm},{"product_size",g_step_info.product_size}, {"roller_size", g_step_info.roller_size}, {"ratio", g_step_info.ratio}};
-                    string str_param = paramset.dump();
-                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_param.size(), str_param.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
-                        spdlog::error("STEP perform error while parameter set");
+                        //write motor rpm
+                        json paramset = {{"command", "param_set"}, {"rpm", g_step_info.current_rpm},{"product_size",g_step_info.product_size}, {"roller_size", g_step_info.roller_size}, {"ratio", g_step_info.ratio}};
+                        string str_param = paramset.dump();
+                        if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_param.size(), str_param.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                            spdlog::error("STEP perform error while parameter set");
+                        }
                     }
 
                     //write motor control
@@ -305,7 +306,6 @@ void pub_thread_proc(){
                         g_step_info.current_step++;
                         _state = _STATE_::START+1;
                     }
-
                 }
                 else {
                     spdlog::error("STEP perform failed while starting(decelerating)");
