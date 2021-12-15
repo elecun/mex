@@ -89,6 +89,11 @@ void pub_thread_proc(){
             /* step program pause */
             case _STATE_::PAUSE: {
                 _on_paused = true;
+                json motorset = {{"command", "move_stop"}};
+                string str_motorset = motorset.dump();
+                if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_motorset.size(), str_motorset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                    spdlog::error("STEP perform error while motor move stop");
+                }
                 publish_step_state(g_mqtt, _STATE_::PAUSE);    //notify the stop state
                 _state++;
             } break;
@@ -136,6 +141,7 @@ void pub_thread_proc(){
                     
                     // getting current step data
                     json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
+                    spdlog::info("cur steo 1 : {}", cur_step.dump());
 
                     // if meet 'goto' step, read target id then moves
                     int command_id = cur_step["command"].get<int>();
@@ -151,21 +157,21 @@ void pub_thread_proc(){
                         break;
                     }
 
-                    //else do sequence
-                    const long target_accdec = cur_step["accdec"].get<long>();
-                    const long target_speed = cur_step["speed"].get<long>();
-
                     //const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size;
                     // const double cur_step_accdec = ratio*(double)target_accdec; //real accdec
                     // const double cur_step_rpm = ratio*(((double)target_speed-40)*5.3)+1030); //real speed
 
                     spdlog::info("Current Step : {}", cur_step.dump());
                     //set RPM to PLC
-                    if(cur_step.contains("accdec")){
+                    if(cur_step.contains("accdec") && cur_step.contains("speed")){
+                        const long target_accdec = cur_step["accdec"].get<long>();
+                        const long target_speed = cur_step["speed"].get<long>();
+
                         g_step_info.current_rpm += target_accdec;
                         //rpm saturation
                         if(g_step_info.current_rpm>=target_speed)
                             g_step_info.current_rpm = target_speed;
+
                         spdlog::info("Set PLC Target RPM parameter : {}",g_step_info.current_rpm);
                     }
                     else {
@@ -214,8 +220,11 @@ void pub_thread_proc(){
                     }
                     
                     // reach the target speed, then moves next step (if not move_stop)
-                    if(g_step_info.current_rpm>=(long)(target_speed)){
-                        _state++;
+                    if(cur_step.contains("speed") && command_id!=0){
+                        const long target_speed = cur_step["speed"].get<long>();
+                        if(g_step_info.current_rpm>=(long)(target_speed)){
+                            _state++;
+                        }
                     }
                 }
                 else {
@@ -241,7 +250,6 @@ void pub_thread_proc(){
 
             case _STATE_::START+3:{ //decrease mode
                 if(g_mqtt && !g_step_info.step_container.empty()){
-                    
                     json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
                     const long target_accdec = cur_step["accdec"].get<long>();
                     const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size*g_step_info.ratio;
@@ -283,6 +291,7 @@ void pub_thread_proc(){
                         } break;
                     }
                     string str_plc_controlset = plc_controlset.dump();
+
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_plc_controlset.size(), str_plc_controlset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
                         spdlog::error("STEP perform error while PLC control set");
                     }
