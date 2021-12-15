@@ -225,7 +225,7 @@ int main(int argc, char* argv[])
             case 'b': { _baudrate = atoi(optarg); } break; /* baudrate */
             case 't': { _mqtt_broker = optarg; } break; /* target ip to pub */
             case 'i' : { _pub_inteval_sec = atoi(optarg); } break; /* mqtt publish interval */
-            case 'd' : { _target_device = optarg; }
+            case 'd' : { _target_device = optarg; } break;
             case 'h':
             default:
                 cout << fmt::format("MEX PLC (built {}/{})", __DATE__, __TIME__) << endl;

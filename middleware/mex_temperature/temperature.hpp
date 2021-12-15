@@ -14,6 +14,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <include/json.hpp>
 #include <deque>
+#include <stdexcept>
 
 
 using namespace std;
@@ -47,27 +48,44 @@ class temperature : public subport {
             unsigned char frame[] = { STX, 0x30, idc, 0x52, 0x58, 0x50, 0x30, ETX, 0x00};
             frame[8] = _checksum(frame, 8);
             int write_len = bus->write_some(boost::asio::buffer(frame, 9));
-            //spdlog::info("requested read temperature {}", _id);
+            spdlog::info("requested read temperature {}", _id);
 
-            //vector<char> wpacket(frame, frame+write_len);
-            //spdlog::info("write data : {:x}", spdlog::to_hex(wpacket));
+            // vector<unsigned char> wpacket(frame, frame+write_len);
+            // spdlog::info("write data : {:x}", spdlog::to_hex(wpacket));
 
-            boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
-
+            //boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
             unsigned char rbuffer[_max_read_buffer_] = {0, };
-            int read_len = bus->read_some(boost::asio::buffer(rbuffer, _max_read_buffer_));
-            //spdlog::info("{}bytes read", read_len);
+            try{
+                int read_len=0;
+                while(read_len<17){
+                    read_len += bus->read_some(boost::asio::buffer(rbuffer+read_len, _max_read_buffer_));
+                    spdlog::info("read : {}", read_len);
+                    boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+                    unsigned char fake = 0x00;
+                    bus->write_some(boost::asio::buffer(&fake, 1));
+                }
+                
+                spdlog::info("{}bytes read", read_len);
+                if(read_len==0){
+                    spdlog::info("read more");
+                    read_len = bus->read_some(boost::asio::buffer(rbuffer, _max_read_buffer_));
+                    spdlog::info("{}bytes read", read_len);
+                }
+                
+                vector<unsigned char> rpacket(rbuffer, rbuffer+read_len);
+                spdlog::info("read data : {:x}", spdlog::to_hex(rpacket));
 
-            //vector<char> rpacket(rbuffer, rbuffer+read_len);
-            //spdlog::info("read data : {:x}", spdlog::to_hex(rpacket));
+                //parse data
+                float value = parse_value(rbuffer, read_len);
+                //spdlog::info("{} value : {}", _subname, value);
 
-            //parse data
-            float value = parse_value(rbuffer, read_len);
-            //spdlog::info("{} value : {}", _subname, value);
-
+                response[_subname] = value;
+            }
+            catch(std::exception& e){
+                spdlog::error("{}", e.what());
+            }
+           
             boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));    //must sleep
-
-            response[_subname] = value;
         }
 
         virtual void readsome(boost::asio::serial_port* bus, json& data){
@@ -78,12 +96,15 @@ class temperature : public subport {
 
         float parse_value(unsigned char* data, int size){
 
+            if(size!=17)
+                throw std::runtime_error("received incompleted");
+
             unsigned char* frame = new unsigned char[size];
             memcpy(frame, data, sizeof(unsigned char)*size);
 
             //checksum validation
-            unsigned char chksum = _checksum(frame, size-1);
-            if(chksum!=frame[size-1]){
+            unsigned char chksum = _checksum(frame, size-2); //packet length = 17, last 2 is checksum byte
+            if(chksum!=frame[size-2]){
                 spdlog::error("BCC is invalid");
             }
 
