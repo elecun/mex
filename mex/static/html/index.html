@@ -81,7 +81,7 @@ var prev_emergency = false;
 /* MQTT message arrived event callback */
 function mqtt_onMessageArrived(message){
     const payload = JSON.parse(message.payloadString);
-    console.log(payload);
+    
     /* status data update */
     switch(message.topic){
       case "mex/sensor/temperature": { //temperature data
