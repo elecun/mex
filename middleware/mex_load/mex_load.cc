@@ -16,7 +16,7 @@ bool _run = true;
 void pub_thread_proc(){
     while(1){
         if(!receive_buf.empty()){
-            // spdlog::info("received data : {:x}", spdlog::to_hex(receive_buf));
+            //spdlog::info("received data : {:x}", spdlog::to_hex(receive_buf));
 
             if(g_mqtt && _run>0){
                 // data publish to database
@@ -49,15 +49,14 @@ void process(char* rbuf, int size){
         _serial_buffer.emplace_back(i);
     }
 
-    //data alignment & save into receive_buf container
-    
+    //data alignment & save into receive_buf containet
     while(1){
         if(_serial_buffer.size()<14)
             return;
 
         if(_serial_buffer[0]==_start_bytes[0] && _serial_buffer[1]==_start_bytes[1] && 
-            _serial_buffer[12]==_end_bytes[0] && _serial_buffer[13]==_end_bytes[1] && 
-            _serial_buffer[8]==0x2e){
+            _serial_buffer[12]==_end_bytes[0] && _serial_buffer[13]==_end_bytes[1]){
+            // _serial_buffer[8]==0x2e){
                 receive_buf.clear();
                 std::copy(_serial_buffer.begin()+2, _serial_buffer.begin()+12, std::back_inserter(receive_buf));
                 _serial_buffer.erase(_serial_buffer.begin(), _serial_buffer.begin()+14);

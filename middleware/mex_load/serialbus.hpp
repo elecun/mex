@@ -92,7 +92,7 @@ class serialbus {
         void handler(const boost::system::error_code& error, size_t bytes_transfered){
             _rbuffer[bytes_transfered] = 0;
             if(bytes_transfered>0){
-                // spdlog::info("{}bytes read", bytes_transfered);
+                //spdlog::info("{}bytes read", bytes_transfered);
 
                 if(_proc){
                     char* _tmpBuffer = new char[bytes_transfered];
