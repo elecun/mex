@@ -11,8 +11,8 @@ OS := $(shell uname)
 ARCH := x86_64
 
 #Compilers
-CC := g++
-GCC := gcc
+CC := g++-8
+GCC := gcc-8
 LD_LIBRARY_PATH += -L./lib/x86_64
 BUILDDIR		= ./dist/
 INCLUDE_DIR = -I./
@@ -77,7 +77,7 @@ mex_scheduler:	$(BUILDDIR)mex_scheduler.o
 $(BUILDDIR)mex_scheduler.o:	$(SOURCE_FILES)mex_scheduler/mex_scheduler.cc
 						$(CC) $(CXXFLAGS) $(INCLUDE_DIR) -c $^ -o $@
 
-all : mex_load mex_tpm mex_relay mex_plc mex_scheduler mex_rpm mex_temperature
+all : mex_load mex_relay mex_plc mex_scheduler mex_rpm mex_temperature
 
 deploy : FORCE
 	cp $(BINDIR)

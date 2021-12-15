@@ -39,7 +39,7 @@ struct _step_tag {
         this->accdec = 0;
         this->product_size = 0.0;
         this->roller_size = 0.0;
-        this->ratio = 1.0
+        this->ratio = 1.0;
         raw.clear();
         step_container.clear();
     }
