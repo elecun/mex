@@ -1,5 +1,5 @@
 # mex
-Machine Expert for JinsungTEC
+Machine Expert
 
 # Setup on Ubuntu 18.04.6 LTS
 
