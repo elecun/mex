@@ -141,12 +141,11 @@ function mqtt_onMessageArrived(message){
         const data = JSON.parse(message.payloadString);
         if(data.state=="start"){ //running
           update_progress_step_current(data.step_current, data.step_size);
-          //row_deactive_all();
-          //row_active(data.step_current-1); //from 0
+          row_active(data.step_current-1); //from 0
           update_progress_step_elapsed(data.current_elapsed, data.total_time);
         }
         else if(data.state=="stop"){ //stop
-          //row_deactive_all();
+          row_deactive_all();
           document.getElementById('modal_notify_content').innerText = "{{menu_ko.message_stopped_steps}}";
           $('#modal_notify').modal('show');
         }

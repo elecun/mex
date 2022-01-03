@@ -1,5 +1,5 @@
 wheel
-Django
+Django==3.2
 djangorestframework
 paho-mqtt
 psutil
@@ -10,6 +10,6 @@ django-celery-beat
 django-tempus-dominus
 pandas
 sqlparse==0.4.2
-asgiref==3.1.2
+asgiref==3.3.2
 rx
 django-crontab

@@ -90,6 +90,8 @@ def context_processors(request):
             'settings_reserve_list':"예약 리스트",
             'message_update_success':"정상적으로 설정을 저장 및 업데이트 하였습니다.",
             'message_update_error_no_target':"업데이트할 설정 대상이 지정되지 않았습니다.",
+            'message_start_error_no_target':"로드된 설정이 없습니다. 시험을 시작할 수 없습니다.",
+            'message_reserve_error_no_target':"로드된 설정이 없습니다. 시험을 예약할 수 없습니다.",
             'message_load_selected':"선택한 설정을 불러오기 하시겠습니까?",
             'message_delete_setting_selected':"선택한 설정을 삭제 하시겠습니까?",
             'message_delete_reserve_selected':"선택한 예약을 삭제 하시겠습니까?",

@@ -13,6 +13,10 @@ tr.jsgrid-row {
   height: 2rem;
 }
 
+.jsgrid-deactive-row {
+    background-color: #fcfcfc !important;
+}
+
 .jsgrid-active-row {
     background-color: yellow !important;
 }
@@ -117,14 +121,27 @@ $("#settings_step_table").jsGrid({
 });
 
 /* row active(color change) */
-function row_active(row_index){
-    let trlist = document.querySelectorAll(".jsgrid-row, .jsgrid-alt-row");
-    if(!row_index%2){ //odd
-        trlist[row_index].classList.remove('jsgrid-row');
+function row_active(row_index){   
+
+    let trlist = document.querySelectorAll(".jsgrid-row, .jsgrid-alt-row, .jsgrid-active-row");
+    if(row_index>trlist.length){
+        for(var i=0;i<trlist.length;i++){
+            if(trlist[i].classList.contains('jsgrid-active-row')){
+                trlist[i].classList.replace('jsgrid-active-row', 'jsgrid-row');
+            }
+        }
+        return;
     }
-    else { //even
-        trlist[row_index].classList.remove('jsgrid-alt-row');
+
+    trlist[row_index].classList.remove('jsgrid-row');
+    trlist[row_index].classList.remove('jsgrid-alt-row');
+
+    for(var i=0;i<trlist.length;i++){
+        if(trlist[i].classList.contains('jsgrid-active-row')){
+            trlist[i].classList.replace('jsgrid-active-row', 'jsgrid-row');
+        }
     }
+
     trlist[row_index].classList.add('jsgrid-active-row');
 }
 
@@ -143,9 +160,11 @@ function row_deactive(row_index){
 
 /* row deactive all */
 function row_deactive_all(){
-    let trlist = document.querySelectorAll(".jsgrid-row, .jsgrid-alt-row");
+    let trlist = document.querySelectorAll(".jsgrid-row, .jsgrid-alt-row, .jsgrid-active-row");
     for(var i=0;i<trlist.length;i++){
-        row_deactive(i);
+        if(trlist[i].classList.contains('jsgrid-active-row')){
+            trlist[i].classList.replace('jsgrid-active-row', 'jsgrid-row');
+        }
     }
 }
 

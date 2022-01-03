@@ -62,7 +62,6 @@ async function request_reserve_new(target_setting){
   const datetime = document.getElementById('edit_reserve_datetime').value;
   const req = {"datetime": datetime, "setting_id":target_setting};
   const response = await REST_POST("{% url 'api_reserve_new' %}", req);
-  console.log(response);
   if(response.ok){
     update_reserve_list();
   }
@@ -70,8 +69,13 @@ async function request_reserve_new(target_setting){
 
 /* add job reservation */
 document.getElementById("btn_add_reserve").addEventListener("click", function() {
-  const setting_id = document.getElementById('hidden_settings_id').value;
-  request_reserve_new(setting_id);
+  const id = document.getElementById('hidden_settings_id').value;
+  if(id)
+    request_reserve_new(id);
+  else{
+    document.getElementById('modal_error_content').innerText = "{{menu_ko.message_reserve_error_no_target}}";
+    $('#modal_error').modal('show');
+  }
 });
 
 /* datetime picker */
