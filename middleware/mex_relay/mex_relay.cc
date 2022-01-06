@@ -47,7 +47,7 @@ void pub_thread_proc(){
 static void postprocess(json& msg){
 
     if(msg.contains("relay_emergency")){
-        g_relay_emerency = msg["relay_emergency"].get<bool>();
+        g_relay_emerency = !msg["relay_emergency"].get<bool>();
     }
 
     if(msg.contains("relay_sload")){
