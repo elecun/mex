@@ -133,16 +133,20 @@ function row_active(row_index){
         return;
     }
 
-    trlist[row_index].classList.remove('jsgrid-row');
-    trlist[row_index].classList.remove('jsgrid-alt-row');
-
     for(var i=0;i<trlist.length;i++){
         if(trlist[i].classList.contains('jsgrid-active-row')){
             trlist[i].classList.replace('jsgrid-active-row', 'jsgrid-row');
         }
-    }
 
-    trlist[row_index].classList.add('jsgrid-active-row');
+        if(i==row_index){
+            if(trlist[row_index].classList.contains('jsgrid-row')){
+                trlist[row_index].classList.replace('jsgrid-row', 'jsgrid-active-row');
+            }
+            else if(trlist[row_index].classList.contains('jsgrid-alt-row')){
+                trlist[row_index].classList.replace('jsgrid-alt-row', 'jsgrid-active-row');
+            }
+        }
+    }
 }
 
 /* row deactive(color change) */
