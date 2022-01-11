@@ -72,7 +72,7 @@ void pub_thread_proc(){
                     json motorset = {{"command", "motor_off"}};
                     string str_motorset = motorset.dump();
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_motorset.size(), str_motorset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
-                        spdlog::error("STEP perform error while motor ff");
+                        spdlog::error("STEP perform error while motor off");
                     }
                     
                     spdlog::info("Set PLC Motor OFF : {}", str_motorset);
@@ -227,6 +227,9 @@ void pub_thread_proc(){
                         if(g_step_info.current_rpm>=(long)(target_speed)){
                             _state++;
                         }
+                    }
+                    else if(command_id==0){ //move stop
+                        _state++;
                     }
                 }
                 else {
