@@ -228,6 +228,7 @@ int main(int argc, char* argv[])
             case 'd' : { _target_device = optarg; } break;
             case 'h':
             default:
+                spdlog::error("Unknown opt argument : {}", optc);
                 cout << fmt::format("MEX PLC (built {}/{})", __DATE__, __TIME__) << endl;
                 cout << "Usage: mex_plc [-p port] [-b baudrate] [-t broker ip] [-d target device] [-i interval]" << endl;
                 exit(EXIT_FAILURE);
