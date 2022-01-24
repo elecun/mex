@@ -18,6 +18,8 @@ import mimetypes
 
 class API(APIView):
 
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         try :
             rdata = {}

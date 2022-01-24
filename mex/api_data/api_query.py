@@ -28,6 +28,8 @@ def convert(tup, di):
 
 class API(APIView):
 
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         try :
             client = InfluxDBClient(url=settings.INFLUXDB_V2_URL, token=settings.INFLUXDB_V2_TOKEN, org=settings.INFLUXDB_V2_ORG)

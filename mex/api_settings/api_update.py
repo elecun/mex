@@ -18,6 +18,8 @@ from api_settings.models import Settings, Command
 
 class API(APIView):
 
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -47,6 +49,7 @@ class API(APIView):
                 _setting.limit_load_min_count = int(request.data["limit_load_min_count"])
                 _setting.limit_load_max_count = int(request.data["limit_load_max_count"])
                 _setting.steps = request.data["steps"]
+                print(request.data["steps"])
 
                 _setting.save()
                 return Response({}, status=status.HTTP_200_OK)

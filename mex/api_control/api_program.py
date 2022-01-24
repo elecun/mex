@@ -27,6 +27,8 @@ from django.contrib.auth.models import User
 
 class API(APIView):
 
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         try :
             rdata = {}

@@ -28,6 +28,8 @@ def convert(tup, di):
 
 class API(APIView):
 
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         try :
             _id = kwargs["id"]

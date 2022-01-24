@@ -19,6 +19,8 @@ from api_settings.models import Settings, Command
 
 class API(APIView):
 
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         try :
             _list = Settings.objects.all().order_by("pk").values()

@@ -31,6 +31,8 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 # Emergency Stop Control
 class API(APIView):
 
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
         

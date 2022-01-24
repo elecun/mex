@@ -19,6 +19,8 @@ from api_settings.models import Settings, Command
 
 class API(APIView):
 
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         try :
             _id = kwargs["id"]
