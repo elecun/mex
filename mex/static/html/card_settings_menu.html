@@ -136,7 +136,7 @@
             data["limit_load_max"] = document.getElementById('edit_settings_general_load_max').value;
             data["limit_load_min_count"] = document.getElementById('edit_settings_general_load_min_count').value;
             data["limit_load_max_count"] = document.getElementById('edit_settings_general_load_max_count').value;
-
+            
             data["steps"] = JSON.stringify(step_db.steps);
             request_settings_update(data);
         }

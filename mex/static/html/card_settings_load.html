@@ -90,8 +90,9 @@ function apply_settings_data(params){
 
   //parse steps & insert items
   const steps = JSON.parse(params.data.steps);
-  $("#settings_step_table").jsGrid("option", "data", []); //clear data
+  //$("#settings_step_table").jsGrid("option", "data", []); //clear data
   if(steps){
+    $("#settings_step_table").jsGrid("loadData").done(function() {});
     steps.forEach(function(element){
       $("#settings_step_table").jsGrid("insertItem", element).done(function() {});
     });

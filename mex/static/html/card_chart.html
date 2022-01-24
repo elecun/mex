@@ -144,7 +144,6 @@ async function request_chart_data_ref(ref_id){
 
   if(response.ok && response.status==200){
     const result = await response.json();
-    console.log(result);
     clear_series();
     var dt = [];
     result.data.datetime.forEach(function(element){

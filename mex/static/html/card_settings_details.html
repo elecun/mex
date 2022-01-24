@@ -64,6 +64,8 @@ $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
 var step_db = {
 
     loadData: function(filter) {
+        console.log("loaddata");
+        this.steps = []; //clear when load
         return [];
     },
 
@@ -71,9 +73,12 @@ var step_db = {
         if(!insertingStep.step)
             insertingStep.step = this.steps.length+1;
         this.steps.push(insertingStep);
+        step_db.steps = this.steps;
     },
 
-    updateItem: function(updatingStep) { },
+    updateItem: function(updatingStep) {
+        
+    },
 
     deleteItem: function(deletingStep) {
         var stepIndex = $.inArray(deletingStep, this.steps);

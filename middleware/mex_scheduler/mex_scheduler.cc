@@ -141,7 +141,6 @@ void pub_thread_proc(){
                     
                     // getting current step data
                     json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
-                    spdlog::info("cur steo 1 : {}", cur_step.dump());
 
                     // if meet 'goto' step, read target id then moves
                     int command_id = cur_step["command"].get<int>();
@@ -195,7 +194,7 @@ void pub_thread_proc(){
                     switch(command_id){
                         case 0: { //stop
                             plc_controlset["command"] = "move_stop";
-                            _state++;
+                            //_state++;
                         } break;
                         case 1: { //cw
                             plc_controlset["command"] = "move_cw";
@@ -229,6 +228,7 @@ void pub_thread_proc(){
                         }
                     }
                     else if(command_id==0){ //move stop
+                        spdlog::info("enter move stop...");
                         _state++;
                     }
                 }
@@ -239,6 +239,7 @@ void pub_thread_proc(){
             } break;
 
             case _STATE_::START+2: { //waiting until time reach, do 
+                spdlog::info("start+2 step");
                 static long elapsed = 0;
                 elapsed++;
                 
@@ -247,6 +248,7 @@ void pub_thread_proc(){
                 spdlog::info("Starting Time Elapsed : {}/{}", elapsed, required_time_sec);
 
                 if(elapsed>=required_time_sec){
+                    spdlog::info("time end");
                     _state++; //move next step
                     elapsed = 0;
                 }
