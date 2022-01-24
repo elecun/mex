@@ -66,6 +66,7 @@ def context_processors(request):
             'status_current':"현재 상태",
             'status_manual_control':"수동 제어",
             'status_manual_control_main_speed':"Main 속도",
+            'status_manual_control_main_speed_value':"Main 속도설정",
             'status_manual_control_cw':"CW",
             'status_manual_control_ccw':"CCW",
             'status_manual_control_stop':"정지",

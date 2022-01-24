@@ -37,7 +37,7 @@
 <!-- cylinder move up & down-->
 <div class="row m-0">
   <div class="col-sm-2">
-    <label>{{menu_ko.status_manual_control_cylinder_move}} :</label>
+    <label>{{menu_ko.status_manual_control_cylinder_move}}:</label>
   </div>
   <div class="col-sm-10">
     <div class="form-group form-inline mr-2">
@@ -52,10 +52,25 @@
   </div>
 </div>
 
+<!-- main speed value setting-->
+<div class="row m-0 mb-3">
+  <div class="col-sm-2">
+    <label>{{menu_ko.status_manual_control_main_speed}} :</label>
+  </div>
+  <div class="col-sm-10">
+    <form class="form-inline mr-2">
+      <div class="form-group ml-2">
+        <input type="text" class="form-control" id="edit_manual_main_speed_value" placeholder="RPM">
+      </div>
+      <button type="button" class="btn btn-primary border ml-3" id="btn_manual_main_speed_value">PLC 적용</button>
+    </form>
+  </div>
+</div>
+
 <!-- main speed cw & ccw & stop-->
 <div class="row m-0">
   <div class="col-sm-2">
-    <label>{{menu_ko.status_manual_control_main_speed}} :</label>
+    
   </div>
   <div class="col-sm-10">
     <div class="form-group form-inline mr-2">
@@ -168,6 +183,36 @@ function mqtt_command_zeroset(){
   }
 }
 
+/* motor speed set */
+function mqtt_command_motor_speed_set(){
+  if(mqtt_connected){
+    let param = {};
+    param["command"] = "param_set";
+
+    if(document.getElementById('edit_manual_main_speed_value').value)
+      param["rpm"] = document.getElementById('edit_manual_main_speed_value').value;
+    else
+      param["rpm"] = 0;
+
+    if(document.getElementById('edit_settings_general_productsize').value)
+      param["product_size"] = document.getElementById('edit_settings_general_productsize').value;
+    else
+      param["product_size"] = 0;
+
+    if(document.getElementById('edit_settings_general_rollersize').value)
+      param["roller_size"] = document.getElementById('edit_settings_general_rollersize').value;
+    else
+      param["roller_size"] = 0;
+
+    if(document.getElementById('edit_settings_general_ratio').value)
+      param["ratio"] = document.getElementById('edit_settings_general_ratio').value;
+    else
+      param["ratio"] = 1.0;
+    
+    mqtt_client.publish("mex/plc/ctrl", JSON.stringify(param), 2);
+  }
+}
+
 /* manual motor on & off */
 $('#check_motor_toggle').change(function() {
     if($(this).prop('checked'))
@@ -217,6 +262,11 @@ document.getElementById('btn_manual_move_stop').addEventListener('click', functi
 /* call zeroset event */
 document.getElementById('btn_manual_zeroset').addEventListener('click', function(){
   mqtt_command_zeroset();
+});
+
+/* speed set */
+document.getElementById('btn_manual_main_speed_value').addEventListener('click', function(){
+  mqtt_command_motor_speed_set();
 });
 
 </script>
