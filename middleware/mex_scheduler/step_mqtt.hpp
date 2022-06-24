@@ -22,6 +22,8 @@ using namespace std;
 #define MEX_STEP_PLC_CONTROL_TOPIC "mex/plc/ctrl"
 #define MEX_STEP_RELAY_CONTROL_TOPIC "mex/relay/ctrl"
 
+#define MEX_LOADCELL_VALUE_TOPIC    "mex/sensor/load"
+
 
 map<string, int> g_commandset = {
     {"ready", _STATE_::READY },

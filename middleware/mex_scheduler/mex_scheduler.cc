@@ -46,6 +46,7 @@ struct _step_tag {
 };
 
 static _step_tag g_step_info;
+static float g_loadcell_value = 0.0; //(added 22.06.24)
 
 /* publish working state */
 void pub_thread_proc(){
@@ -60,13 +61,20 @@ void pub_thread_proc(){
             case _STATE_::STOP: { //stop
                 g_step_info.clear();
 
-                //motor off
+                //motor off & cylinder stop
                 if(g_mqtt){
 
                     json moveset = {{"command", "move_stop"}};
                     string str_moveset = moveset.dump();
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_moveset.size(), str_moveset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
                         spdlog::error("STEP perform error while move stop");
+                    }
+
+                    //(added 22.06.24)
+                    json cylinderset = {{"command", "cylinder_stop"}};
+                    string str_cylinderset = cylinderset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while cylinder move stop");
                     }
 
                     json motorset = {{"command", "motor_off"}};
@@ -89,14 +97,24 @@ void pub_thread_proc(){
             /* step program pause */
             case _STATE_::PAUSE: {
                 _on_paused = true;
+
                 json motorset = {{"command", "move_stop"}};
                 string str_motorset = motorset.dump();
                 if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_motorset.size(), str_motorset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
                     spdlog::error("STEP perform error while motor move stop");
                 }
+
+                //(added 22.06.24)
+                json cylinderset = {{"command", "cylinder_stop"}};
+                string str_cylinderset = cylinderset.dump();
+                if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                    spdlog::error("STEP perform error while cylinder move stop");
+                }
+
                 publish_step_state(g_mqtt, _STATE_::PAUSE);    //notify the stop state
                 _state++;
             } break;
+
             case _STATE_::PAUSE+1: {
                 //waiting
                 spdlog::info("holding pause state.. waiting for start(=resume) command");
@@ -118,6 +136,15 @@ void pub_thread_proc(){
                         spdlog::error("STEP perform error while motor on");
                     }
                     spdlog::info("Set PLC Motor ON : {}", str_motorset);
+
+                    //cylinder moves upward (added 22.06.24)
+                    json cylinderset = {{"command", "cylinder_up"}};
+                    string str_cylinderset = cylinderset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while cylinder moves upward");
+                    }
+                    spdlog::info("Set Cylinder Up : {}", cylinderset);
+
                     _state++;
                 }
                 else {
@@ -127,8 +154,24 @@ void pub_thread_proc(){
                 
             } break;
 
+
+            // cylinder moves upward
+            case _STATE_::START+1:{
+                if(g_loadcell_value<=0.0){
+                    //cylinder moves upward (added 22.06.24)
+                    json cylinderset = {{"command", "cylinder_stop"}};
+                    string str_cylinderset = cylinderset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while cylinder move stop");
+                    }
+                    spdlog::info("Set Cylinder Stop : {}", cylinderset);
+
+                    _state++;
+                }
+            } break;
+
             /* step program start */
-            case _STATE_::START+1: { //set rpm parameters responding to acc/dec (increase mode)
+            case _STATE_::START+2: { //set rpm parameters responding to acc/dec (increase mode)
 
                 // reach the end of steps
                 if(g_step_info.current_step>=(long)g_step_info.step_container.size()){
@@ -219,6 +262,14 @@ void pub_thread_proc(){
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_RELAY_CONTROL_TOPIC, str_relay_controlset.size(), str_relay_controlset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
                         spdlog::error("STEP perform error while PLC control set");
                     }
+
+                    //cylinder moves upward (added 22.06.24)
+                    json cylinderset = {{"command", "cylinder_down"}};
+                    string str_cylinderset = cylinderset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while cylinder move downward");
+                    }
+                    spdlog::info("Set Cylinder Down : {}", cylinderset);
                     
                     // reach the target speed, then moves next step (if not move_stop)
                     if(cur_step.contains("speed") && command_id!=0){
@@ -238,7 +289,7 @@ void pub_thread_proc(){
                 }
             } break;
 
-            case _STATE_::START+2: { //waiting until time reach, do 
+            case _STATE_::START+3: { //waiting until time reach, do 
                 spdlog::info("start+2 step");
                 static long elapsed = 0;
                 elapsed++;
@@ -255,7 +306,25 @@ void pub_thread_proc(){
     
             } break;
 
-            case _STATE_::START+3:{ //decrease mode
+            case _STATE_::START+4: {
+                if(g_mqtt){
+                    //cylinder moves upward (added 22.06.24)
+                    json cylinderset = {{"command", "cylinder_stop"}};
+                    string str_cylinderset = cylinderset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while cylinder move stop");
+                    }
+                    spdlog::info("Set Cylinder Stop : {}", cylinderset);
+                    _state++; //move next step
+                }
+                else {
+                    spdlog::error("STEP perform failed while cylinder stop");
+                    _state = _STATE_::STOP;
+                }
+
+            } break;
+
+            case _STATE_::START+5:{ //decrease mode
                 if(g_mqtt && !g_step_info.step_container.empty()){
                     json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
                     const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size*g_step_info.ratio;
@@ -304,6 +373,14 @@ void pub_thread_proc(){
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_plc_controlset.size(), str_plc_controlset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
                         spdlog::error("STEP perform error while PLC control set");
                     }
+
+                    //cylinder moves upward (added 22.06.24)
+                    json cylinderset = {{"command", "cylinder_up"}};
+                    string str_cylinderset = cylinderset.dump();
+                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                        spdlog::error("STEP perform error while cylinder moves upward");
+                    }
+                    spdlog::info("Set Cylinder Up : {}", cylinderset);
 
                     // reach the 0 speed, then moves next step
                     if(g_step_info.current_rpm<=0 || command_id==0){
@@ -390,10 +467,10 @@ void parse_steps(json& data){
 void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_message* message)
 {
     //processing for publishing step data
-	bool match_step_topic = false;
-	mosquitto_topic_matches_sub(MEX_STEP_PROGRAM_TOPIC, message->topic, &match_step_topic);
+	bool match_program_topic = false;
+	mosquitto_topic_matches_sub(MEX_STEP_PROGRAM_TOPIC, message->topic, &match_program_topic);
 
-    if(match_step_topic){
+    if(match_program_topic){
         try{
             json ctrl_data = json::parse((char*)message->payload);
 
@@ -437,6 +514,23 @@ void message_callback(struct mosquitto* mosq, void* obj, const struct mosquitto_
             spdlog::error("Control set parse error : {}", e.what());
         }
     }
+
+    //processing for publishing loadcell data (added 22.06.24)
+    bool match_loadcell = false;
+    mosquitto_topic_matches_sub(MEX_LOADCELL_VALUE_TOPIC, message->topic, &match_loadcell);
+    if(match_loadcell){
+        try{
+            json loadcell_data = json::parse((char*)message->payload);
+            if(loadcell_data.contains("load")){
+                g_loadcell_value = loadcell_data["load"].get<float>();
+            }
+            
+        }
+        catch(json::parse_error& e){
+            spdlog::error("Loadcell value parse error : {}", e.what());
+        }
+    }
+    
 }
 
 /* termination */
@@ -534,6 +628,7 @@ int main(int argc, char* argv[])
             if(!mqtt_rc){
                 spdlog::info("MQTT Connected successfully");
                 mosquitto_subscribe(g_mqtt, NULL, MEX_STEP_PROGRAM_TOPIC, 2);
+                mosquitto_subscribe(g_mqtt, NULL, MEX_LOADCELL_VALUE_TOPIC, 2); //(added 22.06.24)
                 mosquitto_loop_start(g_mqtt);
             }
         }
