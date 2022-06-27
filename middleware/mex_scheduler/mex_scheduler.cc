@@ -47,6 +47,7 @@ struct _step_tag {
 
 static _step_tag g_step_info;
 static float g_loadcell_value = 0.0; //(added 22.06.24)
+const float loadcell_upward_limit = 200.0;
 
 /* publish working state */
 void pub_thread_proc(){
@@ -160,7 +161,7 @@ void pub_thread_proc(){
 
             // cylinder stop until no load state (added 22.06.24)
             case _STATE_::START+1:{
-                if(g_loadcell_value<=0.0){
+                if(g_loadcell_value<=loadcell_upward_limit){
                     json cylinderset = {{"command", "cylinder_stop"}};
                     string str_cylinderset = cylinderset.dump();
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
@@ -378,12 +379,22 @@ void pub_thread_proc(){
                     }
 
                     //cylinder moves upward (added 22.06.24)
-                    json cylinderset = {{"command", "cylinder_up"}};
-                    string str_cylinderset = cylinderset.dump();
-                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
-                        spdlog::error("STEP perform error while cylinder moves upward");
+                    if(g_loadcell_value>loadcell_upward_limit){
+                        json cylinderset = {{"command", "cylinder_up"}};
+                        string str_cylinderset = cylinderset.dump();
+                        if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                            spdlog::error("STEP perform error while cylinder moves upward");
+                        }
+                        spdlog::info("Set Cylinder Up : {}", cylinderset);
                     }
-                    spdlog::info("Set Cylinder Up : {}", cylinderset);
+                    else {
+                        json cylinderset = {{"command", "cylinder_stop"}};
+                        string str_cylinderset = cylinderset.dump();
+                        if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                            spdlog::error("STEP perform error while cylinder move stop");
+                        }
+                        spdlog::info("Set Cylinder Stop : {}", cylinderset);
+                    }
 
                     // reach the 0 speed, then moves next step
                     if(g_step_info.current_rpm<=0 || command_id==0){
