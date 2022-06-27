@@ -141,13 +141,15 @@ void pub_thread_proc(){
                     }
                     spdlog::info("Set PLC Motor ON : {}", str_motorset);
 
-                    //cylinder moves upward (added 22.06.24)
-                    json cylinderset = {{"command", "cylinder_up"}};
-                    string str_cylinderset = cylinderset.dump();
-                    if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
-                        spdlog::error("STEP perform error while cylinder moves upward");
+                    //cylinder moves upward (added 22.06.27)
+                    if(g_loadcell_value>=loadcell_upward_limit){
+                        json cylinderset = {{"command", "cylinder_up"}};
+                        string str_cylinderset = cylinderset.dump();
+                        if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
+                            spdlog::error("STEP perform error while cylinder moves upward");
+                        }
+                        spdlog::info("Set Cylinder Up : {}", cylinderset);
                     }
-                    spdlog::info("Set Cylinder Up : {}", cylinderset);
 
                     _state++;
                 }
