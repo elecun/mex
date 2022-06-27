@@ -83,6 +83,9 @@ void pub_thread_proc(){
                         spdlog::error("STEP perform error while motor off");
                     }
                     
+                    //added 22.06.24
+                    spdlog::info("Set Motor Move Stop : {}", str_moveset);
+                    spdlog::info("Set Cylinder Stop : {}", str_cylinderset);
                     spdlog::info("Set PLC Motor OFF : {}", str_motorset);
                     _state++;
                 }
@@ -155,10 +158,9 @@ void pub_thread_proc(){
             } break;
 
 
-            // cylinder moves upward
+            // cylinder stop until no load state (added 22.06.24)
             case _STATE_::START+1:{
                 if(g_loadcell_value<=0.0){
-                    //cylinder moves upward (added 22.06.24)
                     json cylinderset = {{"command", "cylinder_stop"}};
                     string str_cylinderset = cylinderset.dump();
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
@@ -263,7 +265,7 @@ void pub_thread_proc(){
                         spdlog::error("STEP perform error while PLC control set");
                     }
 
-                    //cylinder moves upward (added 22.06.24)
+                    //cylinder moves downward (added 22.06.24)
                     json cylinderset = {{"command", "cylinder_down"}};
                     string str_cylinderset = cylinderset.dump();
                     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
@@ -290,7 +292,7 @@ void pub_thread_proc(){
             } break;
 
             case _STATE_::START+3: { //waiting until time reach, do 
-                spdlog::info("start+2 step");
+                spdlog::info("start+3 step");
                 static long elapsed = 0;
                 elapsed++;
                 
@@ -306,6 +308,7 @@ void pub_thread_proc(){
     
             } break;
 
+            // added (22.06.24)
             case _STATE_::START+4: {
                 if(g_mqtt){
                     //cylinder moves upward (added 22.06.24)
