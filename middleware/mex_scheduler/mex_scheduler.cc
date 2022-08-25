@@ -181,30 +181,55 @@ void pub_thread_proc(){
                 spdlog::info("holding pause state.. waiting for start(=resume) command");
             } break;
 
-            case _STATE_::START: { //start init
-
+            // updated (22.08.22)
+            // cylinder moves upward for initial state
+            case _STATE_::START: {
+                
+                //1. if step is resumed, goto next step
                 if(_on_paused){
-                    _state = _STATE_::START+1;
+                    _state = _STATE_::START+2;
                     _on_paused = false;
                     break;
                 }
 
+                //2. cylinder moves upward
+                static long _elapsed = 0;
                 if(g_mqtt){
-                    //reset variables (added 22.08.22)
-                    _cylinder_move_counter = 0;
-                    //motor on
+                    if(_elapsed<_cylinder_interval_sec && _cylinder_interval_sec>0){
+                        perform_cylinder_up();
+                        spdlog::info("cylinder moves upward");
+                    }
+                    else{
+                        perform_cylinder_stop();
+                        spdlog::info("cylinder moves stop");
+                        _state++;
+                    }
+
+                    _elapsed++;
+                }
+                else {
+                    spdlog::error("STEP perform failed while initializing..(cylinder moves upward)");
+                    _state = _STATE_::STOP;
+                }
+
+            } break;
+
+            // motor ON to start
+            case _STATE_::START+1: { //start init
+
+                if(g_mqtt){
                     perform_motor_on();
                     _state++;
                 }
                 else {
-                    spdlog::error("STEP perform failed while initializing..");
+                    spdlog::error("STEP perform failed while initializing..(motor on)");
                     _state = _STATE_::STOP;
                 }
                 
             } break;
 
             /* step program start */
-            case _STATE_::START+1: { //set rpm parameters responding to acc/dec (increase mode)
+            case _STATE_::START+2: { //set rpm parameters responding to acc/dec (increase mode)
 
                 // reach the end of steps
                 if(g_step_info.current_step>=(long)g_step_info.step_container.size()){
@@ -309,32 +334,35 @@ void pub_thread_proc(){
                 }
             } break;
 
-            case _STATE_::START+2: { //waiting until time reach, do 
+            case _STATE_::START+3: { //waiting until time reach, do 
                 spdlog::info("start+2 step");
                 static long elapsed = 0;
-                
-                elapsed++;
+                static long cylinder_move_counter = 0;
                 
                 json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
                 const long required_time_sec = cur_step["time"].get<long>();
                 spdlog::info("Starting Time Elapsed : {}/{}", elapsed, required_time_sec);
 
                 //added 22.08.22
+                //cylinder moves downward
                 int command_id = cur_step["command"].get<int>();
-                if(command_id!=0){ //cw, ccw
-                    if(_cylinder_move_counter<_cylinder_interval_sec){
+                if(command_id==1 || command_id==2){ //cw, ccw
+                    if(cylinder_move_counter<_cylinder_interval_sec && _cylinder_interval_sec>0){
                         perform_cylinder_down();
-                        _cylinder_move_counter++;
+                        cylinder_move_counter++;
                     }
-                    else if(_cylinder_move_counter>=_cylinder_interval_sec){
+                    else {
                         perform_cylinder_stop();
-                        _cylinder_move_counter = 0;
+                        cylinder_move_counter = 0;
                     }
                 }
-                else if(command_id==0 && (elapsed+_cylinder_interval_sec)>=required_time_sec && elapsed<required_time_sec){ //move_stop
-                    perform_cylinder_up();
+                else if(command_id==0)
+                    if(elapsed>=(required_time_sec-_cylinder_interval_sec) && required_time_sec>_cylinder_interval_sec){
+                        perform_cylinder_up();
+                    }
                 }
 
+                elapsed++;
 
                 if(elapsed>=required_time_sec){
                     spdlog::info("time end");
@@ -345,7 +373,7 @@ void pub_thread_proc(){
     
             } break;
 
-            case _STATE_::START+3:{ //decrease mode
+            case _STATE_::START+4:{ //decrease mode
                 if(g_mqtt && !g_step_info.step_container.empty()){
                     json cur_step = g_step_info.step_container[g_step_info.current_step]; //get current step
                     const double ratio = (double)g_step_info.product_size/(double)g_step_info.roller_size*g_step_info.ratio;
