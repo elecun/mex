@@ -190,18 +190,21 @@ void pub_thread_proc(){
 
                 //2. cylinder moves upward
                 static long _elapsed = 0;
+                _elapsed++;
+
                 if(g_mqtt){
-                    if(_elapsed<_cylinder_interval_sec && _cylinder_interval_sec>0){
+                    if(_elapsed<=_cylinder_interval_sec && _cylinder_interval_sec>0){
                         perform_cylinder_up();
                         spdlog::info("cylinder moves upward");
                     }
                     else{
                         perform_cylinder_stop();
+                        _elapsed = 0;
                         spdlog::info("cylinder moves stop");
                         _state++;
                     }
 
-                    _elapsed++;
+                    
                 }
                 else {
                     spdlog::error("STEP perform failed while initializing..(cylinder moves upward)");
