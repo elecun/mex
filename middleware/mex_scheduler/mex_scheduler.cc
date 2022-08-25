@@ -63,7 +63,7 @@ void perform_cylinder_up(){ //added 22.08.22
     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
         spdlog::error("STEP perform error while cylinder moves upward");
     }
-    spdlog::info("Set Cylinder Up : {}", cylinderset);
+    spdlog::info("Set Cylinder Up : {}", str_cylinderset);
 }
 
 void perform_cylinder_down(){ //added 22.08.22
@@ -72,7 +72,7 @@ void perform_cylinder_down(){ //added 22.08.22
     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
         spdlog::error("STEP perform error while cylinder move downward");
     }
-    spdlog::info("Set Cylinder Down : {}", cylinderset);
+    spdlog::info("Set Cylinder Down : {}", str_cylinderset);
 }
 
 void perform_cylinder_stop(){ //added 22.08.22
@@ -81,7 +81,7 @@ void perform_cylinder_stop(){ //added 22.08.22
     if(mosquitto_publish(g_mqtt, nullptr, MEX_STEP_PLC_CONTROL_TOPIC, str_cylinderset.size(), str_cylinderset.c_str(), 2, false)!=MOSQ_ERR_SUCCESS){
         spdlog::error("STEP perform error while cylinder move stop");
     }
-    spdlog::info("Set Cylinder Stop : {}", cylinderset);
+    spdlog::info("Set Cylinder Stop : {}", str_cylinderset);
 }
 
 void perform_set_rpm(long current_rpm, double product_size, double roller_size, double ratio){
@@ -331,7 +331,7 @@ void pub_thread_proc(){
             } break;
 
             case _STATE_::START+3: { //waiting until time reach, do 
-                spdlog::info("start+2 step");
+                spdlog::info("start+3 step");
                 static long elapsed = 0;
                 static long cylinder_move_counter = 0;
                 
