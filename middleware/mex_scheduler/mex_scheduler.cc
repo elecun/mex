@@ -84,10 +84,6 @@ void perform_cylinder_stop(){ //added 22.08.22
     spdlog::info("Set Cylinder Stop : {}", cylinderset);
 }
 
-void perform_cylinder_stop(){ //added 22.08.22
-
-}
-
 void perform_set_rpm(long current_rpm, double product_size, double roller_size, double ratio){
 
     json paramset = {{"command", "param_set"}, {"rpm", current_rpm},{"product_size", product_size}, {"roller_size", roller_size}, {"ratio", ratio}};
@@ -356,7 +352,7 @@ void pub_thread_proc(){
                         cylinder_move_counter = 0;
                     }
                 }
-                else if(command_id==0)
+                else if(command_id==0){
                     if(elapsed>=(required_time_sec-_cylinder_interval_sec) && required_time_sec>_cylinder_interval_sec){
                         perform_cylinder_up();
                     }
@@ -640,7 +636,7 @@ int main(int argc, char* argv[])
     int optc = 0;
     string _mqtt_broker = "0.0.0.0";
 
-    while((optc=getopt(argc, argv, "p:b:t:i:h"))!=-1)
+    while((optc=getopt(argc, argv, "p:b:t:i:c:h"))!=-1)
     {
         switch(optc){
             case 't': { _mqtt_broker = optarg; } break; /* target ip to pub */
